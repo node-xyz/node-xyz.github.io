@@ -1,0 +1,166 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Node-xyz.GitHub.io by node-xyz</title>
+
+    <link rel="stylesheet" href="/stylesheets/styles.css">
+    <link rel="stylesheet" href="/stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1><a href="/">Node XYZ</a></h1>
+        <p>Microservice toolkit for node</p>
+
+        <h4>View on github</h4>
+        <ul>
+          <li>
+            <a href="https://github.com/node-xyz"> Node XYZ </a>
+          </li>
+          <li>
+              <a href="https://github.com/node-xyz/xyz-core">XYZ-core</a>
+          </li>
+          <li>
+              <a href="https://github.com/node-xyz/xyz-cli">XYZ-cli</a>
+          </li>
+        </ul>
+
+        <h4>Documentation</h4>
+        <ul>
+          <li>
+            Getting started
+            <ul>
+              <li><a href="/getting-started/hello-xyz">Hello XYZ</a></li>
+              <li><a href="/getting-started/replicating">Replicate your services</a></li>
+              <li>Who is where? </li>
+              <li>Path based services</li>
+              <li>Middlewares</li>
+            </ul>
+          </li>
+          <li>Read the wiki</li>
+          <li>API Doc</li>
+        </ul>
+
+      </header>
+      <section>
+        <h2>Replicating Your Nodes and Services</h2>
+
+        <p>
+          It would have been much more interesting, if we could add nodes dynamically. Good news: we can.
+        </p>
+
+        <p>
+          XYZ nodes can join a system, given that they have a [list of] seed nodes. Seed nodes are the entry point to the system. They should check the authority of the incoming node, if required, and pass the list of nodes available inside the system to it, or any other authentication certificate, again, if required. The fact that there are a lot of '<em>if required</em>' phrases in the statement is that all of these steps are optional and the developer can choose to have them. In the most <em>Wildcard</em>is scenario, all nodes are public and anyone can join them.
+        </p>
+
+        <p>
+          Let's assume that both the <em>StringMS</em> and <em>MathMS</em> in the previous section do not know each other. That is to say, their list of microservice/nodes in <em>systemConf</em> is empty:
+        </p>
+<pre>
+<code>// string.ms.js
+let xyz = require('xyz-core')
+let stringMS = new xyz({
+  selfConf: {
+    name: 'stringMS',
+    host: '127.0.0.1',
+    port: 3334
+  },
+  systemConf: {
+    microservices: []
+  }
+})
+
+// math.ms.js
+let xyz = require('xyz-core')
+let mathMS = new xyz({
+  selfConf: {
+    name: 'MathMS',
+    host: '127.0.0.1',
+    port: 3333
+  },
+  systemConf: {
+    microservices: []
+  }
+})
+</code>
+</pre>
+
+      <p>
+        Furthermore, let's assume that the MathMS is the constant node in the system and stringMSs are going to come and go. Go ahead and run the mathMS alone, you will see that nothing happens.
+      </p>
+
+      <p>
+        Now run the stringMS. you'll se that: <br>
+        <code>
+          warn :: Sending a message to /mul from first find strategy failed (Local Response) <br>
+my fellow service responded with null
+        </code>
+      </p>
+
+      <p>
+        The <a href="#"> first find strategy</a> is a default behavior embedded inside node XYZ for finding nodes to send messages to. We'll see more on this later. The main point is that the message failed. Obviously because StringMS does not know any mathMS at this point!
+      </p>
+
+      <p>
+        Change the stringMS to the following, specifying a new seed node for it. Also add a filed in mathMS that will indicate that this node is allowed to join new nodes:
+      </p>
+
+<pre>
+<code>// string.ms.js
+let xyz = require('xyz-core')
+let stringMS = new xyz({
+  selfConf: {
+    name: 'stringMS',
+    host: '127.0.0.1',
+    port: 3334,
+    <em>seed: [{host: '127.0.0.1', port: 3333}]</em>
+  },
+  systemConf: {
+    microservices: []
+  }
+})
+
+// math.ms.js
+let xyz = require('xyz-core')
+let mathMS = new xyz({
+  selfConf: {
+    <em>allowJoin: true</em>,
+    name: 'MathMS',
+    host: '127.0.0.1',
+    port: 3333
+  },
+  systemConf: {
+    microservices: []
+  }
+})</code>
+</pre>
+
+      <p>
+        Now, the two nodes have no knowledge of each other, yet they can join and work with each other. Go ahead and run the MathMS, next run the stringMS in a separate terminal and see the results. As you see, the output is still the same.
+      </p>
+
+      <p>
+        This get's even more interesting when we add more nodes. You can add more stringMS nodes and see that all of them will eventually find the MathMS and can connect with them. There is only one small problem. All stringMSs are configured to use one port. Hopefully, XYZ provides a way to override any configuration, for debugging purposes mainly. We'll cover this later, but, for now, you can use the <code>--xyzport</code> command line argument to override the port. Run many many more StringMS instances with:
+        <br>
+<pre>
+<code>$ node math.ms.js --xyzport 5000
+$ node math.ms.js --xyzport 5001
+$ node math.ms.js --xyzport 5002
+...</code>
+</pre>
+      </p>
+      </section>
+      <footer>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="/javascripts/scale.fix.js"></script>
+
+  </body>
+</html>
