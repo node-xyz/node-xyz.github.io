@@ -1,5 +1,4 @@
-// let xyz = require('xyz-core')
-let xyz = require('./../../../xyz-core/index')
+let xyz = require('xyz-core').xyz
 let mathMS = new xyz({
   selfConf: {
     name: 'MathMS',
