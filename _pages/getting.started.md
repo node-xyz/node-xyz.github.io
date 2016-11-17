@@ -193,3 +193,27 @@ This get's even more interesting when we add more nodes. You can add more string
     $ node math.ms.js --xyzport 5001
     $ node math.ms.js --xyzport 5002
     ...
+
+If you are more interested to see how nodes actually work with each other, see the ()[Service Discovery and Ping] section.
+
+A question might come to mind at this point. We have many sender nodes, and only just one receiver node in this example, so... it is kind obvious how each request gets routed. Assume that we have two receiver nodes (mathMS) and a dozen sender nodes, how could we decide on one of the mathMSs?
+
+You might argue that this is a matter that xyz should handle it. Indeed, we do handle it. it's just that we are very keen to make you familiarized whit what's happening under the hood, so that you can change it when required.
+
+If you think about the system (say, a car rental one, like Uber) as a whole, you come to realize that many many types of messages might be sent. One node might want to broadcast a message to **all other nodes**, or to a subset of them.
+
+[further explanation]
+
+XYZ supports such actions with two mechanisms
+
+  1. Service Discovery middlewares
+  2. Path based service identification
+
+The upcoming sections will describe these concepts.
+
+
+# Service Discovery middlewares
+
+
+
+# Path based service identification
