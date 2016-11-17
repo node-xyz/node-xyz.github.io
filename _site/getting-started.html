@@ -77,10 +77,12 @@ let mathMS = new xyz({
   }
 })
 
+// expose these function over the system
 mathMS.register('mul', (payload, response) =&gt; {
   response.send(payload.x * payload.y)
 })
 
+// expose these function over the system
 mathMS.register('add', (payload, response) =&gt; {
   response.send(payload.x + payload.y)
 })
@@ -101,6 +103,7 @@ let stringMS = new xyz({
       }]
   }
 })
+
 stringMS.register('up', (payload, response) =&gt; {
   response.send(payload.toUpperCase())
 })
@@ -114,18 +117,20 @@ stringMS.register('down', (payload, response) =&gt; {
   <p>The entire process of initializing a system and passing all of the parameters seems too much of a duplicate. We agree! check out the best practices section#common.js</p>
 </blockquote>
 
-<p>And that’s it! Now, our services are virtually binded to one another and they can call the service that each of them expose using <code class="highlighter-rouge">.register</code>. The <code class="highlighter-rouge">microservices: [...]</code> key in <strong>systemConf</strong> will declare the list of other nodes that we can connect to. Obviously, they can be local or remote IPs.</p>
+<p>And that’s it! Now, our services are virtually binded to one another and they can call the service that each of them exposed using <code class="highlighter-rouge">.register</code>. The <code class="highlighter-rouge">microservices: [...]</code> key in <strong>systemConf</strong> will declare the list of other nodes that we can connect to. Obviously, they can be local or remote IPs.</p>
 
 <h4 id="a-note-on-terminology">A Note on terminology.</h4>
 
 <p>Words and phrases in XYZ system are explained in Wiki page. Just to recap, each function exposed via <code class="highlighter-rouge">.register</code> is a <em>service</em>.<br />
 Each <strong>Node Process</strong>, having a number of services is called a <strong>node</strong> (or in some places a <em>microservice</em>, but its just temporary).</p>
 
-<p>Back to out little system. Now, one of these system can call a service in the other system using the <code class="highlighter-rouge">.call</code></p>
+<p>Back to our little system. Now, one of these system can call a service in the other system using the <code class="highlighter-rouge">.call</code></p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>//stringMS
 // note that these callback styles are inherited from node's native http module.
 // `resp` is the IncomingMessage instance etc.
+// https://nodejs.org/api/http.html#http_class_http_incomingmessage
+
 stringMS.call('mul', {x: 2, y:5}, (err, body, res) =&gt; {
   console.log(`my fellow service responded with ${body}`)
 })
@@ -137,7 +142,7 @@ stringMS.call('mul', {x: 2, y:5}, (err, body, res) =&gt; {
 
 <h3 id="whats-next">What’s next?</h3>
 
-<p>In this example we hardcoded the list of service, so that they can communicate with each other. This is… just about ok. It is not awesome. What would be awesome is to have nodes joining the system dynamically. Yes, that’s what we’re going to do in the <a href="/replicating">Next Section</a>.</p>
+<p>In this example we hardcoded the list of service, so that they can communicate with each other. This is… just about ok. It is not awesome. What would be awesome is to have nodes joining the system dynamically. Yes, that’s what we’re going to do in the Next Section.</p>
 
 <hr />
 
@@ -145,7 +150,7 @@ stringMS.call('mul', {x: 2, y:5}, (err, body, res) =&gt; {
 
 <p>It would have been much more interesting, if we could add nodes dynamically. Good news: we can.</p>
 
-<p>XYZ nodes can join a system, given that they have a [list of] seed nodes. Seed nodes are the entry point to the system. They should check the authority of the incoming node, if required, and pass the list of nodes available inside the system to it, or any other authentication certificate, again, if required. The fact that there are a lot of ‘<em>if required</em>’ phrases in the statement is that all of these steps are optional and the developer can choose to have them. In the most _Wildcard_is scenario, all nodes are public and anyone can join them.</p>
+<p>XYZ nodes can join a system, given that they have a [list of] seed node(s). Seed nodes are the entry point to the system. They should check the authority of the incoming node, if required, and pass the list of nodes available inside the system to it, or any other authentication certificate, again, if required. The fact that there are a lots of ‘ <em>if required</em> ‘ phrases in the statement is that all of these steps are optional and the developer can choose to have them. In the most _Wildcard_is scenario, all nodes are public and anyone can join them.</p>
 
 <p>Let’s assume that both the <em>StringMS</em> and <em>MathMS</em> in the previous section do not know each other. That is to say, their list of microservice/nodes in <em>systemConf</em> is empty:</p>
 
@@ -183,9 +188,9 @@ let mathMS = new xyz({
 <code class="highlighter-rouge">warn :: Sending a message to /mul from first find strategy failed (Local Response)  
 my fellow service responded with null</code></p>
 
-<p>The <a href="#">first find strategy</a> is a default behavior embedded inside node XYZ for finding nodes to send messages to. We’ll see more on this later. The main point is that the message failed. Obviously because StringMS does not know any mathMS at this point!</p>
+<p>The <a href="https://github.com/node-xyz/xyz.service.send.first.find">first find strategy</a> is a default behavior embedded inside node XYZ for finding nodes to send messages to. We’ll see more on this later. The main point is that the message failed. Obviously because StringMS does not know any mathMS at this point!</p>
 
-<p>Change the stringMS to the following, specifying a new seed node for it. Also add a filed in mathMS that will indicate that this node is allowed to join new nodes:</p>
+<p>Change the stringMS to the following, specifying a new seed node for it. Also add a filed in mathMS that will indicate that this node is allowed to admit new nodes:</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>// string.ms.js
 let xyz = require('xyz-core').xyz
@@ -232,13 +237,9 @@ $ node math.ms.js --xyzport 5002
 
 <p>A question might come to mind at this point. We have many sender nodes, and only just one receiver node in this example, so… it is kind obvious how each request gets routed. Assume that we have two receiver nodes (mathMS) and a dozen sender nodes, how could we decide on one of the mathMSs?</p>
 
-<p>You might argue that this is a matter that xyz should handle it. Indeed, we do handle it. it’s just that we are very keen to make you familiarized whit what’s happening under the hood, so that you can change it when required.</p>
+<p>You might argue that this is a matter that xyz should handle. Indeed, we do handle it. it’s just that we are very keen to make you familiarized whit what’s happening under the hood, so that you can change it when required.</p>
 
-<p>If you think about the system (say, a car rental one, like Uber) as a whole, you come to realize that many many types of messages might be sent. One node might want to broadcast a message to <strong>all other nodes</strong>, or to a subset of them.</p>
-
-<p>[further explanation]</p>
-
-<p>XYZ supports such actions with two mechanisms</p>
+<p>In order to have different message routing ways, xyz supports to mechanisms:</p>
 
 <ol>
   <li>Service Discovery middlewares</li>
@@ -246,6 +247,14 @@ $ node math.ms.js --xyzport 5002
 </ol>
 
 <p>The upcoming sections will describe these concepts.</p>
+
+<p>Before going into the next section, you might argue that why is this so important? In a microservice-based system, it is crucially important!</p>
+
+<p>If you think about the system as a whole, you come to realize that many many types of messages might be sent. One node might want to broadcast a message to <strong>all other nodes</strong>, or to a subset of them. A node might want to apprise just a few database nodes about a record update, and many many more events that might happen!</p>
+
+<p>If you are not convinced about this, I highlt recommend you to read the <a href="https://github.com/node-xyz/xyz-core/wiki/">Wiki</a> page of xyz-core, specially the one about <a href="https://github.com/node-xyz/xyz-core/wiki/Microservices%3F-What%3F">microservices</a>.</p>
+
+<p>[further explanation]</p>
 
 <h1 id="service-discovery-middlewares">Service Discovery middlewares</h1>
 
