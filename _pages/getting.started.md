@@ -54,10 +54,12 @@ In order to have two xyz instances communicate with each other, they need to hav
       }
     })
 
+    // expose these function over the system
     mathMS.register('mul', (payload, response) => {
       response.send(payload.x * payload.y)
     })
 
+    // expose these function over the system
     mathMS.register('add', (payload, response) => {
       response.send(payload.x + payload.y)
     })
@@ -78,6 +80,7 @@ In order to have two xyz instances communicate with each other, they need to hav
           }]
       }
     })
+
     stringMS.register('up', (payload, response) => {
       response.send(payload.toUpperCase())
     })
@@ -87,18 +90,20 @@ In order to have two xyz instances communicate with each other, they need to hav
 
 > The entire process of initializing a system and passing all of the parameters seems too much of a duplicate. We agree! check out the best practices section#common.js
 
-And that's it! Now, our services are virtually binded to one another and they can call the service that each of them expose using `.register`. The `microservices: [...]` key in **systemConf** will declare the list of other nodes that we can connect to. Obviously, they can be local or remote IPs.
+And that's it! Now, our services are virtually binded to one another and they can call the service that each of them exposed using `.register`. The `microservices: [...]` key in **systemConf** will declare the list of other nodes that we can connect to. Obviously, they can be local or remote IPs.
 
 #### A Note on terminology.
 
 Words and phrases in XYZ system are explained in Wiki page. Just to recap, each function exposed via `.register` is a _service_.  
 Each **Node Process**, having a number of services is called a **node** (or in some places a _microservice_, but its just temporary).
 
-Back to out little system. Now, one of these system can call a service in the other system using the `.call`
+Back to our little system. Now, one of these system can call a service in the other system using the `.call`
 
     //stringMS
     // note that these callback styles are inherited from node's native http module.
     // `resp` is the IncomingMessage instance etc.
+    // https://nodejs.org/api/http.html#http_class_http_incomingmessage
+
     stringMS.call('mul', {x: 2, y:5}, (err, body, res) => {
       console.log(`my fellow service responded with ${body}`)
     })
@@ -109,7 +114,7 @@ You should now see an output like:
 
 ### What's next?
 
-In this example we hardcoded the list of service, so that they can communicate with each other. This is... just about ok. It is not awesome. What would be awesome is to have nodes joining the system dynamically. Yes, that's what we're going to do in the [Next Section](/replicating).
+In this example we hardcoded the list of service, so that they can communicate with each other. This is... just about ok. It is not awesome. What would be awesome is to have nodes joining the system dynamically. Yes, that's what we're going to do in the Next Section.
 
 ----
 
@@ -117,7 +122,7 @@ In this example we hardcoded the list of service, so that they can communicate w
 
 It would have been much more interesting, if we could add nodes dynamically. Good news: we can.
 
-XYZ nodes can join a system, given that they have a [list of] seed nodes. Seed nodes are the entry point to the system. They should check the authority of the incoming node, if required, and pass the list of nodes available inside the system to it, or any other authentication certificate, again, if required. The fact that there are a lot of '_if required_' phrases in the statement is that all of these steps are optional and the developer can choose to have them. In the most _Wildcard_is scenario, all nodes are public and anyone can join them.
+XYZ nodes can join a system, given that they have a [list of] seed node(s). Seed nodes are the entry point to the system. They should check the authority of the incoming node, if required, and pass the list of nodes available inside the system to it, or any other authentication certificate, again, if required. The fact that there are a lots of ' _if required_ ' phrases in the statement is that all of these steps are optional and the developer can choose to have them. In the most _Wildcard_is scenario, all nodes are public and anyone can join them.
 
 Let's assume that both the _StringMS_ and _MathMS_ in the previous section do not know each other. That is to say, their list of microservice/nodes in _systemConf_ is empty:
 
@@ -153,9 +158,9 @@ Now run the stringMS. you'll se that:
 `warn :: Sending a message to /mul from first find strategy failed (Local Response)  
 my fellow service responded with null`
 
-The [first find strategy](#) is a default behavior embedded inside node XYZ for finding nodes to send messages to. We'll see more on this later. The main point is that the message failed. Obviously because StringMS does not know any mathMS at this point!
+The [first find strategy](https://github.com/node-xyz/xyz.service.send.first.find) is a default behavior embedded inside node XYZ for finding nodes to send messages to. We'll see more on this later. The main point is that the message failed. Obviously because StringMS does not know any mathMS at this point!
 
-Change the stringMS to the following, specifying a new seed node for it. Also add a filed in mathMS that will indicate that this node is allowed to join new nodes:
+Change the stringMS to the following, specifying a new seed node for it. Also add a filed in mathMS that will indicate that this node is allowed to admit new nodes:
 
     // string.ms.js
     let xyz = require('xyz-core').xyz
@@ -198,19 +203,23 @@ If you are more interested to see how nodes actually work with each other, see t
 
 A question might come to mind at this point. We have many sender nodes, and only just one receiver node in this example, so... it is kind obvious how each request gets routed. Assume that we have two receiver nodes (mathMS) and a dozen sender nodes, how could we decide on one of the mathMSs?
 
-You might argue that this is a matter that xyz should handle it. Indeed, we do handle it. it's just that we are very keen to make you familiarized whit what's happening under the hood, so that you can change it when required.
+You might argue that this is a matter that xyz should handle. Indeed, we do handle it. it's just that we are very keen to make you familiarized whit what's happening under the hood, so that you can change it when required.
 
-If you think about the system (say, a car rental one, like Uber) as a whole, you come to realize that many many types of messages might be sent. One node might want to broadcast a message to **all other nodes**, or to a subset of them.
-
-[further explanation]
-
-XYZ supports such actions with two mechanisms
+In order to have different message routing ways, xyz supports to mechanisms:
 
   1. Service Discovery middlewares
   2. Path based service identification
 
 The upcoming sections will describe these concepts.
 
+
+Before going into the next section, you might argue that why is this so important? In a microservice-based system, it is crucially important!
+
+If you think about the system as a whole, you come to realize that many many types of messages might be sent. One node might want to broadcast a message to **all other nodes**, or to a subset of them. A node might want to apprise just a few database nodes about a record update, and many many more events that might happen!
+
+If you are not convinced about this, I highlt recommend you to read the [Wiki](https://github.com/node-xyz/xyz-core/wiki/) page of xyz-core, specially the one about [microservices](https://github.com/node-xyz/xyz-core/wiki/Microservices%3F-What%3F).
+
+[further explanation]
 
 # Service Discovery middlewares
 
