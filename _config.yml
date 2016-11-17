@@ -1,0 +1,19 @@
+# Setup
+title:        Node XYZ
+tagline:      Microservice toolkit for node
+baseurl:      ""
+# paginate:     1
+
+# About/contact
+author:
+  name:       Kian Peymani
+  github:   kianengima
+  twitter:  kianengima
+
+# Gems
+gems:
+  - jekyll-paginate
+
+include: ['_pages']
+#Others
+# markdown: kramdown

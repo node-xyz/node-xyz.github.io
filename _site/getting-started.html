@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  
+  <head>
+  <meta charset="UTF-8">
+  <title>Node XYZ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#157878">
+  <link rel="stylesheet" href="/css/normalize.css">
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="/css/cayman.css">
+</head>
+
+  <body>
+    <section class="page-header">
+  <h1 class="project-name">Node XYZ</h1>
+  <h2 class="project-tagline">Microservice toolkit for node</h2>
+  <a href="#" class="btn">View on GitHub</a>
+  <a href="#" class="btn">xyz-core</a>
+  <a href="#" class="btn">xyz-cli</a>
+</section>
+
+
+    <section class="main-content">
+      
+      <h1 id="hello-xyz">Hello XYZ</h1>
+
+<p>This brief tutorial will help you fathom the concepts of XYZ, and help you get started with it.</p>
+
+<h3 id="baby-microservice">Baby Microservice</h3>
+
+<p>Assume that we only have two services that will communicate with each other. Suppose that each of these services (aka Node modules) have another API exposed two end users. That is not our business at the moment, since as mentioned before, XYZ will divide the matter of end user and the matter of system. Now, our goal is to focus on what is important to our own system.</p>
+
+<p>The – dummy services are as follows:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>// math.ms.js
+// a very fancy math module with super fast calculation
+function add(x, y) {
+return x + y
+}
+
+function mul(x, y) {
+  return x * y
+}
+
+// string.ms.js
+// some ultra hard string manipulations
+function up(str) {
+  return s.toUpperCase()
+}
+function down(str) {
+  return s.toLowerCase()
+}
+</code></pre>
+</div>
+
+<p>Now, assume that these services need to call each other in order to share their services. This is the first place that XYZ will come to action.</p>
+
+<p>In order to have two xyz instances communicate with each other, they need to have a system, a shared system. Information about the system is filled to the xyz instance using a config parameter. The config parameter has information such as local port/it/serviceName and a list of nodes who live inside the system. Note that a node can join the system without being in the static list, this is just a basic example!</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>// math.ms.js
+// a very fancy math module with super fast calculation
+let xyz = require('xyz-core').xyz
+let mathMS = new xyz({
+  selfConf: {
+    name: 'MathMS',
+    host: '127.0.0.1',
+    port: 3333
+  },
+  systemConf: {
+    microservices: [{
+        host: '127.0.0.1',
+        port: 3334
+      }]
+  }
+})
+
+mathMS.register('mul', (payload, response) =&gt; {
+  response.send(payload.x * payload.y)
+})
+
+mathMS.register('add', (payload, response) =&gt; {
+  response.send(payload.x + payload.y)
+})
+
+// string.ms.js
+// some ultra hard string manipulations
+let xyz = require('xyz-core').xyz
+let stringMS = new xyz({
+  selfConf: {
+    name: 'stringMS',
+    host: '127.0.0.1',
+    port: 3334
+  },
+  systemConf: {
+    microservices: [{
+        host: '127.0.0.1',
+        port: 3333
+      }]
+  }
+})
+stringMS.register('up', (payload, response) =&gt; {
+  response.send(payload.toUpperCase())
+})
+stringMS.register('down', (payload, response) =&gt; {
+  response.send(payload.toLowerCase())
+})
+</code></pre>
+</div>
+
+<blockquote>
+  <p>The entire process of initializing a system and passing all of the parameters seems too much of a duplicate. We agree! check out the best practices section#common.js</p>
+</blockquote>
+
+<p>And that’s it! Now, our services are virtually binded to one another and they can call the service that each of them expose using <code class="highlighter-rouge">.register</code>. The <code class="highlighter-rouge">microservices: [...]</code> key in <strong>systemConf</strong> will declare the list of other nodes that we can connect to. Obviously, they can be local or remote IPs.</p>
+
+<h4 id="a-note-on-terminology">A Note on terminology.</h4>
+
+<p>Words and phrases in XYZ system are explained in Wiki page. Just to recap, each function exposed via <code class="highlighter-rouge">.register</code> is a <em>service</em>.<br />
+Each <strong>Node Process</strong>, having a number of services is called a <strong>node</strong> (or in some places a <em>microservice</em>, but its just temporary).</p>
+
+<p>Back to out little system. Now, one of these system can call a service in the other system using the <code class="highlighter-rouge">.call</code></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>//stringMS
+// note that these callback styles are inherited from node's native http module.
+// `resp` is the IncomingMessage instance etc.
+stringMS.call('mul', {x: 2, y:5}, (err, body, res) =&gt; {
+  console.log(`my fellow service responded with ${body}`)
+})
+</code></pre>
+</div>
+
+<p>You should now see an output like:<br />
+<code class="highlighter-rouge">my fellow service responded with 10</code></p>
+
+<h3 id="whats-next">What’s next?</h3>
+
+<p>In this example we hardcoded the list of service, so that they can communicate with each other. This is… just about ok. It is not awesome. What would be awesome is to have nodes joining the system dynamically. Yes, that’s what we’re going to do in the <a href="/replicating">Next Section</a>.</p>
+
+<hr />
+
+<h1 id="replicating-your-nodes-and-services">Replicating Your Nodes and Services</h1>
+
+<p>It would have been much more interesting, if we could add nodes dynamically. Good news: we can.</p>
+
+<p>XYZ nodes can join a system, given that they have a [list of] seed nodes. Seed nodes are the entry point to the system. They should check the authority of the incoming node, if required, and pass the list of nodes available inside the system to it, or any other authentication certificate, again, if required. The fact that there are a lot of ‘<em>if required</em>’ phrases in the statement is that all of these steps are optional and the developer can choose to have them. In the most _Wildcard_is scenario, all nodes are public and anyone can join them.</p>
+
+<p>Let’s assume that both the <em>StringMS</em> and <em>MathMS</em> in the previous section do not know each other. That is to say, their list of microservice/nodes in <em>systemConf</em> is empty:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>// string.ms.js
+let xyz = require('xyz-core').xyz
+let stringMS = new xyz({
+  selfConf: {
+    name: 'stringMS',
+    host: '127.0.0.1',
+    port: 3334
+  },
+  systemConf: {
+    microservices: []
+  }
+})
+
+// math.ms.js
+let xyz = require('xyz-core').xyz
+let mathMS = new xyz({
+  selfConf: {
+    name: 'MathMS',
+    host: '127.0.0.1',
+    port: 3333
+  },
+  systemConf: {
+    microservices: []
+  }
+})
+</code></pre>
+</div>
+
+<p>Furthermore, let’s assume that the MathMS is the constant node in the system and stringMSs are going to come and go. Go ahead and run the mathMS alone, you will see that nothing happens.</p>
+
+<p>Now run the stringMS. you’ll se that:<br />
+<code class="highlighter-rouge">warn :: Sending a message to /mul from first find strategy failed (Local Response)  
+my fellow service responded with null</code></p>
+
+<p>The <a href="#">first find strategy</a> is a default behavior embedded inside node XYZ for finding nodes to send messages to. We’ll see more on this later. The main point is that the message failed. Obviously because StringMS does not know any mathMS at this point!</p>
+
+<p>Change the stringMS to the following, specifying a new seed node for it. Also add a filed in mathMS that will indicate that this node is allowed to join new nodes:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>// string.ms.js
+let xyz = require('xyz-core').xyz
+let stringMS = new xyz({
+  selfConf: {
+    name: 'stringMS',
+    host: '127.0.0.1',
+    port: 3334,
+    seed: [{host: '127.0.0.1', port: 3333}]
+  },
+  systemConf: {
+    microservices: []
+  }
+})
+
+// math.ms.js
+let xyz = require('xyz-core').xyz
+let mathMS = new xyz({
+  selfConf: {
+    allowJoin: true,
+    name: 'MathMS',
+    host: '127.0.0.1',
+    port: 3333
+  },
+  systemConf: {
+    microservices: []
+  }
+})
+</code></pre>
+</div>
+
+<p>Now, the two nodes have no knowledge of each other, yet they can join and work with each other. Go ahead and run the MathMS, next run the stringMS in a separate terminal and see the results. As you see, the output is still the same.</p>
+
+<p>This get’s even more interesting when we add more nodes. You can add more stringMS nodes and see that all of them will eventually find the MathMS and can connect with them. There is only one small problem. All stringMSs are configured to use one port. Hopefully, XYZ provides a way to override any configuration, for debugging purposes mainly. We’ll cover this later, but, for now, you can use the <code class="highlighter-rouge">--xyzport</code> command line argument to override the port. Run many many more StringMS instances with:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ node math.ms.js --xyzport 5000
+$ node math.ms.js --xyzport 5001
+$ node math.ms.js --xyzport 5002
+...
+</code></pre>
+</div>
+
+
+      <footer class="site-footer">
+  <span class="site-footer-owner"><a href="http://localhost:4000">Node XYZ</a> is maintained by <a href="">Kian Peymani</a>.</span>
+  <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/pietromenna/jekyll-cayman-theme">Cayman theme</a> by <a href="http://github.com/jasonlong">Jason Long</a>.</span>
+</footer>
+
+
+    </section>
+
+  </body>
+</html>
