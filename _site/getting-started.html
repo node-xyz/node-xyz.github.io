@@ -29,6 +29,16 @@
 
 <p>This brief tutorial will help you fathom the concepts of XYZ, and help you get started with it.</p>
 
+<h4 id="contents">Contents</h4>
+
+<ul>
+  <li><a href="/getting-started#hello-xyz">Hello XYZ</a></li>
+  <li><a href="/getting-started#replicating-your-nodes-and-services">Replicate your services</a></li>
+  <li>Service Discovery</li>
+  <li>Path based services</li>
+  <li>Middlewares</li>
+</ul>
+
 <h3 id="baby-microservice">Baby Microservice</h3>
 
 <p>Assume that we only have two services that will communicate with each other. Suppose that each of these services (aka Node modules) have another API exposed two end users. That is not our business at the moment, since as mentioned before, XYZ will divide the matter of end user and the matter of system. Now, our goal is to focus on what is important to our own system.</p>
@@ -252,11 +262,159 @@ $ node math.ms.js --xyzport 5002
 
 <p>If you think about the system as a whole, you come to realize that many many types of messages might be sent. One node might want to broadcast a message to <strong>all other nodes</strong>, or to a subset of them. A node might want to apprise just a few database nodes about a record update, and many many more events that might happen!</p>
 
-<p>If you are not convinced about this, I highlt recommend you to read the <a href="https://github.com/node-xyz/xyz-core/wiki/">Wiki</a> page of xyz-core, specially the one about <a href="https://github.com/node-xyz/xyz-core/wiki/Microservices%3F-What%3F">microservices</a>.</p>
+<p>If you are not convinced about this, I highly recommend you to read the <a href="https://github.com/node-xyz/xyz-core/wiki/">Wiki</a> page of xyz-core, specially the one about <a href="https://github.com/node-xyz/xyz-core/wiki/Microservices%3F-What%3F">microservices</a>.</p>
 
-<p>[further explanation]</p>
+<h1 id="service-discovery">Service Discovery</h1>
 
-<h1 id="service-discovery-middlewares">Service Discovery middlewares</h1>
+<p>As mentioned in the previous section, the process of choosing a destination node when making a call is rather difficult and obscure. XYZ provides a configuration for each of the nodes, so that each node can actually choose a strategy for sending a message.</p>
+
+<p>The good thing about these plugins is that they are completely free to modifiable. That is to say, you can write your own strategy and patch it into your system!</p>
+
+<p>XYZ currently has two trivial approaches implemented as plugins. Let’s look at one of them <a href="https://github.com/node-xyz/xyz.service.send.first.find/blob/master/call.middleware.first.find.js">here</a> :</p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="c1">// Built in winston instances</span>
+<span class="kr">const</span> <span class="nx">logger</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'xyz-core'</span><span class="p">).</span><span class="nx">logger</span>
+<span class="kr">const</span> <span class="nx">Path</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'xyz-core'</span><span class="p">).</span><span class="nx">path</span>
+<span class="kr">const</span> <span class="nx">http</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'http'</span><span class="p">)</span>
+
+<span class="kd">function</span> <span class="nx">firstFind</span> <span class="p">(</span><span class="nx">params</span><span class="p">,</span> <span class="nx">next</span><span class="p">,</span> <span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="nx">servicePath</span> <span class="o">=</span> <span class="nx">params</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="nx">userPayload</span> <span class="o">=</span> <span class="nx">params</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+    <span class="nx">foreignNodes</span> <span class="o">=</span> <span class="nx">params</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+    <span class="nx">transportClient</span> <span class="o">=</span> <span class="nx">params</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+  <span class="nx">responseCallback</span> <span class="o">=</span> <span class="nx">params</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">node</span> <span class="k">in</span> <span class="nx">foreignNodes</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">matches</span> <span class="o">=</span> <span class="nx">Path</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="nx">servicePath</span><span class="p">,</span> <span class="nx">foreignNodes</span><span class="p">[</span><span class="nx">node</span><span class="p">])</span>
+    <span class="nx">logger</span><span class="p">.</span><span class="nx">debug</span><span class="p">(</span><span class="err">`</span><span class="nx">FIRST</span> <span class="nx">FIND</span> <span class="err">::</span> <span class="nx">determined</span> <span class="nx">matches</span> <span class="nx">$</span><span class="p">{</span><span class="nx">matches</span><span class="p">}</span> <span class="k">in</span> <span class="nx">node</span> <span class="nx">$</span><span class="p">{</span><span class="nx">node</span><span class="p">}</span> <span class="k">for</span> <span class="nx">$</span><span class="p">{</span><span class="nx">servicePath</span><span class="p">}</span><span class="err">`</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">matches</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">logger</span><span class="p">.</span><span class="nx">debug</span><span class="p">(</span><span class="err">`</span><span class="nx">FIRST</span> <span class="nx">FIND</span> <span class="err">::</span> <span class="nx">determined</span> <span class="nx">node</span> <span class="k">for</span> <span class="nx">service</span> <span class="nx">$</span><span class="p">{</span><span class="nx">servicePath</span><span class="p">}</span> <span class="nx">by</span> <span class="nx">first</span> <span class="nx">find</span> <span class="nx">strategy</span> <span class="nx">$</span><span class="p">{</span><span class="nx">node</span><span class="p">}</span><span class="err">:</span><span class="nx">$</span><span class="p">{</span><span class="nx">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span><span class="err">`</span><span class="p">)</span>
+      <span class="nx">transportClient</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nx">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nx">node</span> <span class="p">,</span> <span class="nx">userPayload</span><span class="p">,</span> <span class="nx">responseCallback</span><span class="p">)</span>
+      <span class="nx">done</span><span class="p">()</span>
+      <span class="k">return</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="c1">// if no node matched</span>
+  <span class="nx">logger</span><span class="p">.</span><span class="nx">warn</span><span class="p">(</span><span class="err">`</span><span class="nx">Sending</span> <span class="nx">a</span> <span class="nx">message</span> <span class="nx">to</span> <span class="nx">$</span><span class="p">{</span><span class="nx">servicePath</span><span class="p">}</span> <span class="nx">from</span> <span class="nx">first</span> <span class="nx">find</span> <span class="nx">strategy</span> <span class="nx">failed</span> <span class="p">(</span><span class="nx">Local</span> <span class="nx">Response</span><span class="p">)</span><span class="err">`</span><span class="p">)</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">responseCallback</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">responseCallback</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">STATUS_CODES</span><span class="p">[</span><span class="mi">404</span><span class="p">],</span> <span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">)</span>
+    <span class="nx">done</span><span class="p">()</span>
+    <span class="k">return</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">firstFind</span>
+</code></pre>
+</div>
+
+<p>We really don’t want to go too deep inside this code at the time, but you can get a general feeling about it that a <code class="highlighter-rouge">Path</code> object will eventually find a list of nodes that can response to a certain <code class="highlighter-rouge">servicePath</code> and calls the first one:</p>
+
+<p><code class="highlighter-rouge">transportClient.send(matches[0], node , userPayload, responseCallback)</code>.</p>
+
+<p>whenever you call <code class="highlighter-rouge">someMs.call('foo' , ()=&gt;{} )</code> in your code, somewhere along the path, this function will be called and it will find one destination node and invokes a transport client with it. Transport client is the actual module that will make the HTTP/TCP call to destination node.</p>
+
+<blockquote>
+  <p>This structure, a function with parameters passed as array, with <code class="highlighter-rouge">next</code> and <code class="highlighter-rouge">done</code> callbacks is actually the <strong>middleware</strong> signature of XYZ. We’ll learn soon about middleware in this tutorial.</p>
+</blockquote>
+
+<blockquote>
+  <p>Change your string ms to call an invalid service, say, <code class="highlighter-rouge">.call('blahblah', () =&gt; {})</code>. Now look at the warning logs. Now look at the end of this plugin :
+<code class="highlighter-rouge">logger.warn("Sending a message to ${servicePath} from first find strategy failed (Local Response)")</code>
+Are you seeing what I am seeing too?</p>
+</blockquote>
+
+<p>XYZ is configured to work with this module by default. if you wish to change them, a new key named <strong><code class="highlighter-rouge">defaultSendStrategy</code></strong> should be added to the configuration object passed to xyz constructor.</p>
+
+<p>In order to test this feature, let’s use another send strategy, <strong>send.to.all</strong>. You can find the plugin <a href="https://github.com/node-xyz/xyz.service.send.to.all">here</a>.</p>
+
+<p>First, include this plugin inside your working directory:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>npm install xyz.service.send.to.all
+</code></pre>
+</div>
+
+<p>Next, we are going to run three math services, and a dozen of string services. The configurations are similar to the previous section. We only have to configure string.ms to use <code class="highlighter-rouge">xyz.service.send.to.all</code> :</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>// math.ms.js
+// same as before
+
+
+// string.ms.js
+let sendToAll = require('xyz.service.send.to.all')
+
+let stringMS = new xyz({
+  defaultSendStrategy: sendToAll,
+  selfConf: {
+    name: 'stringMS',
+    host: '127.0.0.1',
+    port: 3334,
+    seed: [{host: '127.0.0.1', port: 3333}]
+  },
+  systemConf: {
+    microservices: []
+  }
+})
+
+...
+
+// our responses are going to be from few possible nodes, hence they are objects from now on!
+// use JSON.stringify instead.
+setInterval(() =&gt; {
+  stringMS.call('mul', {x: 2, y: 5}, (err, body, res) =&gt; {
+    console.log(`my fellow service responded with ${JSON.stringify(body)}`)
+  })
+}, 2000)
+
+</code></pre>
+</div>
+
+<p>Fisrt, run the math ms and string ms like before. The string ms will join the math ms. First point is that now, our responses are different, it has been indicated the this values has been responded form which node.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>my fellow service responded with {"127.0.0.1:3333:/mul":[null,10]}
+</code></pre>
+</div>
+
+<p>in each array response, the first index is the error and the second one is the actual response.</p>
+
+<p>Now go ahead and run a new math.ms. An old response happens here again. We need the new instance of Math ms to have a seed node, yet, we didn’t include it in it’s configuration.</p>
+
+<p>Similar to how we can override the port number, a single seed node can also be added by command line argument. Run the new math Ms :</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>node math.ms.js --xyzport 5000 --xyzseed "127.0.0.1:3333"
+node math.ms.js --xyzport 5001 --xyzseed "127.0.0.1:3333"
+</code></pre>
+</div>
+
+<p>after just a few seconds, the log of string ms should change to</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>my fellow service responded with {
+    "127.0.0.1:3333:/mul":[null,10],
+    "127.0.0.1:5000:/mul":[null,10],
+    "127.0.0.1:5001:/mul":[null,10]
+}
+</code></pre>
+</div>
+
+<p>In fact, if you close one of the mathMSs, you’ll see the response to be:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>my fellow service responded with {
+  "127.0.0.1:5001:/mul":[
+    {"code":"ECONNREFUSED","errno":"ECONNREFUSED","syscall":"connect","address":"127.0.0.1","port":5001},
+    null
+  ],
+  "127.0.0.1:3333:/mul":[null,10],
+  "127.0.0.1:5000:/mul":[null,10]}
+</code></pre>
+</div>
+
+<p>As you see, the first parameter is the error and the second parameter is the response. This happens because each node will not immediately assume that another node is offline after one failure. The process and parameters of node failure will be discussed later.</p>
+
+<p>So … are you not liking the way that send to all is functioning? I mean, who would respond with an array like that? This is actually what we hoped for!  this plugin is just a test plugin that we used in our development. You can easily change it to whatever you like.</p>
+
+<p>For example, you can modify <a href="https://github.com/node-xyz/xyz.service.send.to.all/blob/master/call.send.to.all.js#L31">this line</a> to get rid of the annoying error.</p>
+
+<p>Another interesting send strategy that you might want to implement and test is majority function. You can change the <code class="highlighter-rouge">send.to.all</code> in a way that it will send the message to all nodes, will wait for all responses, and will return with a single result, if all if the responses from different services were the same. If not, it will return an Error. Who knows, maybe you actually use this Microservice to do floating point calculations. Each machine handles floating point differently and the responses might actually differ!</p>
 
 <h1 id="path-based-service-identification">Path based service identification</h1>
 

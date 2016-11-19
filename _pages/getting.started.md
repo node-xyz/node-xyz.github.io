@@ -8,6 +8,15 @@ permalink: /getting-started
 
 This brief tutorial will help you fathom the concepts of XYZ, and help you get started with it.
 
+#### Contents
+
+- [Hello XYZ](/getting-started#hello-xyz)
+- [Replicate your services](/getting-started#replicating-your-nodes-and-services)
+-  Service Discovery
+-  Path based services
+-  Middlewares
+
+
 ### Baby Microservice
 
 Assume that we only have two services that will communicate with each other. Suppose that each of these services (aka Node modules) have another API exposed two end users. That is not our business at the moment, since as mentioned before, XYZ will divide the matter of end user and the matter of system. Now, our goal is to focus on what is important to our own system.
@@ -217,12 +226,156 @@ Before going into the next section, you might argue that why is this so importan
 
 If you think about the system as a whole, you come to realize that many many types of messages might be sent. One node might want to broadcast a message to **all other nodes**, or to a subset of them. A node might want to apprise just a few database nodes about a record update, and many many more events that might happen!
 
-If you are not convinced about this, I highlt recommend you to read the [Wiki](https://github.com/node-xyz/xyz-core/wiki/) page of xyz-core, specially the one about [microservices](https://github.com/node-xyz/xyz-core/wiki/Microservices%3F-What%3F).
+If you are not convinced about this, I highly recommend you to read the [Wiki](https://github.com/node-xyz/xyz-core/wiki/) page of xyz-core, specially the one about [microservices](https://github.com/node-xyz/xyz-core/wiki/Microservices%3F-What%3F).
 
-[further explanation]
 
-# Service Discovery middlewares
+# Service Discovery
 
+As mentioned in the previous section, the process of choosing a destination node when making a call is rather difficult and obscure. XYZ provides a configuration for each of the nodes, so that each node can actually choose a strategy for sending a message.  
+
+The good thing about these plugins is that they are completely free to modifiable. That is to say, you can write your own strategy and patch it into your system!
+
+XYZ currently has two trivial approaches implemented as plugins. Let's look at one of them [here](https://github.com/node-xyz/xyz.service.send.first.find/blob/master/call.middleware.first.find.js) :
+
+```javascript
+// Built in winston instances
+const logger = require('xyz-core').logger
+const Path = require('xyz-core').path
+const http = require('http')
+
+function firstFind (params, next, done) {
+  let servicePath = params[0],
+    userPayload = params[1],
+    foreignNodes = params[2],
+    transportClient = params[3]
+  responseCallback = params[4]
+
+  for (let node in foreignNodes) {
+    matches = Path.match(servicePath, foreignNodes[node])
+    logger.debug(`FIRST FIND :: determined matches ${matches} in node ${node} for ${servicePath}`)
+    if (matches.length) {
+      logger.debug(`FIRST FIND :: determined node for service ${servicePath} by first find strategy ${node}:${matches[0]}`)
+      transportClient.send(matches[0], node , userPayload, responseCallback)
+      done()
+      return
+    }
+  }
+
+  // if no node matched
+  logger.warn(`Sending a message to ${servicePath} from first find strategy failed (Local Response)`)
+  if (responseCallback) {
+    responseCallback(http.STATUS_CODES[404], null, null)
+    done()
+    return
+  }
+}
+
+module.exports = firstFind
+```
+
+We really don't want to go too deep inside this code at the time, but you can get a general feeling about it that a `Path` object will eventually find a list of nodes that can response to a certain `servicePath` and calls the first one:
+
+`transportClient.send(matches[0], node , userPayload, responseCallback)`.
+
+whenever you call `someMs.call('foo' , ()=>{} )` in your code, somewhere along the path, this function will be called and it will find one destination node and invokes a transport client with it. Transport client is the actual module that will make the HTTP/TCP call to destination node.
+
+> This structure, a function with parameters passed as array, with `next` and `done` callbacks is actually the **middleware** signature of XYZ. We'll learn soon about middleware in this tutorial.
+
+> Change your string ms to call an invalid service, say, `.call('blahblah', () => {})`. Now look at the warning logs. Now look at the end of this plugin :
+`logger.warn("Sending a message to ${servicePath} from first find strategy failed (Local Response)")`
+Are you seeing what I am seeing too?
+
+XYZ is configured to work with this module by default. if you wish to change them, a new key named **`defaultSendStrategy`** should be added to the configuration object passed to xyz constructor.
+
+In order to test this feature, let's use another send strategy, **send.to.all**. You can find the plugin [here](https://github.com/node-xyz/xyz.service.send.to.all).
+
+First, include this plugin inside your working directory:
+
+```
+npm install xyz.service.send.to.all
+```
+
+Next, we are going to run three math services, and a dozen of string services. The configurations are similar to the previous section. We only have to configure string.ms to use `xyz.service.send.to.all` :
+
+```
+// math.ms.js
+// same as before
+
+
+// string.ms.js
+let sendToAll = require('xyz.service.send.to.all')
+
+let stringMS = new xyz({
+  defaultSendStrategy: sendToAll,
+  selfConf: {
+    name: 'stringMS',
+    host: '127.0.0.1',
+    port: 3334,
+    seed: [{host: '127.0.0.1', port: 3333}]
+  },
+  systemConf: {
+    microservices: []
+  }
+})
+
+...
+
+// our responses are going to be from few possible nodes, hence they are objects from now on!
+// use JSON.stringify instead.
+setInterval(() => {
+  stringMS.call('mul', {x: 2, y: 5}, (err, body, res) => {
+    console.log(`my fellow service responded with ${JSON.stringify(body)}`)
+  })
+}, 2000)
+
+```
+
+Fisrt, run the math ms and string ms like before. The string ms will join the math ms. First point is that now, our responses are different, it has been indicated the this values has been responded form which node.
+
+```
+my fellow service responded with {"127.0.0.1:3333:/mul":[null,10]}
+```
+
+in each array response, the first index is the error and the second one is the actual response.
+
+Now go ahead and run a new math.ms. An old response happens here again. We need the new instance of Math ms to have a seed node, yet, we didn't include it in it's configuration.
+
+Similar to how we can override the port number, a single seed node can also be added by command line argument. Run the new math Ms :
+
+```
+node math.ms.js --xyzport 5000 --xyzseed "127.0.0.1:3333"
+node math.ms.js --xyzport 5001 --xyzseed "127.0.0.1:3333"
+```
+
+after just a few seconds, the log of string ms should change to
+
+```
+my fellow service responded with {
+    "127.0.0.1:3333:/mul":[null,10],
+    "127.0.0.1:5000:/mul":[null,10],
+    "127.0.0.1:5001:/mul":[null,10]
+}
+```
+
+In fact, if you close one of the mathMSs, you'll see the response to be:
+
+```
+my fellow service responded with {
+  "127.0.0.1:5001:/mul":[
+    {"code":"ECONNREFUSED","errno":"ECONNREFUSED","syscall":"connect","address":"127.0.0.1","port":5001},
+    null
+  ],
+  "127.0.0.1:3333:/mul":[null,10],
+  "127.0.0.1:5000:/mul":[null,10]}
+```
+
+As you see, the first parameter is the error and the second parameter is the response. This happens because each node will not immediately assume that another node is offline after one failure. The process and parameters of node failure will be discussed later.
+
+So ... are you not liking the way that send to all is functioning? I mean, who would respond with an array like that? This is actually what we hoped for!  this plugin is just a test plugin that we used in our development. You can easily change it to whatever you like.
+
+For example, you can modify [this line](https://github.com/node-xyz/xyz.service.send.to.all/blob/master/call.send.to.all.js#L31) to get rid of the annoying error.
+
+Another interesting send strategy that you might want to implement and test is majority function. You can change the `send.to.all` in a way that it will send the message to all nodes, will wait for all responses, and will return with a single result, if all if the responses from different services were the same. If not, it will return an Error. Who knows, maybe you actually use this Microservice to do floating point calculations. Each machine handles floating point differently and the responses might actually differ!
 
 
 # Path based service identification

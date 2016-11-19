@@ -15,5 +15,6 @@ gems:
   - jekyll-paginate
 
 include: ['_pages']
+exclude: ['example/*']
 #Others
 # markdown: kramdown
