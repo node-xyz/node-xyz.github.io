@@ -12,9 +12,9 @@ This brief tutorial will help you fathom the concepts of XYZ, and help you get s
 
 - [Hello XYZ](/getting-started#hello-xyz)
 - [Replicate your services](/getting-started#replicating-your-nodes-and-services)
--  Service Discovery
--  Path based services
--  Middlewares
+- [Service Discovery](/getting-started#service-discovery)
+- [Path based services](/getting-started#path-based-service-identification)
+- [Middlewares]
 
 
 ### Baby Microservice
@@ -233,7 +233,7 @@ If you are not convinced about this, I highly recommend you to read the [Wiki](h
 
 As mentioned in the previous section, the process of choosing a destination node when making a call is rather difficult and obscure. XYZ provides a configuration for each of the nodes, so that each node can actually choose a strategy for sending a message.  
 
-The good thing about these plugins is that they are completely free to modifiable. That is to say, you can write your own strategy and patch it into your system!
+The good thing about these plugins is that they are completely modifiable. That is to say, you can write your own strategy and patch it into your system!
 
 XYZ currently has two trivial approaches implemented as plugins. Let's look at one of them [here](https://github.com/node-xyz/xyz.service.send.first.find/blob/master/call.middleware.first.find.js) :
 
@@ -330,7 +330,7 @@ setInterval(() => {
 
 ```
 
-Fisrt, run the math ms and string ms like before. The string ms will join the math ms. First point is that now, our responses are different, it has been indicated the this values has been responded form which node.
+First, run the math ms and string ms like before. The string ms will join the math ms. First point is that now, our responses are different, it has been indicated the this values has been responded form which node.
 
 ```
 my fellow service responded with {"127.0.0.1:3333:/mul":[null,10]}
@@ -379,3 +379,167 @@ Another interesting send strategy that you might want to implement and test is m
 
 
 # Path based service identification
+
+Aside from Service discovery procedures, xyz provides another way to make service invocation even more flexible. It's called **Path Base** service identification. That is to say, each service, aka. function that you expose, will be exposed on a certain path on that process. So far we have used a plain string as the service name. The truth is that those were paths too! XYZ has been adding a single `/` to each of them. Recall one of the logs printed from the previous section. Look at it again:
+
+```
+  "127.0.0.1:5000:/mul":[null,10]}
+```
+
+As you see, the actual identifier of the service is actually: **[IP]:[PORT]:/[PATH]**.
+
+As a naive example, let's assume that our math service is super accurate and can add floating point numbers up to thousands of decimal points. But we don't want to waste resource on simple integer arithamtic. Hence, we will devide our services into to section:
+
+```
+decimal/add
+decimal/mul
+
+float/add
+float/add
+```
+
+Applying this turns out to be very easy!
+
+Change the address of each function is mathMS:
+
+```
+mathMS.register('decimal/mul', (payload, response) => {
+  response.send(payload.x * payload.y)
+})
+
+mathMS.register('decimal/add', (payload, response) => {
+  response.send(payload.x + payload.y)
+})
+
+mathMS.register('float/mul', (payload, response) => {
+  // let's add the float casting, just fore sake of our example!
+  response.send(parseFloat(payload.x * payload.y))
+})
+
+mathMS.register('float/add', (payload, response) => {
+  response.send(parseFloat(payload.x + payload.y))
+})
+```
+
+If you run the stringMS now, it will get only `null`. This is natural because it is looking for `/mul`, while it only knows `/decimal/mul`.
+
+Next, change the call path in stringMS:
+
+```
+setInterval(() => {
+  stringMS.call('/decimal/mul', {x: 2, y: 5}, (err, body, res) => {
+    console.log(`my fellow service responded with ${JSON.stringify(body)}`)
+  })
+}, 2000)
+```
+
+As you see, now we get the same result.
+
+The main purpose of paths is to allow:
+
+  1. better grouping and organization among services.
+  2. allow more meaningful names and identification
+  3. allow grouping call:
+
+That's right. You can also use the combination of `xyz.call.send.to.all` plugin and paths to call multiple services:
+
+```
+setInterval(() => {
+  stringMS.call('/decimal/*', {x: 2, y: 5}, (err, body, res) => {
+    console.log(`my fellow service responded with ${JSON.stringify(body)}`)
+  })
+}, 2000)
+```
+
+Now our response is:
+
+```
+my fellow service responded with {
+  "127.0.0.1:3333:/decimal/mul":[null,10],
+  "127.0.0.1:3333:/decimal/add":[null,7]
+}
+```
+
+> Note that this example is working only because we are using `xyz.call.send.to.all` as send strategy is StringMS.
+
+Go ahead and try things like `*/mul` or even `/*/*`.
+
+
+#### Note on valid Paths and wildcards
+
+Currently, XYZ path parser only supports charachters and wildcards in paths. That is to say, when creating a new service, the valid regex is:
+
+```
+/^(\/([a-zA-Z]|[1-9]|\*)+)*$/
+```
+
+and when calling a service, you can only call definite paths or full-wildcards. `abc/*/abc` is valid, albeit `abc/ab*/abc` is not. This is a work in progress and will change in the upcoming version.
+
+<!-- # Middlewares
+
+Middlewares are nothing new to you. You have already seen them. `xyz.service.send.to.all` was a simple middleware in xyz system. In this section we are going to get into the details of middleware and use them to develop an authentication mechanisms.
+
+### Middlewares and Layers in XYZ
+
+So far, our system has been plain open! No authentication. That is not good. The good news is that XYZ does not provide any authentication mechanisms by default. You heard me, **No authentication mechanisms**. As opposed to application-dependent steps like authentication which are not compulsory in xyz, middlewares are. That is to say, whatever happens, requests will go through a middleware in xyz.
+
+In order to understand the place and organization of middleware in xyz, you should get a bit more familiar with it. A brief summery of the architecture of xyz is proivded in the [wiki page of xyz-core](https://github.com/node-xyz/xyz-core/wiki/XYZ-in-a-nutshell#the-close-up-picture). before going any further, read it carefully.
+
+As you return to this page, you should have a superficial knowledge about how xyz middlewares works and where they are. Just to recap:
+
+> XYZ consists of 3 main layers. `xyz-core`, `Service-Repository` and `Transport`. The pipeline that will communicate a message from one layer to another is a **middleware**.
+
+### Middleware Stacks
+
+Middlewares are implemented using the GenericMiddlewareHandler Class in XYZ. this class will register an array of functions and passes an object (aka. parameters) through this array of middlewares.
+
+```
+MiddlewareStack : [Function, Function, Function, ... , Function]
+```
+
+As an example, Whenever that a request is received and parsed in Transport Layer, the Service repository layer. This action will happen in the last function placed in the last index of CallReceiveMiddlewareStack in Transport layer.
+
+```
+// Initial state of CallReceiveMiddlewareStack
+[Funciton():passToTransportLayer]
+```
+
+This enables us to prepend more functions to this array and perform any type of process. After seeing the syntax structure of each middleware in the next section, we will actually use this to add a generic authentication middleware to our system.
+
+### Middleware syntax
+
+As mentioned above, each middleware is nothin but a function. In order to examine the parameters of this function, let's write a bare-bone middleware:
+
+The key structure of a middleware is as follows:
+
+  - A middleware should be exported as a function
+  - The function will take three parameters:
+    - `params`: an array of parameters values passed to the middleware function.
+    - `next`: function that will ignore the rest of the execution of this middleware and invoke the next function in the stack.
+    - `end`: will end of the execution of the entire stack.
+
+Keeping this ideas in mind, let's write a simple logger middleware:
+
+```
+let dummyLogger = function(params, next, done) {
+  console.log('i was called! now what?')
+  next()
+}
+module.exports = dummyLogger;
+```
+
+This is the minimum structure required for each middleware.
+
+Next important step is to know what is the content of `params`.
+
+Each middleware in xyz has specific params structure. As an example, The transport layer call dispatch middleware has the following parameters according to the source code: `[requestConfig, callResponseCallback]`. That means that the first index is a variable containing request information and the second parameter is the callback function for this call.
+
+> Remember how you call something like `someMS.call('somePath', ()=> {})`? The second argument to this call is the actual callback function that will be passed to the Transport layer.
+
+Next, let us see how we can insert this dummy logger to the system. The XYZ interface provides methods for inserting a function to a specific index of a specific MiddlewareStack. As an example, we can insert this middleware in StringMS (continuing from the previous section):
+
+```
+// StringMS
+
+
+``` -->
