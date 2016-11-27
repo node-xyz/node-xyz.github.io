@@ -14,7 +14,7 @@ This brief tutorial will help you fathom the concepts of XYZ, and help you get s
 - [Replicate your services](/getting-started#replicating-your-nodes-and-services)
 - [Service Discovery](/getting-started#service-discovery)
 - [Path based services](/getting-started#path-based-service-identification)
-- [Middlewares]
+- [Middlewares](/getting-started#middlewares)
 
 
 ### Baby Microservice
@@ -475,7 +475,7 @@ Currently, XYZ path parser only supports charachters and wildcards in paths. Tha
 
 and when calling a service, you can only call definite paths or full-wildcards. `abc/*/abc` is valid, albeit `abc/ab*/abc` is not. This is a work in progress and will change in the upcoming version.
 
-<!-- # Middlewares
+# Middlewares
 
 Middlewares are nothing new to you. You have already seen them. `xyz.service.send.to.all` was a simple middleware in xyz system. In this section we are going to get into the details of middleware and use them to develop an authentication mechanisms.
 
@@ -489,6 +489,17 @@ As you return to this page, you should have a superficial knowledge about how xy
 
 > XYZ consists of 3 main layers. `xyz-core`, `Service-Repository` and `Transport`. The pipeline that will communicate a message from one layer to another is a **middleware**.
 
+Furthermore,
+
+> Three main middlewares exist in xyz. Two of which are invoked when a call is being sent and one when a call is being received:
+  - Service Level CallDispatchMiddlewareStack
+  - Transport Layer CallDispatchMiddlewareStack
+  - Transport Layer CallReceiveMiddlewareStack
+
+As a final recap:
+
+![Overall structure of XYZ](https://raw.githubusercontent.com/node-xyz/xyz-core/master/media/mw.png)
+
 ### Middleware Stacks
 
 Middlewares are implemented using the GenericMiddlewareHandler Class in XYZ. this class will register an array of functions and passes an object (aka. parameters) through this array of middlewares.
@@ -497,7 +508,11 @@ Middlewares are implemented using the GenericMiddlewareHandler Class in XYZ. thi
 MiddlewareStack : [Function, Function, Function, ... , Function]
 ```
 
-As an example, Whenever that a request is received and parsed in Transport Layer, the Service repository layer. This action will happen in the last function placed in the last index of CallReceiveMiddlewareStack in Transport layer.
+As an example, Whenever a request is received and parsed in Transport Layer, a middleware function will pass it to the Service repository layer. This action will happen in the last function placed in the last index of CallReceiveMiddlewareStack in Transport layer.
+
+> Due to the fact that critical actions such as passing a request object to the upper/lower layer or passing a request out to the HTTP layer happen in middleware, it is crucially important to be very careful with them. Specifically, some middlewares are placed in xyz by default. They should remain in their place, unless you have a good reason to remove them.
+
+As an example, as mentioned above, the middleware placed between Transport layer and Service-Repository layer has such initial state:
 
 ```
 // Initial state of CallReceiveMiddlewareStack
@@ -508,7 +523,7 @@ This enables us to prepend more functions to this array and perform any type of 
 
 ### Middleware syntax
 
-As mentioned above, each middleware is nothin but a function. In order to examine the parameters of this function, let's write a bare-bone middleware:
+As mentioned above, each middleware is nothin but a function. In order to examine the parameters of this function, let's write a bare-bone middleware.
 
 The key structure of a middleware is as follows:
 
@@ -521,8 +536,10 @@ The key structure of a middleware is as follows:
 Keeping this ideas in mind, let's write a simple logger middleware:
 
 ```
-let dummyLogger = function(params, next, done) {
+let dummyLogger = function(params, next, end) {
   console.log('i was called! now what?')
+  console.log(params[0])
+  console.log(params[1])
   next()
 }
 module.exports = dummyLogger;
@@ -532,14 +549,107 @@ This is the minimum structure required for each middleware.
 
 Next important step is to know what is the content of `params`.
 
-Each middleware in xyz has specific params structure. As an example, The transport layer call dispatch middleware has the following parameters according to the source code: `[requestConfig, callResponseCallback]`. That means that the first index is a variable containing request information and the second parameter is the callback function for this call.
+Each middleware in xyz has specific params structure. As an example, The transport layer call dispatch middleware has the following parameters according to the [source code](https://github.com/node-xyz/xyz-core/blob/master/src/Transport/HTTP/http.client.js#L35): `[requestConfig, callResponseCallback]`. That means that the first index is a variable containing request information and the second parameter is the callback function for this call.
 
-> Remember how you call something like `someMS.call('somePath', ()=> {})`? The second argument to this call is the actual callback function that will be passed to the Transport layer.
+> Remember how you call something like `someMS.call('somePath', ()=> {})`? The second argument to this call is the actual callback function that will be passed to the Transport layer, and you have access to it inside the middleware. This is because the last index of this middleware stack is a function [that will wrap this request in an http object and pass it to the network](). Therefore, it needs the callback function to invoke it when the response is back. Note that this middleware is embedded in xyz and it is not on a separate repository, unlike other middlewares.
 
 Next, let us see how we can insert this dummy logger to the system. The XYZ interface provides methods for inserting a function to a specific index of a specific MiddlewareStack. As an example, we can insert this middleware in StringMS (continuing from the previous section):
 
 ```
 // StringMS
+stringMS.middlewares().transport.callDispatch.register(0, require('./dummy.logger'))
 
+// stringMS.register() ...
+```
 
-``` -->
+note that in this function, the first parameter is the index in middleware stack. This call will insert the new function to the first index and will push all other functions to the next index. If you want to remove a specific middleware, [use](https://node-xyz.github.io/apidoc/GenericMiddlewareHandler.html)`.remove(idx)`.
+
+Check your logs after running the system in any desired configuration, one StringMS and one MathMS for sake of simplicity:
+
+```
+[Function: bound ]
+i was called! now what?
+{ hostname: '127.0.0.1',
+  port: '3333',
+  path: '/call',
+  method: 'POST',
+  json: { userPayload: { x: 2, y: 5 }, service: '/float/mul' } }
+[Function: bound ]
+my fellow service responded with {"127.0.0.1:3333:/decimal/mul":[null,10],"127.0.0.1:3333:/float/mul":[null,10]}
+```
+
+As you see, our new middleware was invoked before the response was sent.
+
+The parameters are also now clear. Note that except the payload, all of these parameters will be used in the last middleware to create and send a HTTP request. Altering them will indeed have consequences. Albeit, not all alterations are harmful. As an example, consider the following scenarios:
+
+  - Applying a pre/post-processing to all request
+  - logging systems
+  - validation (note that by calling `end()`, the request will be dismissed)
+  - reusability of middlewares
+  - more decoupling: means that not only that your application logic is separated from your xyz service code, your configurations, which are implemented in the middlewares are also decoupled from the xyz service code.
+
+  Note that the `json` key is a generic place to put data in it. But, only the `userPayload` will be available to the receiver.
+
+  - last but not least! authentication. Although this is analogous to validation, we are going to mention it separately since we are going to implement one in the next section:
+
+### An authentication middleware:
+
+Suppose that your system uses a very simple  authentication system, kind of a shared-secret mechanism. You want authentication to happen in Transport layer. This is generally better because the Transport layer can drop unauthorized requests immediately and the Service-Repository layer, which is more critical, won't be bothered to check them twice.
+
+We are going to place two middlewares in Transport layer for this purpose, namely in **CallReceiveMiddlewareStack** and **CallDispatchMiddlewareStack**.
+
+The code of these middlewares should be fairly understandable to you now. The sender side is fairly (perhaps more than *fairly*) simple:
+
+```
+const SECRET = 'SECRET'
+
+let authSend = function (params, next, end) {
+  params[0].json.authorization = SECRET
+  next()
+}
+
+module.exports = authSend;
+```
+
+The only point to notice in the receiving side is that the params are a bit different. This is natureal because the middleware stack that will be invoked is directly getting its values and params from **Node HTTP module**. Hence, the params are similar to node networking and are as follows:
+
+  - **params[0]** the request object. Similiar to node's [IncomingMessage]()
+  - **params[1]** the response object. The wrapper used to send a response to the sender.
+  - **params[2]** body. The payload of the request. Note that this is the entire `json` key which was available in the sending side. Later, another middleware will only pass the userPayload section of this object the service repository and the service repository will pass it to the user. Thus, the authorization key that we added in the last section is entirely hidden from the application code.  
+
+Hence, the receiving side of the middleware is similar to this:
+
+```
+const SECRET = 'SECRET'
+
+let authReceive = function (params, next, end) {
+  let authorization = params[2].authorization
+
+  if (authorization === SECRET) {
+    console.log('auth accepted')
+    next()
+  }else {
+    console.log('auth failed')
+    // it's better to also close the request immediately
+    params[0].destroy()
+    end()
+  }
+}
+
+module.exports = authReceive
+
+```
+
+Similarly, we can insert these middlewares into the system using:
+
+```
+// stringMS
+stringMS.middlewares().transport.callDispatch.register(0, require('./auth.send'))
+stringMS.middlewares().transport.callReceive.register(0, require('./auth.receive'))
+
+// mathMS
+mathMS.middlewares().transport.callDispatch.register(0, require('./auth.send'))
+mathMS.middlewares().transport.callReceive.register(0, require('./auth.receive'))
+```
+
+Again, note that what you add to the `json` key is not available to the application layer. That is to say, you do not need to explicitly delete it from the object. Add a log to the receiving function and and double check this.
