@@ -4,14 +4,21 @@ title: {{ site.name }}
 ---
 ## Node XYZ
 
-Node XYZ is a NodeJS toolkit for creating microservice based distributed applications. It helps you:
+Node XYZ is a NodeJS toolkit for creating microservice based distributed applications. The main aim of XYZ is to cover following aspects of microservice architecture:
 
-  - Write microservices without worrying about all of the process communication overhead. Focus only on your business logic.
-  - Dynamically join/remove nodes to your cluster of microservices.
-  - Customize your system as much as possible. Authentication, logging, preprocess and post-processes are all possible via middlewares.
-  - Deploy services --on the fly-- with structured path based identifier and call them within your service with different strategies.
+  - **Service discovery and Communication**:
+    XYZ provides an easy *Path based* identification for services that each host is exposing. This ensures flexible messaging infrastructure. Consequently, XYZ systems are ***Soft*** and can act as you wish when it comes to accepting new hosts to the system.
+
+  - **Deployment and Development**:
+    XYZ provides a handy command line interface, using which you can easily test your microservices locally, deploy them and monitor them.
+
+  - **Infinite Scalability: Configurations** are the last key component to ensure that *XYZ will commensurate with whatever requirements your system might have*. That is to say, XYZ will not enforce any application dependent configuration, instead, it will provide only a default behavior (as a fallback) for it and enables you to easily override this default behavior.
 
 ---
+
+## Watch the introduction video:
+
+<iframe width="800" height="491" src="http://www.powtoon.com/embed/dRNJOFylWnr/" frameborder="0"></iframe>
 
 ## Install
 

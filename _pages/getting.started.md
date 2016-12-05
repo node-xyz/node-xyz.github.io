@@ -4,10 +4,6 @@ title: Getting Started with Node XYZ
 permalink: /getting-started
 ---
 
-# Hello XYZ
-
-This brief tutorial will help you fathom the concepts of XYZ, and help you get started with it.
-
 #### Contents
 
 - [Hello XYZ](/getting-started#hello-xyz)
@@ -16,6 +12,9 @@ This brief tutorial will help you fathom the concepts of XYZ, and help you get s
 - [Path based services](/getting-started#path-based-service-identification)
 - [Middlewares](/getting-started#middlewares)
 
+# Hello XYZ
+
+This brief tutorial will help you fathom the concepts of XYZ, and help you get started with it.
 
 ### Baby Microservice
 
