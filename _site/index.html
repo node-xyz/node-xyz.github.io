@@ -11,15 +11,19 @@
   <link rel="stylesheet" href="/css/cayman.css">
 </head>
 
+
   <body>
     <section class="page-header">
   <h1 class="project-name"><a style="text-decoration: none; color: inherit"href="/">Node XYZ</a></h1>
   <h2 class="project-tagline">Microservice toolkit for node</h2>
   <a href="https://github.com/node-xyz" class="btn">View on GitHub</a>
-  <a href="https://github.com/node-xyz/xyz-core" class="btn">xyz-core</a>
-  <a href="https://github.com/node-xyz/xyz-cli" class="btn">xyz-cli</a>
-  <a href="/getting-started" class="btn"> Documentation </a>
+  <a href="/documentations" class="btn"> Documentation </a>
   <a href="/apidoc" class="btn"> API Doc </a>
+
+  <div>
+    <span>you are currently seeing </span><strong>XYZ Homepage</strong>
+  </div>
+  
 </section>
 
 
@@ -49,15 +53,41 @@ XYZ provides a handy command line interface, using which you can easily test you
 
 <iframe width="800" height="491" src="http://www.powtoon.com/embed/dRNJOFylWnr/" frameborder="0"></iframe>
 
-<h2 id="install">Install</h2>
+<h2 id="documentations">Documentations</h2>
 
-<p>XYZ has several packages and plugins. The one that should be solely included in your scripts is <em>xyz-core</em></p>
+<p>The following documentations will help you get started with xyz, and understand it better:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>npm install xyz-core
-</code></pre>
-</div>
+<ul>
+  <li><strong>Getting started</strong>: a minimal 5 step tutorial, covering installation, setting up and writing a simple microservices. This tutorial is consisted of:
+    <ul>
+      <li><a href="/documentations/getting-started#hello-xyz">Hello XYZ</a></li>
+      <li><a href="/documentations/getting-started#replicating-your-nodes-and-services">Replicate your services</a></li>
+      <li><a href="/documentations/getting-started#service-discovery">Service Discovery</a></li>
+      <li><a href="/documentations/getting-started#path-based-service-identification">Path based services</a></li>
+      <li><a href="/documentations/getting-started#middlewares">Middlewares</a></li>
+    </ul>
+  </li>
+</ul>
 
 <hr />
+
+<ul>
+  <li><strong>Advance Topics</strong>[<em>work in progress</em>]:
+    <ul>
+      <li>An odyssey into XYZ: lifecycle of a single requests</li>
+      <li>XYZ Command line interface</li>
+      <li>Logging</li>
+      <li>Explaining how middlewares actually work</li>
+      <li>Best practices</li>
+    </ul>
+  </li>
+</ul>
+
+<hr />
+
+<ul>
+  <li><strong>Wiki</strong>: More technical details about the architecture and aims of xyz can be found in our <a href="https://github.com/node-xyz/xyz-core/wiki">wiki page</a></li>
+</ul>
 
 <h3 id="plugins">Plugins</h3>
 
@@ -78,19 +108,19 @@ XYZ provides a handy command line interface, using which you can easily test you
 <h3 id="general-transport-plugins">General Transport Plugins</h3>
 <ul>
   <li><a href="https://github.com/node-xyz/xyz.transport.global.receive.logger"><code class="highlighter-rouge">transport.global.receive.logger</code></a> : logs as each request is being sent</li>
-  <li><code class="highlighter-rouge">transport.global.send.logger</code> : logs as each request is being received</li>
+  <li><a href="https://github.com/node-xyz/xyz.transport.global.receive.logger"><code class="highlighter-rouge">transport.global.send.logger</code></a> : logs as each request is being received</li>
 </ul>
 
 <h4 id="basic-transport-level-authentication-plugins">Basic Transport level authentication plugins</h4>
 <ul>
   <li><a href="https://github.com/node-xyz/xyz.transport.auth.basic.send"><code class="highlighter-rouge">transport.auth.basic.send</code></a> : adds a naive password authentication header to each request being sent</li>
-  <li><code class="highlighter-rouge">transport.auth.basic.receive</code> : checks a naive password authentication as each request is being received</li>
+  <li><a href="https://github.com/node-xyz/xyz.transport.auth.basic.receive"><code class="highlighter-rouge">transport.auth.basic.receive</code></a> : checks a naive password authentication as each request is being received</li>
 </ul>
 
 <h4 id="service-discovery-plugins">Service Discovery plugins</h4>
 <ul>
-  <li>[<strong>D</strong>]<code class="highlighter-rouge">service.send.first.find</code> : first find strategy for service discovery</li>
-  <li><code class="highlighter-rouge">service.send.to.all</code> : send to all strategy for service discovery</li>
+  <li>[<strong>D</strong>]<a href="https://github.com/node-xyz/xyz.service.send.first.find"><code class="highlighter-rouge">service.send.first.find</code></a> : first find strategy for service discovery</li>
+  <li><a href="https://github.com/node-xyz/xyz.service.send.to.all"><code class="highlighter-rouge">service.send.to.all</code></a> : send to all strategy for service discovery</li>
 </ul>
 
 <blockquote>
@@ -99,21 +129,9 @@ XYZ provides a handy command line interface, using which you can easily test you
 
 <hr />
 
-<h2 id="getting-started">Getting started</h2>
-
-<p>The following sections will guide you through the basics of using xyz.</p>
-
-<ul>
-  <li><a href="/getting-started#hello-xyz">Hello XYZ</a></li>
-  <li><a href="/getting-started#replicating-your-nodes-and-services">Replicate your services</a></li>
-  <li>Who is where?</li>
-  <li>Path based services</li>
-  <li>Middlewares</li>
-</ul>
-
 
       <footer class="site-footer">
-  <span class="site-footer-owner"><a href="http://localhost:4000">Node XYZ</a> is maintained by <a href="">Kian Peymani</a>.</span>
+  <span class="site-footer-owner"><a href="">Node XYZ</a> is maintained by <a href="">Kian Peymani</a>.</span>
   <small><span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/pietromenna/jekyll-cayman-theme">Cayman theme</a> by <a href="http://github.com/jasonlong">Jason Long</a>.</span></small>
 </footer>
 

@@ -1,7 +1,8 @@
 ---
 layout: default
-title: {{ site.name }}
+title: XYZ Homepage
 ---
+
 ## Node XYZ
 
 Node XYZ is a NodeJS toolkit for creating microservice based distributed applications. The main aim of XYZ is to cover following aspects of microservice architecture:
@@ -20,14 +21,30 @@ Node XYZ is a NodeJS toolkit for creating microservice based distributed applica
 
 <iframe width="800" height="491" src="http://www.powtoon.com/embed/dRNJOFylWnr/" frameborder="0"></iframe>
 
-## Install
+## Documentations
 
-XYZ has several packages and plugins. The one that should be solely included in your scripts is _xyz-core_
+The following documentations will help you get started with xyz, and understand it better:
 
-    npm install xyz-core
+  - **Getting started**: a minimal 5 step tutorial, covering installation, setting up and writing a simple microservices. This tutorial is consisted of:
+    - [Hello XYZ](/documentations/getting-started#hello-xyz)
+    - [Replicate your services](/documentations/getting-started#replicating-your-nodes-and-services)
+    - [Service Discovery](/documentations/getting-started#service-discovery)
+    - [Path based services](/documentations/getting-started#path-based-service-identification)
+    - [Middlewares](/documentations/getting-started#middlewares)
 
+  ---
 
----
+  - **Advance Topics**[*work in progress*]:
+    - An odyssey into XYZ: lifecycle of a single requests
+    - XYZ Command line interface
+    - Logging
+    - Explaining how middlewares actually work
+    - Best practices
+
+  ---
+
+  - **Wiki**: More technical details about the architecture and aims of xyz can be found in our [wiki page](https://github.com/node-xyz/xyz-core/wiki)
+
 
 ### Plugins
 
@@ -43,27 +60,16 @@ Current XYZ plugins are:
 
 ### General Transport Plugins
   - [`transport.global.receive.logger`](https://github.com/node-xyz/xyz.transport.global.receive.logger) : logs as each request is being sent
-  - `transport.global.send.logger` : logs as each request is being received
+  - [`transport.global.send.logger`](https://github.com/node-xyz/xyz.transport.global.receive.logger) : logs as each request is being received
 
 #### Basic Transport level authentication plugins
   - [`transport.auth.basic.send`](https://github.com/node-xyz/xyz.transport.auth.basic.send) : adds a naive password authentication header to each request being sent
-  - `transport.auth.basic.receive` : checks a naive password authentication as each request is being received
+  - [`transport.auth.basic.receive`](https://github.com/node-xyz/xyz.transport.auth.basic.receive) : checks a naive password authentication as each request is being received
 
 #### Service Discovery plugins
-  - [**D**]`service.send.first.find` : first find strategy for service discovery
-  - `service.send.to.all` : send to all strategy for service discovery
+  - [**D**][`service.send.first.find`](https://github.com/node-xyz/xyz.service.send.first.find) : first find strategy for service discovery
+  - [`service.send.to.all`](https://github.com/node-xyz/xyz.service.send.to.all) : send to all strategy for service discovery
 
   > plugins marked by [**D**] are installed by default
 
-
 ---
-
-## Getting started
-
-The following sections will guide you through the basics of using xyz.
-
-  - [Hello XYZ](/getting-started#hello-xyz)
-  - [Replicate your services](/getting-started#replicating-your-nodes-and-services)
-  -  Who is where?
-  -  Path based services
-  -  Middlewares

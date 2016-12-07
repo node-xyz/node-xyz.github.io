@@ -1,16 +1,16 @@
 ---
 layout: page
 title: Getting Started with Node XYZ
-permalink: /getting-started
+permalink: /documentations/getting-started
 ---
 
 #### Contents
 
-- [Hello XYZ](/getting-started#hello-xyz)
-- [Replicate your services](/getting-started#replicating-your-nodes-and-services)
-- [Service Discovery](/getting-started#service-discovery)
-- [Path based services](/getting-started#path-based-service-identification)
-- [Middlewares](/getting-started#middlewares)
+- [Hello XYZ](/documentations/getting-started#hello-xyz)
+- [Replicate your services](/documentations/getting-started#replicating-your-nodes-and-services)
+- [Service Discovery](/documentations/getting-started#service-discovery)
+- [Path based services](/documentations/getting-started#path-based-service-identification)
+- [Middlewares](/documentations/getting-started#middlewares)
 
 # Hello XYZ
 
