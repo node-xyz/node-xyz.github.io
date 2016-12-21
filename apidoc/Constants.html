@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>index.js</title>
+  <title>Constants.js</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -228,7 +228,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>index.js</h1>
+                  <h1>Constants.js</h1>
               </div>
           </li>
         
@@ -243,18 +243,62 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">let</span> xyz = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./xyz'</span>)
-<span class="hljs-keyword">let</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Log/Logger'</span>)
-<span class="hljs-keyword">let</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Service/path'</span>)
-<span class="hljs-keyword">let</span> CONFIG = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Config/config.global'</span>)
-
+            <div class="content"><div class='highlight'><pre><span class="hljs-comment">/**
+ * a set of constant variables. used as fallback for configurations filled by the user.
+ */</span>
 <span class="hljs-built_in">module</span>.exports = {
-  <span class="hljs-attr">xyz</span>: xyz,
-  <span class="hljs-attr">logger</span>: logger,
-  <span class="hljs-attr">path</span>: path,
-  <span class="hljs-attr">CONFIG</span>: CONFIG,
-  <span class="hljs-attr">Util</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/Util'</span>),
-  <span class="hljs-attr">logUtils</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/ansi.colors'</span>)
+  <span class="hljs-attr">commandline</span>: {
+    <span class="hljs-attr">xyzport</span>: <span class="hljs-number">3000</span>
+  },
+  <span class="hljs-attr">events</span>: {
+    <span class="hljs-attr">REQUEST</span>: <span class="hljs-string">'request'</span>,
+    <span class="hljs-attr">SERVICE_CALL</span>: <span class="hljs-string">'serviceCall'</span>,
+    <span class="hljs-attr">PING</span>: <span class="hljs-string">'ping'</span>,
+    <span class="hljs-attr">JOIN</span>: <span class="hljs-string">'join'</span>
+  },
+  <span class="hljs-attr">url</span>: {
+    <span class="hljs-attr">CALL</span>: <span class="hljs-string">'call'</span>,
+    <span class="hljs-attr">PING</span>: <span class="hljs-string">'ping'</span>,
+    <span class="hljs-attr">JOIN</span>: <span class="hljs-string">'join'</span>
+  },
+  <span class="hljs-attr">environmet</span>: {
+    <span class="hljs-attr">dev</span>: <span class="hljs-string">'dev'</span>,
+    <span class="hljs-attr">production</span>: <span class="hljs-string">'prod'</span>
+  },
+  <span class="hljs-attr">defaultConfig</span>: {
+    <span class="hljs-attr">selfConf</span>: {
+      <span class="hljs-attr">name</span>: <span class="hljs-string">'node-xyz-init'</span>,
+      <span class="hljs-attr">defaultSendStrategy</span>: <span class="hljs-string">'xyz.service.send.first.find'</span>,
+      <span class="hljs-attr">allowJoin</span>: <span class="hljs-literal">false</span>,
+      <span class="hljs-attr">logLevel</span>: <span class="hljs-string">'info'</span>,
+      <span class="hljs-attr">seed</span>: [],
+      <span class="hljs-attr">port</span>: <span class="hljs-number">3333</span>,
+      <span class="hljs-attr">host</span>: <span class="hljs-string">'127.0.0.1'</span>,
+      <span class="hljs-attr">intervals</span>: {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>threshold: 5000,
+ping: 3000,
+kick: 5,</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        reconnect: <span class="hljs-number">2500</span>
+      },
+      <span class="hljs-attr">defaultBootstrap</span>: <span class="hljs-literal">true</span>
+    },
+    <span class="hljs-attr">systemConf</span>: {
+      <span class="hljs-attr">nodes</span>: []
+    }
+  }
 }</pre></div></div>
             
         </li>

@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>index.js</title>
+  <title>ping.default.js</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -228,7 +228,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>index.js</h1>
+                  <h1>ping.default.js</h1>
               </div>
           </li>
         
@@ -243,19 +243,47 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">let</span> xyz = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./xyz'</span>)
-<span class="hljs-keyword">let</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Log/Logger'</span>)
-<span class="hljs-keyword">let</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Service/path'</span>)
-<span class="hljs-keyword">let</span> CONFIG = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Config/config.global'</span>)
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">let</span> interval = <span class="hljs-number">2000</span>
+<span class="hljs-keyword">let</span> threshold = <span class="hljs-number">2000</span>
+<span class="hljs-keyword">let</span> kick = <span class="hljs-number">5</span>
 
-<span class="hljs-built_in">module</span>.exports = {
-  <span class="hljs-attr">xyz</span>: xyz,
-  <span class="hljs-attr">logger</span>: logger,
-  <span class="hljs-attr">path</span>: path,
-  <span class="hljs-attr">CONFIG</span>: CONFIG,
-  <span class="hljs-attr">Util</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/Util'</span>),
-  <span class="hljs-attr">logUtils</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/ansi.colors'</span>)
-}</pre></div></div>
+<span class="hljs-keyword">let</span> pingBoostraper = <span class="hljs-function">(<span class="hljs-params">xyz</span>) =&gt;</span> {
+  <span class="hljs-keyword">let</span> XYZ = <span class="hljs-built_in">require</span>(<span class="hljs-string">'xyz-core'</span>)
+  <span class="hljs-keyword">let</span> Util = XYZ.Util
+  <span class="hljs-keyword">let</span> logger = XYZ.logger
+  <span class="hljs-keyword">let</span> CONFIG = XYZ.CONFIG
+  <span class="hljs-keyword">let</span> wrapper = XYZ.logUtils.wrapper
+  <span class="hljs-keyword">let</span> SR = xyz.serviceRepository
+
+  <span class="hljs-keyword">let</span> pingInterval = setInterval(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">let</span> nodes = CONFIG.getSystemConf().nodes
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> node <span class="hljs-keyword">of</span> nodes) {
+      SR.transportClient.ping(Util.nodeStringToObject(node), (err, body , res) =&gt; {
+        <span class="hljs-keyword">if</span> (err == <span class="hljs-literal">null</span>) {
+          SR.foreignNodes[node] = body.services
+          CONFIG.ensureNodes(body.nodes)
+          SR.outOfReachNodes[node] = <span class="hljs-number">0</span>
+          logger.verbose(<span class="hljs-string">`<span class="hljs-subst">${wrapper(<span class="hljs-string">'bold'</span>, <span class="hljs-string">'PING'</span>)}</span> success :: response = <span class="hljs-subst">${<span class="hljs-built_in">JSON</span>.stringify(body)}</span>`</span>)
+        } <span class="hljs-keyword">else</span> {
+          <span class="hljs-keyword">if</span> (SR.outOfReachNodes[node]) {
+            SR.outOfReachNodes[node] += <span class="hljs-number">1</span>
+            <span class="hljs-keyword">if</span> (SR.outOfReachNodes[node] &gt; (kick)) {
+              logger.error(<span class="hljs-string">`removing node from foreignNodes and nodes list`</span>)
+              SR.kickNode(node)
+              <span class="hljs-keyword">return</span>
+            }
+          } <span class="hljs-keyword">else</span> {
+            SR.outOfReachNodes[node] = <span class="hljs-number">1</span>
+          }
+          logger.error(<span class="hljs-string">`Ping Error :: <span class="hljs-subst">${node}</span> has been out of reach for <span class="hljs-subst">${SR.outOfReachNodes[node]}</span> pings ::  <span class="hljs-subst">${<span class="hljs-built_in">JSON</span>.stringify(err)}</span>`</span>)
+        }
+      })
+    }
+  }, interval + Util.Random(threshold))
+  logger.info(<span class="hljs-string">`ping bootstraped for approx. every <span class="hljs-subst">${interval}</span> ms`</span>)
+}
+
+<span class="hljs-built_in">module</span>.exports = pingBoostraper</pre></div></div>
             
         </li>
         

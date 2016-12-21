@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>index.js</title>
+  <title>ansi.colors.js</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -228,7 +228,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>index.js</h1>
+                  <h1>ansi.colors.js</h1>
               </div>
           </li>
         
@@ -243,18 +243,64 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">let</span> xyz = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./xyz'</span>)
-<span class="hljs-keyword">let</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Log/Logger'</span>)
-<span class="hljs-keyword">let</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Service/path'</span>)
-<span class="hljs-keyword">let</span> CONFIG = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Config/config.global'</span>)
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">let</span> colors = {
+  <span class="hljs-string">"reset"</span>: <span class="hljs-string">"\033[0m"</span>,
+  <span class="hljs-string">"bold"</span>: <span class="hljs-string">"\033[1m"</span>,
+  <span class="hljs-string">"boldoff"</span>: <span class="hljs-string">"\033[22m"</span>,
+  <span class="hljs-string">"underline"</span>: <span class="hljs-string">"\033[4m"</span>,
+  <span class="hljs-string">"inverse"</span>: <span class="hljs-string">"\033[7m"</span>,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>foreground colors</p>
 
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-string">"black"</span>: <span class="hljs-string">"\033[30m"</span>,
+  <span class="hljs-string">"red"</span>: <span class="hljs-string">"\033[31m"</span>,
+  <span class="hljs-string">"green"</span>: <span class="hljs-string">"\033[32m"</span>,
+  <span class="hljs-string">"yellow"</span>: <span class="hljs-string">"\033[33m"</span>,
+  <span class="hljs-string">"blue"</span>: <span class="hljs-string">"\033[34m"</span>,
+  <span class="hljs-string">"magenta"</span>: <span class="hljs-string">"\033[35m"</span>,
+  <span class="hljs-string">"cyan"</span>: <span class="hljs-string">"\033[36m"</span>,
+  <span class="hljs-string">"white"</span>: <span class="hljs-string">"\033[37m"</span>,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>background colors</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-string">"bg_black"</span>: <span class="hljs-string">"\033[40m"</span>,
+  <span class="hljs-string">"bg_red"</span>: <span class="hljs-string">"\033[41m"</span>,
+  <span class="hljs-string">"bg_green"</span>: <span class="hljs-string">"\033[42m"</span>,
+  <span class="hljs-string">"bg_yellow"</span>: <span class="hljs-string">"\033[43m"</span>,
+  <span class="hljs-string">"bg_blue"</span>: <span class="hljs-string">"\033[44m"</span>,
+  <span class="hljs-string">"bg_magenta"</span>: <span class="hljs-string">"\033[45m"</span>,
+  <span class="hljs-string">"bg_cyan"</span>: <span class="hljs-string">"\033[46m"</span>,
+  <span class="hljs-string">"bg_white"</span>: <span class="hljs-string">"\033[47m"</span>
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">wrapper</span>(<span class="hljs-params">style, str</span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">${colors[style]}</span><span class="hljs-subst">${str}</span><span class="hljs-subst">${colors[<span class="hljs-string">'reset'</span>]}</span>`</span>
+}
 <span class="hljs-built_in">module</span>.exports = {
-  <span class="hljs-attr">xyz</span>: xyz,
-  <span class="hljs-attr">logger</span>: logger,
-  <span class="hljs-attr">path</span>: path,
-  <span class="hljs-attr">CONFIG</span>: CONFIG,
-  <span class="hljs-attr">Util</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/Util'</span>),
-  <span class="hljs-attr">logUtils</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/ansi.colors'</span>)
+  <span class="hljs-attr">colors</span>: colors,
+  <span class="hljs-attr">wrapper</span>: wrapper
 }</pre></div></div>
             
         </li>

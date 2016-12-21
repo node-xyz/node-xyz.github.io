@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>index.js</title>
+  <title>mock.system.js</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -228,7 +228,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>index.js</h1>
+                  <h1>mock.system.js</h1>
               </div>
           </li>
         
@@ -243,19 +243,26 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">let</span> xyz = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./xyz'</span>)
-<span class="hljs-keyword">let</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Log/Logger'</span>)
-<span class="hljs-keyword">let</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Service/path'</span>)
-<span class="hljs-keyword">let</span> CONFIG = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Config/config.global'</span>)
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>)
 
-<span class="hljs-built_in">module</span>.exports = {
-  <span class="hljs-attr">xyz</span>: xyz,
-  <span class="hljs-attr">logger</span>: logger,
-  <span class="hljs-attr">path</span>: path,
-  <span class="hljs-attr">CONFIG</span>: CONFIG,
-  <span class="hljs-attr">Util</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/Util'</span>),
-  <span class="hljs-attr">logUtils</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/ansi.colors'</span>)
-}</pre></div></div>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MockSystem</span> </span>{
+  <span class="hljs-keyword">constructor</span> (cwd) {
+    <span class="hljs-keyword">this</span>.nodes = []
+    <span class="hljs-keyword">this</span>.cwd = cwd
+  }
+
+  addNode (ms) {
+    <span class="hljs-keyword">this</span>.nodes.push(ms)
+  }
+
+  getSystemConf () {
+    <span class="hljs-keyword">return</span> {
+      <span class="hljs-attr">nodes</span>: <span class="hljs-keyword">this</span>.nodes
+    }
+  }
+}
+
+<span class="hljs-built_in">module</span>.exports = MockSystem</pre></div></div>
             
         </li>
         

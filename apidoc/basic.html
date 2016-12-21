@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>index.js</title>
+  <title>basic.js</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -228,7 +228,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>index.js</h1>
+                  <h1>basic.js</h1>
               </div>
           </li>
         
@@ -243,19 +243,60 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">let</span> xyz = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./xyz'</span>)
-<span class="hljs-keyword">let</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Log/Logger'</span>)
-<span class="hljs-keyword">let</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Service/path'</span>)
-<span class="hljs-keyword">let</span> CONFIG = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Config/config.global'</span>)
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">const</span> common = <span class="hljs-built_in">require</span>(<span class="hljs-string">'../common'</span>)
+<span class="hljs-keyword">const</span> expect = common.expect
+<span class="hljs-keyword">const</span> mockNode = common.mockNode
+<span class="hljs-keyword">const</span> mockSystem = common.mockSystem
+<span class="hljs-keyword">const</span> mockFunctions = common.mockFunctions
+<span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http'</span>)
 
-<span class="hljs-built_in">module</span>.exports = {
-  <span class="hljs-attr">xyz</span>: xyz,
-  <span class="hljs-attr">logger</span>: logger,
-  <span class="hljs-attr">path</span>: path,
-  <span class="hljs-attr">CONFIG</span>: CONFIG,
-  <span class="hljs-attr">Util</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/Util'</span>),
-  <span class="hljs-attr">logUtils</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/ansi.colors'</span>)
-}</pre></div></div>
+<span class="hljs-keyword">let</span> cwd, system, snd, rcv
+before(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">done</span>) </span>{
+  <span class="hljs-keyword">let</span> testSystem = common.init()
+  snd = testSystem.snd
+  rcv = testSystem.rcv
+  system = testSystem.system
+  cwd = testSystem.cwd
+  setTimeout(done, <span class="hljs-number">1000</span>)
+})
+
+it(<span class="hljs-string">'hello world'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">done</span>) </span>{
+  snd.call(<span class="hljs-string">'/mul'</span>, {
+    <span class="hljs-attr">x</span>: <span class="hljs-number">2</span>,
+    <span class="hljs-attr">y</span>: <span class="hljs-number">3</span>
+  }, (err1, body1, response1) =&gt; {
+    expect(body1).to.equal(<span class="hljs-number">6</span>)
+    expect(err1).to.equal(<span class="hljs-literal">null</span>)
+    expect(response1.statusCode).to.equal(<span class="hljs-number">200</span>)
+    snd.call(<span class="hljs-string">'/up'</span>, <span class="hljs-string">'hello'</span>, (err2, body2, response2) =&gt; {
+      expect(body2).to.equal(<span class="hljs-string">'HELLO'</span>)
+      expect(err2).to.equal(<span class="hljs-literal">null</span>)
+      expect(response2.statusCode).to.equal(<span class="hljs-number">200</span>)
+      done()
+    })
+  })
+})
+
+it(<span class="hljs-string">'local not found'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">done</span>) </span>{
+  snd.call(<span class="hljs-string">'/mullll'</span>, {
+    <span class="hljs-attr">x</span>: <span class="hljs-number">2</span>,
+    <span class="hljs-attr">y</span>: <span class="hljs-number">3</span>
+  }, (err, body, resp) =&gt; {
+    expect(body).to.equal(<span class="hljs-literal">null</span>)
+    expect(err).to.equal(http.STATUS_CODES[<span class="hljs-number">404</span>])
+    done()
+  })
+})
+
+it(<span class="hljs-string">'no Callback for sender call'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">done</span>) </span>{
+  snd.call(<span class="hljs-string">'mul'</span>, {<span class="hljs-attr">x</span>: <span class="hljs-number">2</span>,<span class="hljs-attr">y</span>: <span class="hljs-number">3</span>})
+  done()
+})
+
+after(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+  snd.stop()
+  rcv.stop()
+})</pre></div></div>
             
         </li>
         

@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>index.js</title>
+  <title>lang-css.js</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -228,7 +228,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>index.js</h1>
+                  <h1>lang-css.js</h1>
               </div>
           </li>
         
@@ -243,19 +243,10 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">let</span> xyz = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./xyz'</span>)
-<span class="hljs-keyword">let</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Log/Logger'</span>)
-<span class="hljs-keyword">let</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Service/path'</span>)
-<span class="hljs-keyword">let</span> CONFIG = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Config/config.global'</span>)
+            <div class="content"><div class='highlight'><pre>PR.registerLangHandler(PR.createSimpleLexer([[<span class="hljs-string">"pln"</span>,/^[\t\n\f\r ]+<span class="hljs-regexp">/,null," \t\r\n"]],[["str",/^"(?:[^\n\f\r"\\]|\\(?:\r\n?|\n|\f)|\\[\S\s])*"/</span>,<span class="hljs-literal">null</span>],[<span class="hljs-string">"str"</span>,/^<span class="hljs-string">'(?:[^\n\f\r'</span>\\]|\\(?:\r\n?|\n|\f)|\\[\S\s])*<span class="hljs-string">'/,null],["lang-css-str",/^url\(([^"'</span>)]*)\)/i],[<span class="hljs-string">"kwd"</span>,/^(?:url|rgb|!important|@<span class="hljs-keyword">import</span>|@page|@media|@charset|inherit)(?=[^\w-]|$)/i,<span class="hljs-literal">null</span>],[<span class="hljs-string">"lang-css-kw"</span>,/^(-?(?:[_a-z]|\\[\da-f]+ ?)(?:[\w-]|\\\\[\da-f]+ ?)*)\s*:<span class="hljs-regexp">/i],["com",/^\/\*[^*]*\*+(?:[^*/][^*]*\*+)*\//</span>],[<span class="hljs-string">"com"</span>,
+/^(?:<span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">\!--|--\</span>&gt;</span>)/],["lit",/^(?:\d+|\d*\.\d+)(?:%|[a-z]+)?/i],["lit",/^#[\da-f]{3,6}/i],["pln",/^-?(?:[_a-z]|\\[\da-f]+ ?)(?:[\w-]|\\\\[\da-f]+ ?)*/i],["pun",/^[^\s\w"']+/]]),["css"]);PR.registerLangHandler(PR.createSimpleLexer([],[["kwd",/^-?(?:[_a-z]|\\[\da-f]+ ?)(?:[\w-]|\\\\[\da-f]+ ?)*/i]]),["css-kw"]);PR.registerLangHandler(PR.createSimpleLexer([],[["str",/^[^"')]+/]]),["css-str"]);
 
-<span class="hljs-built_in">module</span>.exports = {
-  <span class="hljs-attr">xyz</span>: xyz,
-  <span class="hljs-attr">logger</span>: logger,
-  <span class="hljs-attr">path</span>: path,
-  <span class="hljs-attr">CONFIG</span>: CONFIG,
-  <span class="hljs-attr">Util</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/Util'</span>),
-  <span class="hljs-attr">logUtils</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/ansi.colors'</span>)
-}</pre></div></div>
+</span></pre></div></div>
             
         </li>
         

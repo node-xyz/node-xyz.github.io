@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>index.js</title>
+  <title>events.and.cluster.js</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -228,7 +228,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>index.js</h1>
+                  <h1>events.and.cluster.js</h1>
               </div>
           </li>
         
@@ -243,19 +243,80 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">let</span> xyz = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./xyz'</span>)
-<span class="hljs-keyword">let</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Log/Logger'</span>)
-<span class="hljs-keyword">let</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Service/path'</span>)
-<span class="hljs-keyword">let</span> CONFIG = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Config/config.global'</span>)
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">const</span> common = <span class="hljs-built_in">require</span>(<span class="hljs-string">'../common'</span>)
+<span class="hljs-keyword">let</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../src/Log/Logger'</span>)
+<span class="hljs-keyword">const</span> expect = common.expect
+<span class="hljs-keyword">const</span> mockNode = common.mockNode
+<span class="hljs-keyword">const</span> mockSystem = common.mockSystem
+<span class="hljs-keyword">const</span> mockFunctions = common.mockFunctions
+<span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http'</span>)
 
-<span class="hljs-built_in">module</span>.exports = {
-  <span class="hljs-attr">xyz</span>: xyz,
-  <span class="hljs-attr">logger</span>: logger,
-  <span class="hljs-attr">path</span>: path,
-  <span class="hljs-attr">CONFIG</span>: CONFIG,
-  <span class="hljs-attr">Util</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/Util'</span>),
-  <span class="hljs-attr">logUtils</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/ansi.colors'</span>)
-}</pre></div></div>
+<span class="hljs-keyword">let</span> cwd, system, snd, rcv
+<span class="hljs-keyword">let</span> mocks = []
+<span class="hljs-keyword">let</span> mocks_count = <span class="hljs-number">3</span>
+before(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">done</span>) </span>{
+  cwd = __filename.slice(<span class="hljs-number">0</span>, __filename.lastIndexOf(<span class="hljs-string">'/'</span>))
+  system = <span class="hljs-keyword">new</span> mockSystem(cwd)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>the system is consisted of snd and rcv only</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  system.addNode(<span class="hljs-string">'localhost:3333'</span>)
+  system.addNode(<span class="hljs-string">'localhost:3334'</span>)
+
+  snd = <span class="hljs-keyword">new</span> mockNode(<span class="hljs-string">'snd'</span>, <span class="hljs-number">3334</span>, cwd, system.getSystemConf())
+  rcv = <span class="hljs-keyword">new</span> mockNode(<span class="hljs-string">'rcv'</span>, <span class="hljs-number">3333</span>, cwd, system.getSystemConf())
+  rcv.register(<span class="hljs-string">'mul'</span>, mockFunctions.mul)
+  rcv.register(<span class="hljs-string">'up'</span>, mockFunctions.up)
+
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; mocks_count; i++) {
+    <span class="hljs-keyword">let</span> mock = <span class="hljs-keyword">new</span> mockNode(<span class="hljs-string">`mock_<span class="hljs-subst">${i}</span>`</span>, <span class="hljs-number">3335</span> + i, cwd, system.getSystemConf())
+    mocks.push(mock)
+  }
+
+  setTimeout(done, <span class="hljs-number">500</span>)
+})
+
+it(<span class="hljs-string">'is anybody there ?'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">done</span>) </span>{
+  setTimeout(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    expect(<span class="hljs-built_in">Object</span>.keys(snd.xyz.serviceRepository.foreignNodes).length).to.equal(mocks_count + <span class="hljs-number">2</span>)
+    expect(<span class="hljs-built_in">Object</span>.keys(rcv.xyz.serviceRepository.foreignNodes).length).to.equal(mocks_count + <span class="hljs-number">2</span>)
+    <span class="hljs-keyword">for</span> ( <span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; mocks_count; i++) {
+      expect(<span class="hljs-built_in">Object</span>.keys(mocks[i].xyz.serviceRepository.foreignNodes).length).to.equal(mocks_count + <span class="hljs-number">2</span>)
+    }
+    done()
+  }, <span class="hljs-number">1000</span>)
+  <span class="hljs-keyword">this</span>.timeout(<span class="hljs-number">10000</span>)
+})
+
+it.skip(<span class="hljs-string">'what goes up must come down ?'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">done</span>) </span>{
+  <span class="hljs-built_in">console</span>.log(mocks)
+  mocks[<span class="hljs-number">0</span>].stop()
+  mocks[<span class="hljs-number">1</span>].stop()
+  mocks[<span class="hljs-number">2</span>].stop()
+
+  setTimeout(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    expect(<span class="hljs-built_in">Object</span>.keys(snd.xyz.serviceRepository.foreignNodes).length).to.equal(mocks_count)
+    expect(<span class="hljs-built_in">Object</span>.keys(rcv.xyz.serviceRepository.foreignNodes).length).to.equal(mocks_count)
+    done()
+  }, <span class="hljs-number">10000</span>)
+  <span class="hljs-keyword">this</span>.timeout(<span class="hljs-number">200000</span>)
+})
+
+after(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+  snd.stop()
+  rcv.stop()
+})</pre></div></div>
             
         </li>
         

@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>index.js</title>
+  <title>auth.js</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -228,7 +228,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>index.js</h1>
+                  <h1>auth.js</h1>
               </div>
           </li>
         
@@ -243,19 +243,60 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">let</span> xyz = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./xyz'</span>)
-<span class="hljs-keyword">let</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Log/Logger'</span>)
-<span class="hljs-keyword">let</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Service/path'</span>)
-<span class="hljs-keyword">let</span> CONFIG = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Config/config.global'</span>)
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">const</span> common = <span class="hljs-built_in">require</span>(<span class="hljs-string">'../common'</span>)
+<span class="hljs-keyword">let</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../src/Log/Logger'</span>)
+<span class="hljs-keyword">const</span> expect = common.expect
+<span class="hljs-keyword">const</span> mockNode = common.mockNode
+<span class="hljs-keyword">const</span> mockSystem = common.mockSystem
+<span class="hljs-keyword">const</span> mockFunctions = common.mockFunctions
+<span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http'</span>)
 
-<span class="hljs-built_in">module</span>.exports = {
-  <span class="hljs-attr">xyz</span>: xyz,
-  <span class="hljs-attr">logger</span>: logger,
-  <span class="hljs-attr">path</span>: path,
-  <span class="hljs-attr">CONFIG</span>: CONFIG,
-  <span class="hljs-attr">Util</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/Util'</span>),
-  <span class="hljs-attr">logUtils</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/ansi.colors'</span>)
-}</pre></div></div>
+<span class="hljs-keyword">let</span> snd
+<span class="hljs-keyword">let</span> rcv
+<span class="hljs-keyword">let</span> system
+<span class="hljs-keyword">let</span> cwd
+<span class="hljs-keyword">let</span> str = <span class="hljs-string">'manipulated'</span>
+
+before(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">done</span>) </span>{
+  <span class="hljs-keyword">let</span> testSystem = common.init()
+  snd = testSystem.snd
+  rcv = testSystem.rcv
+  system = testSystem.system
+  cwd = testSystem.cwd
+
+  setTimeout(done, <span class="hljs-number">500</span>)
+})
+
+it(<span class="hljs-string">'Add auth on the fly'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">done</span>) </span>{
+  snd.middlewares().transport.callDispatch.register(<span class="hljs-number">0</span>, <span class="hljs-built_in">require</span>(<span class="hljs-string">'xyz.transport.auth.basic.send'</span>))
+  rcv.middlewares().transport.callReceive.register(<span class="hljs-number">0</span>, <span class="hljs-built_in">require</span>(<span class="hljs-string">'xyz.transport.auth.basic.receive'</span>))
+
+  snd.call(<span class="hljs-string">'/mul'</span>, { <span class="hljs-attr">x</span>: <span class="hljs-number">2</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">10</span> }, (err, body, response) =&gt; {
+    expect(body).to.equal(<span class="hljs-number">20</span>)
+    done()
+  })
+})
+
+it(<span class="hljs-string">'wrong auth'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">done</span>) </span>{
+  snd.middlewares().transport.callDispatch.remove(<span class="hljs-number">0</span>)
+  snd.middlewares().transport.callDispatch.register(<span class="hljs-number">0</span>, (params, next, done) =&gt; {
+    <span class="hljs-keyword">let</span> requestConfig = params[<span class="hljs-number">0</span>]
+    requestConfig.json.auth = <span class="hljs-string">'123wrong'</span>
+    next()
+  })
+  rcv.middlewares().transport.callReceive.register(<span class="hljs-number">0</span>, <span class="hljs-built_in">require</span>(<span class="hljs-string">'xyz.transport.auth.basic.receive'</span>))
+
+  snd.call(<span class="hljs-string">'/mul'</span>, { <span class="hljs-attr">x</span>: <span class="hljs-number">2</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">10</span> }, (err, body, response) =&gt; {
+    expect(body).to.equal(<span class="hljs-literal">null</span>)
+    expect(<span class="hljs-keyword">typeof</span> (err)).to.equal(<span class="hljs-string">'object'</span>)
+    done()
+  })
+})
+
+after(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+  snd.stop()
+  rcv.stop()
+})</pre></div></div>
             
         </li>
         

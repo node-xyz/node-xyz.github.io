@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>index.js</title>
+  <title>path.tree.js</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -228,7 +228,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>index.js</h1>
+                  <h1>path.tree.js</h1>
               </div>
           </li>
         
@@ -243,19 +243,69 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">let</span> xyz = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./xyz'</span>)
-<span class="hljs-keyword">let</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Log/Logger'</span>)
-<span class="hljs-keyword">let</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Service/path'</span>)
-<span class="hljs-keyword">let</span> CONFIG = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Config/config.global'</span>)
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">let</span> Path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./path'</span>)
+<span class="hljs-keyword">let</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../Log/Logger'</span>)
 
-<span class="hljs-built_in">module</span>.exports = {
-  <span class="hljs-attr">xyz</span>: xyz,
-  <span class="hljs-attr">logger</span>: logger,
-  <span class="hljs-attr">path</span>: path,
-  <span class="hljs-attr">CONFIG</span>: CONFIG,
-  <span class="hljs-attr">Util</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/Util'</span>),
-  <span class="hljs-attr">logUtils</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/ansi.colors'</span>)
-}</pre></div></div>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">PathTree</span> </span>{
+  <span class="hljs-keyword">constructor</span> () {
+    <span class="hljs-keyword">this</span>.tree = {
+      <span class="hljs-string">''</span>: {
+        <span class="hljs-attr">subtree</span>: {}
+      }
+    }
+    <span class="hljs-keyword">this</span>.serializedTree = { <span class="hljs-string">''</span>: {} }
+  }
+
+  createPathSubtree (path, fn) {
+    path = Path.format(path)
+    <span class="hljs-keyword">if</span> (!Path.validate(path)) {
+      logger.error(<span class="hljs-string">`Creating a new path failed. Invalid Path : <span class="hljs-subst">${path}</span>`</span>)
+      <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>
+    }
+    <span class="hljs-keyword">let</span> tokens = Path.getTokes(path)
+    <span class="hljs-keyword">let</span> tree = <span class="hljs-keyword">this</span>.tree
+    <span class="hljs-keyword">let</span> stree = <span class="hljs-keyword">this</span>.serializedTree
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> token <span class="hljs-keyword">of</span> tokens) {
+      <span class="hljs-keyword">if</span> (tree[token] === <span class="hljs-literal">undefined</span>) {
+        tree[token] = { <span class="hljs-attr">subtree</span>: {}}
+      }
+      <span class="hljs-keyword">if</span> (token !== tokens[tokens.length - <span class="hljs-number">1</span>]) {
+        tree = tree[token].subtree
+      }<span class="hljs-keyword">else</span> {
+        tree = tree[token]
+      }
+      <span class="hljs-keyword">if</span> (stree[token] === <span class="hljs-literal">undefined</span>) {
+        stree[token] = {}
+      }
+      stree = stree[token]
+    }
+
+    <span class="hljs-keyword">if</span> (fn) {
+      tree.fn = fn
+    }
+    <span class="hljs-keyword">return</span> tree
+  }
+
+  getPathFunction (path) {
+    <span class="hljs-keyword">let</span> pathTokens = path.split(<span class="hljs-string">'/'</span>)
+    <span class="hljs-keyword">let</span> tree = <span class="hljs-keyword">this</span>.tree
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> token <span class="hljs-keyword">of</span> pathTokens) {
+      <span class="hljs-keyword">if</span> (tree[token]) {
+        <span class="hljs-keyword">if</span> (token === pathTokens[pathTokens.length - <span class="hljs-number">1</span>]) {
+          <span class="hljs-keyword">return</span> tree[token].fn
+        } <span class="hljs-keyword">else</span> {
+          tree = tree[token].subtree
+        }
+      }<span class="hljs-keyword">else</span> {
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>
+      }
+    }
+  }
+
+  getMatches (path, startTree = <span class="hljs-keyword">this</span>.serializedTree) {}
+}
+
+<span class="hljs-built_in">module</span>.exports = PathTree</pre></div></div>
             
         </li>
         

@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>index.js</title>
+  <title>middleware.service.js</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -228,7 +228,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>index.js</h1>
+                  <h1>middleware.service.js</h1>
               </div>
           </li>
         
@@ -243,19 +243,105 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">let</span> xyz = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./xyz'</span>)
-<span class="hljs-keyword">let</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Log/Logger'</span>)
-<span class="hljs-keyword">let</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Service/path'</span>)
-<span class="hljs-keyword">let</span> CONFIG = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Config/config.global'</span>)
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">const</span> common = <span class="hljs-built_in">require</span>(<span class="hljs-string">'../common'</span>)
+<span class="hljs-keyword">let</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../src/Log/Logger'</span>)
+<span class="hljs-keyword">const</span> expect = common.expect
+<span class="hljs-keyword">const</span> mockNode = common.mockNode
+<span class="hljs-keyword">const</span> mockSystem = common.mockSystem
+<span class="hljs-keyword">const</span> mockFunctions = common.mockFunctions
+<span class="hljs-keyword">const</span> http = <span class="hljs-built_in">require</span>(<span class="hljs-string">'http'</span>)
 
-<span class="hljs-built_in">module</span>.exports = {
-  <span class="hljs-attr">xyz</span>: xyz,
-  <span class="hljs-attr">logger</span>: logger,
-  <span class="hljs-attr">path</span>: path,
-  <span class="hljs-attr">CONFIG</span>: CONFIG,
-  <span class="hljs-attr">Util</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/Util'</span>),
-  <span class="hljs-attr">logUtils</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/ansi.colors'</span>)
-}</pre></div></div>
+<span class="hljs-keyword">let</span> cwd, system, snd, rcv
+<span class="hljs-keyword">let</span> str = <span class="hljs-string">'manipulated'</span>
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">wrongServicediscoveryMiddleware</span> (<span class="hljs-params">params, next, end</span>) </span>{
+  <span class="hljs-keyword">let</span> servicePath = params[<span class="hljs-number">0</span>],
+    userPayload = params[<span class="hljs-number">1</span>],
+    foreignNodes = params[<span class="hljs-number">2</span>],
+    transportClient = params[<span class="hljs-number">3</span>]
+  responseCallback = params[<span class="hljs-number">4</span>]
+
+  <span class="hljs-keyword">let</span> serviceTokens = servicePath.split(<span class="hljs-string">'/'</span>)
+
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> node <span class="hljs-keyword">in</span> foreignNodes) {
+    <span class="hljs-keyword">let</span> servicePathIndex = <span class="hljs-number">0</span>
+    <span class="hljs-keyword">let</span> pathTree = foreignNodes[node]
+    <span class="hljs-keyword">let</span> match = <span class="hljs-literal">false</span>
+    <span class="hljs-keyword">while</span> (<span class="hljs-built_in">Object</span>.keys(pathTree).length) {
+      <span class="hljs-built_in">console</span>.log(node, pathTree)
+      <span class="hljs-keyword">if</span> (pathTree[serviceTokens[servicePathIndex]]) {
+        pathTree = pathTree[serviceTokens[servicePathIndex]]
+        servicePathIndex += <span class="hljs-number">1</span>
+        <span class="hljs-keyword">if</span> (servicePathIndex === serviceTokens.length) {
+          match = <span class="hljs-literal">true</span>
+        }
+      } <span class="hljs-keyword">else</span> {
+        <span class="hljs-keyword">break</span>
+      }
+    }
+    <span class="hljs-keyword">if</span> (! match) {
+      logger.info(<span class="hljs-string">`WRONG DISCOVERY :: determined <span class="hljs-subst">${node}</span> for <span class="hljs-subst">${servicePath}</span>`</span>)
+      transportClient.send(servicePath, node, userPayload, (err, body, response) =&gt; {
+        responseCallback(err, body, response)
+      })
+      <span class="hljs-keyword">return</span>
+    }
+  }
+}
+
+before(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">done</span>) </span>{
+  <span class="hljs-keyword">let</span> testSystem = common.init()
+  snd = testSystem.snd
+  rcv = testSystem.rcv
+  system = testSystem.system
+  cwd = testSystem.cwd
+
+  setTimeout(done, <span class="hljs-number">500</span>)
+})
+
+it(<span class="hljs-string">'False servicrDiscovery'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">done</span>) </span>{
+  snd.middlewares().serviceRepository.callDispatch.remove(<span class="hljs-number">-1</span>)
+  snd.middlewares().serviceRepository.callDispatch.register(<span class="hljs-number">-1</span>, wrongServicediscoveryMiddleware)
+  snd.call(<span class="hljs-string">'up'</span>, <span class="hljs-string">'what the hell'</span>, (err, body, response) =&gt; {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>this is exacly end of request event on serviceRepository</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    expect(response.statusCode).to.equal(<span class="hljs-number">404</span>)
+    expect(body).to.equal(http.STATUS_CODES[<span class="hljs-number">404</span>])
+    snd.middlewares().serviceRepository.callDispatch.remove(<span class="hljs-number">0</span>)
+    snd.middlewares().serviceRepository.callDispatch.register(<span class="hljs-number">-1</span>, common.firstfind)
+    done()
+  })
+})
+
+it(<span class="hljs-string">'changeMiddlewareOnTheFly - Hot Swap'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">done</span>) </span>{
+  snd.call(<span class="hljs-string">'up'</span>, <span class="hljs-string">'will be ok'</span>, (err, body, response) =&gt; {
+    expect(body).to.equal(<span class="hljs-string">'WILL BE OK'</span>)
+    snd.middlewares().serviceRepository.callDispatch.remove(<span class="hljs-number">-1</span>)
+    snd.middlewares().serviceRepository.callDispatch.register(<span class="hljs-number">-1</span>, wrongServicediscoveryMiddleware)
+    snd.call(<span class="hljs-string">'up'</span>, <span class="hljs-string">'will be not OK'</span>, (err, body, response) =&gt; {
+      expect(body).to.equal(http.STATUS_CODES[<span class="hljs-number">404</span>])
+      snd.middlewares().serviceRepository.callDispatch.remove(<span class="hljs-number">0</span>)
+      done()
+    })
+  })
+})
+
+after(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+  snd.stop()
+  rcv.stop()
+})</pre></div></div>
             
         </li>
         

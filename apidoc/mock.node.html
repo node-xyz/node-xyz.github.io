@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>index.js</title>
+  <title>mock.node.js</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -228,7 +228,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>index.js</h1>
+                  <h1>mock.node.js</h1>
               </div>
           </li>
         
@@ -243,18 +243,48 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">let</span> xyz = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./xyz'</span>)
-<span class="hljs-keyword">let</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Log/Logger'</span>)
-<span class="hljs-keyword">let</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Service/path'</span>)
-<span class="hljs-keyword">let</span> CONFIG = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Config/config.global'</span>)
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">const</span> XYZ = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../index'</span>).xyz
+<span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>)
+<span class="hljs-keyword">const</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../index'</span>).logger
+<span class="hljs-comment">/**
+ * A Wrapper class around microservice interface
+ */</span>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">mockNode</span> </span>{
+  <span class="hljs-keyword">constructor</span> (name, port, cwd, systemConf) {
+    <span class="hljs-keyword">let</span> selfConfiguration = {
+      <span class="hljs-string">'logLevel'</span>: <span class="hljs-string">'info'</span>,
+      <span class="hljs-attr">intervals</span>: {<span class="hljs-attr">ping</span>: <span class="hljs-number">1000</span>, <span class="hljs-attr">threshold</span>: <span class="hljs-number">500</span>},
+      <span class="hljs-string">'name'</span>: name,
+      <span class="hljs-string">'host'</span>: <span class="hljs-string">'localhost'</span>,
+      <span class="hljs-string">'port'</span>: port
+    }
+
+    <span class="hljs-keyword">this</span>.xyz = <span class="hljs-keyword">new</span> XYZ({
+      <span class="hljs-attr">selfConf</span>: selfConfiguration,
+      <span class="hljs-attr">systemConf</span>: systemConf
+    })
+  }
+
+  register (name, fn) {
+    <span class="hljs-keyword">this</span>.xyz.register(name, fn)
+  }
+
+  call (name, data, callback) {
+    <span class="hljs-keyword">this</span>.xyz.call(name, data, callback)
+  }
+
+  middlewares () {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.xyz.middlewares()
+  }
+
+  stop () {
+    logger.warn(<span class="hljs-string">'service stopped'</span>)
+    <span class="hljs-keyword">this</span>.xyz.terminate()
+  }
+}
 
 <span class="hljs-built_in">module</span>.exports = {
-  <span class="hljs-attr">xyz</span>: xyz,
-  <span class="hljs-attr">logger</span>: logger,
-  <span class="hljs-attr">path</span>: path,
-  <span class="hljs-attr">CONFIG</span>: CONFIG,
-  <span class="hljs-attr">Util</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/Util'</span>),
-  <span class="hljs-attr">logUtils</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/ansi.colors'</span>)
+  <span class="hljs-attr">mockNode</span>: mockNode
 }</pre></div></div>
             
         </li>

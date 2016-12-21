@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>index.js</title>
+  <title>call.receive.event.middleware.js</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -228,7 +228,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>index.js</h1>
+                  <h1>call.receive.event.middleware.js</h1>
               </div>
           </li>
         
@@ -243,19 +243,27 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">let</span> xyz = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./xyz'</span>)
-<span class="hljs-keyword">let</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Log/Logger'</span>)
-<span class="hljs-keyword">let</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Service/path'</span>)
-<span class="hljs-keyword">let</span> CONFIG = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Config/config.global'</span>)
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">const</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../../Log/Logger'</span>)
+<span class="hljs-keyword">const</span> CONSTANTS = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../../Config/Constants'</span>)
+<span class="hljs-keyword">const</span> url = <span class="hljs-built_in">require</span>(<span class="hljs-string">'url'</span>)
 
-<span class="hljs-built_in">module</span>.exports = {
-  <span class="hljs-attr">xyz</span>: xyz,
-  <span class="hljs-attr">logger</span>: logger,
-  <span class="hljs-attr">path</span>: path,
-  <span class="hljs-attr">CONFIG</span>: CONFIG,
-  <span class="hljs-attr">Util</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/Util'</span>),
-  <span class="hljs-attr">logUtils</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/ansi.colors'</span>)
-}</pre></div></div>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">passToRepo</span> (<span class="hljs-params">params, next, end</span>) </span>{
+  <span class="hljs-keyword">let</span> request = params[<span class="hljs-number">0</span>]
+  <span class="hljs-keyword">let</span> response = params[<span class="hljs-number">1</span>]
+  <span class="hljs-keyword">let</span> body = params[<span class="hljs-number">2</span>]
+  <span class="hljs-keyword">let</span> _transport = params[<span class="hljs-number">3</span>]
+
+  logger.debug(<span class="hljs-string">`CALL :: Passing request to <span class="hljs-subst">${request.url}</span> up to service repo with <span class="hljs-subst">${body}</span>`</span>)
+  _transport.emit(
+    CONSTANTS.events.REQUEST, {
+      <span class="hljs-attr">userPayload</span>: body.userPayload,
+      <span class="hljs-attr">serviceName</span>: body.service
+    },
+    response)
+  next()
+}
+
+<span class="hljs-built_in">module</span>.exports = passToRepo</pre></div></div>
             
         </li>
         

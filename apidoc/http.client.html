@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>index.js</title>
+  <title>http.client.js</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -228,7 +228,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>index.js</h1>
+                  <h1>http.client.js</h1>
               </div>
           </li>
         
@@ -243,19 +243,64 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">let</span> xyz = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./xyz'</span>)
-<span class="hljs-keyword">let</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Log/Logger'</span>)
-<span class="hljs-keyword">let</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Service/path'</span>)
-<span class="hljs-keyword">let</span> CONFIG = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Config/config.global'</span>)
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">const</span> querystring = <span class="hljs-built_in">require</span>(<span class="hljs-string">'querystring'</span>)
+<span class="hljs-keyword">const</span> CONSTANTS = <span class="hljs-built_in">require</span>(<span class="hljs-string">'../../Config/Constants'</span>)
+<span class="hljs-keyword">const</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../Log/Logger'</span>)
+<span class="hljs-keyword">const</span> machineReport = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../Util/machine.reporter'</span>)
+<span class="hljs-keyword">const</span> _CONFIGURATIONS = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../Config/config.global'</span>)
+<span class="hljs-keyword">let</span> GenericMiddlewareHandler = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../Middleware/generic.middleware.handler'</span>)
 
-<span class="hljs-built_in">module</span>.exports = {
-  <span class="hljs-attr">xyz</span>: xyz,
-  <span class="hljs-attr">logger</span>: logger,
-  <span class="hljs-attr">path</span>: path,
-  <span class="hljs-attr">CONFIG</span>: CONFIG,
-  <span class="hljs-attr">Util</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/Util'</span>),
-  <span class="hljs-attr">logUtils</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/ansi.colors'</span>)
-}</pre></div></div>
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">HTTPClient</span> </span>{
+  <span class="hljs-keyword">constructor</span> () {
+    <span class="hljs-keyword">this</span>.callPostfix = CONSTANTS.url.CALL
+    <span class="hljs-keyword">this</span>.pingPrefix = CONSTANTS.url.PING
+
+    <span class="hljs-keyword">this</span>.callDispatchMidllewareStack = <span class="hljs-keyword">new</span> GenericMiddlewareHandler()
+    <span class="hljs-keyword">this</span>.callDispatchMidllewareStack.register(<span class="hljs-number">-1</span>, <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../Middlewares/call/call.dispatch.export.middleware'</span>))
+
+    <span class="hljs-keyword">this</span>.pingDispatchMiddlewareStack = <span class="hljs-keyword">new</span> GenericMiddlewareHandler()
+    <span class="hljs-keyword">this</span>.pingDispatchMiddlewareStack.register(<span class="hljs-number">-1</span>, <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../Middlewares/ping/ping.dispatch.export.middleware'</span>))
+
+    <span class="hljs-keyword">this</span>.joinDispatchMiddlewareStack = <span class="hljs-keyword">new</span> GenericMiddlewareHandler()
+    <span class="hljs-keyword">this</span>.joinDispatchMiddlewareStack.register(<span class="hljs-number">-1</span>, <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../Middlewares/cluster/join.middleware.export'</span>))
+  }
+
+  send (servicePath, node, userPayload, callResponseCallback) {
+    <span class="hljs-keyword">let</span> requestConfig = {
+      <span class="hljs-attr">hostname</span>: <span class="hljs-string">`<span class="hljs-subst">${node.split(<span class="hljs-string">':'</span>)[<span class="hljs-number">0</span>]}</span>`</span>,
+      <span class="hljs-attr">port</span>: node.split(<span class="hljs-string">':'</span>)[<span class="hljs-number">1</span>],
+      <span class="hljs-attr">path</span>: <span class="hljs-string">`/<span class="hljs-subst">${<span class="hljs-keyword">this</span>.callPostfix}</span>`</span>,
+      <span class="hljs-attr">method</span>: <span class="hljs-string">'POST'</span>,
+      <span class="hljs-attr">json</span>: { <span class="hljs-attr">userPayload</span>: userPayload, <span class="hljs-attr">service</span>: servicePath}
+    }
+    <span class="hljs-keyword">this</span>.callDispatchMidllewareStack.apply([requestConfig, callResponseCallback], <span class="hljs-number">0</span>)
+  }
+
+  ping (node, pingResponseCallback) {
+    <span class="hljs-keyword">let</span> requestConfig = {
+      <span class="hljs-attr">hostname</span>: <span class="hljs-string">`<span class="hljs-subst">${node.host}</span>`</span>,
+      <span class="hljs-attr">port</span>: node.port,
+      <span class="hljs-attr">path</span>: <span class="hljs-string">`/<span class="hljs-subst">${<span class="hljs-keyword">this</span>.pingPrefix}</span>`</span>,
+      <span class="hljs-attr">method</span>: <span class="hljs-string">'POST'</span>,
+      <span class="hljs-attr">json</span>: { <span class="hljs-attr">sender</span>: <span class="hljs-string">`<span class="hljs-subst">${_CONFIGURATIONS.getSelfConf().host}</span>:<span class="hljs-subst">${_CONFIGURATIONS.getSelfConf().port}</span>`</span> }
+    }
+    <span class="hljs-keyword">this</span>.pingDispatchMiddlewareStack.apply([requestConfig, pingResponseCallback], <span class="hljs-number">0</span>)
+  }
+
+  contactSeed (node, joinResponseCallback) {
+    <span class="hljs-keyword">let</span> requestConfig = {
+      <span class="hljs-attr">hostname</span>: node.host,
+      <span class="hljs-attr">port</span>: node.port,
+      <span class="hljs-attr">path</span>: <span class="hljs-string">`/<span class="hljs-subst">${CONSTANTS.url.JOIN}</span>`</span>,
+      <span class="hljs-attr">method</span>: <span class="hljs-string">'POST'</span>,
+      <span class="hljs-attr">json</span>: { <span class="hljs-attr">sender</span>: <span class="hljs-string">`<span class="hljs-subst">${_CONFIGURATIONS.getSelfConf().host}</span>:<span class="hljs-subst">${_CONFIGURATIONS.getSelfConf().port}</span>`</span> }
+    }
+    <span class="hljs-keyword">this</span>.joinDispatchMiddlewareStack.apply([requestConfig, joinResponseCallback], <span class="hljs-number">0</span>)
+  }
+
+}
+
+<span class="hljs-built_in">module</span>.exports = HTTPClient</pre></div></div>
             
         </li>
         

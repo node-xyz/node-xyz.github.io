@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>index.js</title>
+  <title>mock.functions.js</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -228,7 +228,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>index.js</h1>
+                  <h1>mock.functions.js</h1>
               </div>
           </li>
         
@@ -243,18 +243,32 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">let</span> xyz = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./xyz'</span>)
-<span class="hljs-keyword">let</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Log/Logger'</span>)
-<span class="hljs-keyword">let</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Service/path'</span>)
-<span class="hljs-keyword">let</span> CONFIG = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Config/config.global'</span>)
-
-<span class="hljs-built_in">module</span>.exports = {
-  <span class="hljs-attr">xyz</span>: xyz,
-  <span class="hljs-attr">logger</span>: logger,
-  <span class="hljs-attr">path</span>: path,
-  <span class="hljs-attr">CONFIG</span>: CONFIG,
-  <span class="hljs-attr">Util</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/Util'</span>),
-  <span class="hljs-attr">logUtils</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/ansi.colors'</span>)
+            <div class="content"><div class='highlight'><pre><span class="hljs-built_in">module</span>.exports = {
+  <span class="hljs-attr">mul</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">mul</span> (<span class="hljs-params">payload, xResponse</span>) </span>{
+    xResponse.send(payload.x * payload.y)
+  },
+  <span class="hljs-attr">add</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">add</span> (<span class="hljs-params">payload, xResponse</span>) </span>{
+    xResponse.send(payload.x + payload.y)
+  },
+  <span class="hljs-attr">sub</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">add</span> (<span class="hljs-params">payload, xResponse</span>) </span>{
+    xResponse.send(payload.x - payload.y)
+  },
+  <span class="hljs-attr">up</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">payload, xResponse</span>) </span>{
+    xResponse.send(payload.toUpperCase())
+  },
+  <span class="hljs-attr">down</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">payload, xResponse</span>) </span>{
+    xResponse.send(payload.toLowerCase())
+  },
+  <span class="hljs-attr">neg</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">payload, xResponse</span>) </span>{
+    xResponse.send(!<span class="hljs-built_in">Boolean</span>(payload))
+  },
+  <span class="hljs-attr">rev</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">payload, xResponse</span>) </span>{
+    xResponse.send(payload.reverse())
+  },
+  <span class="hljs-attr">finger</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">payload, xResponse</span>) </span>{
+    payload[<span class="hljs-string">'test'</span>] = <span class="hljs-string">'test'</span>
+    xResponse.send(payload)
+  }
 }</pre></div></div>
             
         </li>

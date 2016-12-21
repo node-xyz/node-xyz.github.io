@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>index.js</title>
+  <title>linenumber.js</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -228,7 +228,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>index.js</h1>
+                  <h1>linenumber.js</h1>
               </div>
           </li>
         
@@ -243,19 +243,31 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">let</span> xyz = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./xyz'</span>)
-<span class="hljs-keyword">let</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Log/Logger'</span>)
-<span class="hljs-keyword">let</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Service/path'</span>)
-<span class="hljs-keyword">let</span> CONFIG = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Config/config.global'</span>)
+            <div class="content"><div class='highlight'><pre><span class="hljs-comment">/*global document */</span>
+(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">var</span> source = <span class="hljs-built_in">document</span>.getElementsByClassName(<span class="hljs-string">'prettyprint source linenums'</span>);
+    <span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">var</span> lineNumber = <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">var</span> lineId;
+    <span class="hljs-keyword">var</span> lines;
+    <span class="hljs-keyword">var</span> totalLines;
+    <span class="hljs-keyword">var</span> anchorHash;
 
-<span class="hljs-built_in">module</span>.exports = {
-  <span class="hljs-attr">xyz</span>: xyz,
-  <span class="hljs-attr">logger</span>: logger,
-  <span class="hljs-attr">path</span>: path,
-  <span class="hljs-attr">CONFIG</span>: CONFIG,
-  <span class="hljs-attr">Util</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/Util'</span>),
-  <span class="hljs-attr">logUtils</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/ansi.colors'</span>)
-}</pre></div></div>
+    <span class="hljs-keyword">if</span> (source &amp;&amp; source[<span class="hljs-number">0</span>]) {
+        anchorHash = <span class="hljs-built_in">document</span>.location.hash.substring(<span class="hljs-number">1</span>);
+        lines = source[<span class="hljs-number">0</span>].getElementsByTagName(<span class="hljs-string">'li'</span>);
+        totalLines = lines.length;
+
+        <span class="hljs-keyword">for</span> (; i &lt; totalLines; i++) {
+            lineNumber++;
+            lineId = <span class="hljs-string">'line'</span> + lineNumber;
+            lines[i].id = lineId;
+            <span class="hljs-keyword">if</span> (lineId === anchorHash) {
+                lines[i].className += <span class="hljs-string">' selected'</span>;
+            }
+        }
+    }
+})();</pre></div></div>
             
         </li>
         

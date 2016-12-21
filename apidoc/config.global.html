@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>config.global.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page_wrapper">
+            <div id="jump_page">
+              
+                
+                <a class="source" href="index.html">
+                  index.js
+                </a>
+              
+                
+                <a class="source" href="linenumber.html">
+                  linenumber.js
+                </a>
+              
+                
+                <a class="source" href="lang-css.html">
+                  lang-css.js
+                </a>
+              
+                
+                <a class="source" href="prettify.html">
+                  prettify.js
+                </a>
+              
+                
+                <a class="source" href="clsuter.listener.html">
+                  clsuter.listener.js
+                </a>
+              
+                
+                <a class="source" href="ping.default.html">
+                  ping.default.js
+                </a>
+              
+                
+                <a class="source" href="Constants.html">
+                  Constants.js
+                </a>
+              
+                
+                <a class="source" href="config.global.html">
+                  config.global.js
+                </a>
+              
+                
+                <a class="source" href="Logger.html">
+                  Logger.js
+                </a>
+              
+                
+                <a class="source" href="generic.middleware.handler.html">
+                  generic.middleware.handler.js
+                </a>
+              
+                
+                <a class="source" href="path.html">
+                  path.js
+                </a>
+              
+                
+                <a class="source" href="path.tree.html">
+                  path.tree.js
+                </a>
+              
+                
+                <a class="source" href="service.repository.html">
+                  service.repository.js
+                </a>
+              
+                
+                <a class="source" href="http.client.html">
+                  http.client.js
+                </a>
+              
+                
+                <a class="source" href="http.server.html">
+                  http.server.js
+                </a>
+              
+                
+                <a class="source" href="call.dispatch.export.middleware.html">
+                  call.dispatch.export.middleware.js
+                </a>
+              
+                
+                <a class="source" href="call.receive.event.middleware.html">
+                  call.receive.event.middleware.js
+                </a>
+              
+                
+                <a class="source" href="join.middleware.accept.all.html">
+                  join.middleware.accept.all.js
+                </a>
+              
+                
+                <a class="source" href="join.middleware.export.html">
+                  join.middleware.export.js
+                </a>
+              
+                
+                <a class="source" href="ping.dispatch.export.middleware.html">
+                  ping.dispatch.export.middleware.js
+                </a>
+              
+                
+                <a class="source" href="ping.receive.event.middleware.html">
+                  ping.receive.event.middleware.js
+                </a>
+              
+                
+                <a class="source" href="Transport.html">
+                  Transport.js
+                </a>
+              
+                
+                <a class="source" href="XResponse.html">
+                  XResponse.js
+                </a>
+              
+                
+                <a class="source" href="Util.html">
+                  Util.js
+                </a>
+              
+                
+                <a class="source" href="ansi.colors.html">
+                  ansi.colors.js
+                </a>
+              
+                
+                <a class="source" href="commandline.parser.html">
+                  commandline.parser.js
+                </a>
+              
+                
+                <a class="source" href="machine.reporter.html">
+                  machine.reporter.js
+                </a>
+              
+                
+                <a class="source" href="common.html">
+                  common.js
+                </a>
+              
+                
+                <a class="source" href="mock.functions.html">
+                  mock.functions.js
+                </a>
+              
+                
+                <a class="source" href="mock.node.html">
+                  mock.node.js
+                </a>
+              
+                
+                <a class="source" href="mock.system.html">
+                  mock.system.js
+                </a>
+              
+                
+                <a class="source" href="auth.html">
+                  auth.js
+                </a>
+              
+                
+                <a class="source" href="basic.html">
+                  basic.js
+                </a>
+              
+                
+                <a class="source" href="dataTypes.html">
+                  dataTypes.js
+                </a>
+              
+                
+                <a class="source" href="events.and.cluster.html">
+                  events.and.cluster.js
+                </a>
+              
+                
+                <a class="source" href="middleware.service.html">
+                  middleware.service.js
+                </a>
+              
+                
+                <a class="source" href="middleware.transport.html">
+                  middleware.transport.js
+                </a>
+              
+                
+                <a class="source" href="path.html">
+                  path.js
+                </a>
+              
+                
+                <a class="source" href="top.html">
+                  top.js
+                </a>
+              
+                
+                <a class="source" href="xyz.html">
+                  xyz.js
+                </a>
+              
+            </div>
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>config.global.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">let</span> CONSTANTS = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../Config/Constants'</span>)
+<span class="hljs-keyword">let</span> argParser = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../Util/commandline.parser'</span>)
+<span class="hljs-keyword">let</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../Log/Logger'</span>)
+
+<span class="hljs-keyword">let</span> systemConf
+<span class="hljs-keyword">let</span> selfConf = {}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">MergeRecursive</span> (<span class="hljs-params">obj1, obj2</span>) </span>{
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> p <span class="hljs-keyword">in</span> obj2) {
+    <span class="hljs-keyword">try</span> {
+      <span class="hljs-keyword">if</span> (obj2[p].constructor == <span class="hljs-built_in">Object</span>) {
+        obj1[p] = MergeRecursive(obj1[p], obj2[p])
+      } <span class="hljs-keyword">else</span> {
+        obj1[p] = obj2[p]
+      }
+    } <span class="hljs-keyword">catch</span>(e) {
+      obj1[p] = obj2[p]
+    }
+  }
+  <span class="hljs-keyword">return</span> obj1
+}
+
+<span class="hljs-keyword">let</span> configuration = {
+  <span class="hljs-attr">joinNode</span>: <span class="hljs-function">(<span class="hljs-params">aNode</span>) =&gt;</span> {
+    <span class="hljs-keyword">if</span> (systemConf.nodes.indexOf(aNode) &gt; <span class="hljs-number">-1</span>) {
+      logger.warn(<span class="hljs-string">`Node <span class="hljs-subst">${aNode}</span> already in systemConf. Passing.`</span>)
+    }
+    logger.info(<span class="hljs-string">`A new node {<span class="hljs-subst">${aNode}</span>} added to systemConf`</span>)
+    systemConf.nodes.push(aNode)
+  },
+
+  <span class="hljs-attr">kickNode</span>: <span class="hljs-function">(<span class="hljs-params">aNode</span>) =&gt;</span> {
+    <span class="hljs-keyword">let</span> index = systemConf.nodes.indexOf(aNode)
+    <span class="hljs-keyword">if</span> (index &gt; <span class="hljs-number">-1</span>)
+      systemConf.nodes.splice(systemConf.nodes.indexOf(aNode), <span class="hljs-number">1</span>)
+    <span class="hljs-keyword">else</span>
+      logger.warn(<span class="hljs-string">`Attempting to remove <span class="hljs-subst">${aNode}</span> which does not exist`</span>)
+  },
+
+  <span class="hljs-comment">/**
+   * a Duplicate function to joinNode. The inly difference is logging and the fact
+   * that this one takes an array of nodes
+   * @param  {String} someNodes a list of nodes
+   */</span>
+  ensureNodes: <span class="hljs-function">(<span class="hljs-params">someNodes</span>) =&gt;</span> {
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> aNode <span class="hljs-keyword">of</span> someNodes) {
+      <span class="hljs-keyword">if</span> (systemConf.nodes.indexOf(aNode) === <span class="hljs-number">-1</span>) {
+        logger.info(<span class="hljs-string">`A new node {<span class="hljs-subst">${aNode}</span>} added to systemConf`</span>)
+        systemConf.nodes.push(aNode)
+      }
+    }
+  },
+
+  <span class="hljs-attr">setSelfConf</span>: <span class="hljs-function">(<span class="hljs-params">aConf</span>) =&gt;</span> {
+    logger.info(<span class="hljs-string">'Setting default selfConf'</span>)
+    selfConf = CONSTANTS.defaultConfig.selfConf
+    logger.info(<span class="hljs-string">'Reading selfConf from user'</span>)
+    selfConf = MergeRecursive(selfConf, aConf)
+    logger.info(<span class="hljs-string">'Reading selfConf from command line'</span>)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>TODO use MergeRecursive function to get rid of this shitty code</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">let</span> args = argParser.xyzGeneric()
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> arg <span class="hljs-keyword">in</span> args) {
+      logger.verbose(<span class="hljs-string">`overriding <span class="hljs-subst">${arg}</span> from command line`</span>)
+      <span class="hljs-keyword">let</span> keys = arg.split(<span class="hljs-string">'.'</span>)
+      <span class="hljs-keyword">if</span> (keys.length === <span class="hljs-number">1</span>) {
+        <span class="hljs-keyword">if</span> (keys[<span class="hljs-number">0</span>] === <span class="hljs-string">'seed'</span>)
+          selfConf[keys[<span class="hljs-number">0</span>]].push(args[arg])
+        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (keys[<span class="hljs-number">0</span>] == <span class="hljs-string">'allowJoin'</span>) {
+          <span class="hljs-keyword">if</span> (args[arg] === <span class="hljs-string">'0'</span> || args[arg] === <span class="hljs-string">'false'</span>) {
+            selfConf[keys[<span class="hljs-number">0</span>]] = <span class="hljs-literal">false</span>
+          }<span class="hljs-keyword">else</span> {
+            selfConf[keys[<span class="hljs-number">0</span>]] = <span class="hljs-literal">true</span>
+          }
+        }
+        <span class="hljs-keyword">else</span>
+          selfConf[keys[<span class="hljs-number">0</span>]] = args[arg]
+      }
+      <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (keys.length === <span class="hljs-number">2</span>) {
+        <span class="hljs-keyword">if</span> (! selfConf[keys[<span class="hljs-number">0</span>]]) selfConf[keys[<span class="hljs-number">0</span>]] = {}
+        selfConf[keys[<span class="hljs-number">0</span>]][keys[<span class="hljs-number">1</span>]] = <span class="hljs-built_in">eval</span>(args[arg])
+      }
+      <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (keys.length === <span class="hljs-number">3</span>) {
+        <span class="hljs-keyword">if</span> (! selfConf[keys[<span class="hljs-number">0</span>]]) selfConf[keys[<span class="hljs-number">0</span>]] = {}
+        <span class="hljs-keyword">if</span> (! selfConf[keys[<span class="hljs-number">1</span>]]) selfConf[keys[<span class="hljs-number">1</span>]] = {}
+        selfConf[keys[<span class="hljs-number">0</span>]][keys[<span class="hljs-number">1</span>]][keys[<span class="hljs-number">2</span>]] = args[arg]
+      } <span class="hljs-keyword">else</span> {
+        logger.error(<span class="hljs-string">'command line arguments with more than three sub-keys are not allowed. passing'</span>)
+      }
+    }
+
+    logger.transports.console.level = selfConf.logLevel
+    logger.info(<span class="hljs-string">`log level set to <span class="hljs-subst">${logger.transports.<span class="hljs-built_in">console</span>.level}</span>`</span>)
+
+    logger.debug(<span class="hljs-string">'final configurations for selfConf is:'</span>)
+    <span class="hljs-built_in">console</span>.log(selfConf)
+  },
+
+  <span class="hljs-attr">setSystemConf</span>: <span class="hljs-function">(<span class="hljs-params">aConf</span>) =&gt;</span> {
+    logger.info(<span class="hljs-string">'Setting default systemConf'</span>)
+    systemConf = CONSTANTS.defaultConfig.systemConf
+    logger.info(<span class="hljs-string">'reading systemConf from user'</span>)
+    systemConf = aConf
+
+    logger.debug(<span class="hljs-string">`Adding self to systemConf by default`</span>)
+    <span class="hljs-keyword">if</span> (systemConf.nodes.indexOf(<span class="hljs-string">`<span class="hljs-subst">${selfConf.host}</span>:<span class="hljs-subst">${selfConf.port}</span>`</span>) === <span class="hljs-number">-1</span>) {
+      systemConf.nodes.push(<span class="hljs-string">`<span class="hljs-subst">${selfConf.host}</span>:<span class="hljs-subst">${selfConf.port}</span>`</span>)
+    }
+    logger.info(<span class="hljs-string">'final configurations for systemConf is:'</span>)
+    <span class="hljs-built_in">console</span>.log(systemConf)
+  },
+
+  <span class="hljs-attr">getSystemConf</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> systemConf,
+
+  <span class="hljs-attr">getSelfConf</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> selfConf
+}
+
+<span class="hljs-built_in">module</span>.exports = configuration</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

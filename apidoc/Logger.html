@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>index.js</title>
+  <title>Logger.js</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -228,7 +228,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>index.js</h1>
+                  <h1>Logger.js</h1>
               </div>
           </li>
         
@@ -243,19 +243,85 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">let</span> xyz = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./xyz'</span>)
-<span class="hljs-keyword">let</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Log/Logger'</span>)
-<span class="hljs-keyword">let</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Service/path'</span>)
-<span class="hljs-keyword">let</span> CONFIG = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Config/config.global'</span>)
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">let</span> winston = <span class="hljs-built_in">require</span>(<span class="hljs-string">'winston'</span>)
+<span class="hljs-keyword">const</span> wrapper = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../Util/ansi.colors'</span>).wrapper
+<span class="hljs-keyword">const</span> CONSTANTS = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../src/Config/Constants'</span>)
 
-<span class="hljs-built_in">module</span>.exports = {
-  <span class="hljs-attr">xyz</span>: xyz,
-  <span class="hljs-attr">logger</span>: logger,
-  <span class="hljs-attr">path</span>: path,
-  <span class="hljs-attr">CONFIG</span>: CONFIG,
-  <span class="hljs-attr">Util</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/Util'</span>),
-  <span class="hljs-attr">logUtils</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/ansi.colors'</span>)
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">levelColor</span> (<span class="hljs-params">level</span>) </span>{
+  <span class="hljs-keyword">if</span> (level === <span class="hljs-string">'silly'</span>) {
+    <span class="hljs-keyword">return</span> wrapper(<span class="hljs-string">'magenta'</span>, level)
+  }
+  <span class="hljs-keyword">if</span> (level === <span class="hljs-string">'debug'</span>) {
+    <span class="hljs-keyword">return</span> wrapper(<span class="hljs-string">'cyan'</span>, level)
+  }
+  <span class="hljs-keyword">if</span> (level === <span class="hljs-string">'verbose'</span>) {
+    <span class="hljs-keyword">return</span> wrapper(<span class="hljs-string">'blue'</span>, level)
+  }
+  <span class="hljs-keyword">if</span> (level === <span class="hljs-string">'info'</span>) {
+    <span class="hljs-keyword">return</span> wrapper(<span class="hljs-string">'green'</span>, level)
+  }
+  <span class="hljs-keyword">if</span> (level === <span class="hljs-string">'warn'</span>) {
+    <span class="hljs-keyword">return</span> wrapper(<span class="hljs-string">'yellow'</span>, level)
+  }
+  <span class="hljs-keyword">if</span> (level === <span class="hljs-string">'error'</span>) {
+    <span class="hljs-keyword">return</span> wrapper(<span class="hljs-string">'red'</span>, level)
+  }
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getFormattedDate</span> (<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">var</span> date = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>()
+  <span class="hljs-keyword">var</span> str = date.getFullYear() + <span class="hljs-string">'-'</span> + (date.getMonth() + <span class="hljs-number">1</span>) + <span class="hljs-string">'-'</span> + date.getDate() + <span class="hljs-string">' '</span> + date.getHours() + <span class="hljs-string">':'</span> + date.getMinutes() + <span class="hljs-string">':'</span> + date.getSeconds()
+
+  <span class="hljs-keyword">return</span> str
 }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>{ error: 0, warn: 1, info: 2, verbose: 3, debug: 4, silly: 5 }</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+<span class="hljs-keyword">var</span> logger = <span class="hljs-keyword">new</span> winston.Logger({
+  <span class="hljs-attr">transports</span>: [
+    <span class="hljs-keyword">new</span> winston.transports.Console({
+      <span class="hljs-attr">handleExceptions</span>: <span class="hljs-literal">false</span>,
+      <span class="hljs-attr">prettyPrint</span>: <span class="hljs-literal">false</span>,
+      <span class="hljs-attr">colorize</span>: <span class="hljs-literal">true</span>,
+      <span class="hljs-attr">level</span>: <span class="hljs-string">'debug'</span>,
+      <span class="hljs-attr">timestamp</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-built_in">Date</span>.now()
+      },
+      <span class="hljs-attr">formatter</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">options</span>) </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Return string will be passed to logger.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">return</span> <span class="hljs-string">`[<span class="hljs-subst">${getFormattedDate()}</span>][<span class="hljs-subst">${wrapper(<span class="hljs-string">'underline'</span>, wrapper(<span class="hljs-string">'bold'</span>, global._serviceName))}</span>] <span class="hljs-subst">${wrapper(<span class="hljs-string">'bold'</span>, levelColor(options.level))}</span> :: <span class="hljs-subst">${options.message}</span> `</span>
+      }
+    })
+  ],
+  <span class="hljs-attr">exitOnError</span>: <span class="hljs-literal">false</span>
+})
+
+<span class="hljs-built_in">module</span>.exports = logger</pre></div></div>
             
         </li>
         

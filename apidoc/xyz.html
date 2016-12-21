@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>index.js</title>
+  <title>xyz.js</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -228,7 +228,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>index.js</h1>
+                  <h1>xyz.js</h1>
               </div>
           </li>
         
@@ -243,19 +243,164 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">let</span> xyz = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./xyz'</span>)
-<span class="hljs-keyword">let</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Log/Logger'</span>)
-<span class="hljs-keyword">let</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Service/path'</span>)
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">const</span> ServiceRepository = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Service/service.repository'</span>)
 <span class="hljs-keyword">let</span> CONFIG = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Config/config.global'</span>)
+<span class="hljs-keyword">let</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Log/Logger'</span>)
+<span class="hljs-keyword">let</span> argParser = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/commandline.parser'</span>)
+<span class="hljs-keyword">let</span> pingBoostrap = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Bootstrap/ping.default'</span>)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>Detail about system Conf keys
+TODO</p>
 
-<span class="hljs-built_in">module</span>.exports = {
-  <span class="hljs-attr">xyz</span>: xyz,
-  <span class="hljs-attr">logger</span>: logger,
-  <span class="hljs-attr">path</span>: path,
-  <span class="hljs-attr">CONFIG</span>: CONFIG,
-  <span class="hljs-attr">Util</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/Util'</span>),
-  <span class="hljs-attr">logUtils</span>: <span class="hljs-built_in">require</span>(<span class="hljs-string">'./src/Util/ansi.colors'</span>)
-}</pre></div></div>
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">NodeXYZ</span> </span>{
+  <span class="hljs-keyword">constructor</span> (configuration) {
+    CONFIG.setSelfConf(configuration.selfConf)
+    CONFIG.setSystemConf(configuration.systemConf)</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>just for logging convention</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    global._serviceName = <span class="hljs-string">`<span class="hljs-subst">${CONFIG.getSelfConf().name}</span>@<span class="hljs-subst">${CONFIG.getSelfConf().host}</span>:<span class="hljs-subst">${CONFIG.getSelfConf().port}</span>`</span>
+
+    <span class="hljs-keyword">this</span>.serviceRepository = <span class="hljs-keyword">new</span> ServiceRepository()
+
+    <span class="hljs-keyword">if</span> (CONFIG.getSelfConf().defaultBootstrap) {
+      <span class="hljs-keyword">this</span>.bootstrap()
+    }
+  }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p> Stop XYZ system. will stop all ping and communication requests.
+ Should onle be used with tests.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  terminate () {
+    <span class="hljs-keyword">this</span>.serviceRepository.terminate()
+  }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p> Register a new function to be exported.
+ @param  {String}   serviceName       Unique name for this service.
+ @param  {Function} fn                Handler function for this service</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  register (serviceName, fn) {
+    <span class="hljs-keyword">this</span>.serviceRepository.register(serviceName, fn)
+  }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>Call a service</p>
+<p>Parameters : <br>
+<code>servicePath</code> should be a valid funciton path on a remote or local host <br>
+<code>userPayload</code> can be any premetive type <br>
+<code>responseCallback</code> should be the function passed by the used
+<code>sendStrategy</code> is optional and can be anything like send to all or first find.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  call (serviceName, userPayload, responseCallback, sendStrategy) {
+    <span class="hljs-keyword">this</span>.serviceRepository.call(serviceName, userPayload, responseCallback, sendStrategy)
+  }
+
+  bootstrap () {
+    pingBoostrap(<span class="hljs-keyword">this</span>)
+  }
+
+  setSendStrategy (fn) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>for now, only one middleware should be added to this. no more.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">this</span>.serviceRepository.callDispatchMiddlewareStack.middlewares = []
+    <span class="hljs-keyword">this</span>.serviceRepository.callDispatchMiddlewareStack.register(<span class="hljs-number">0</span>, fn)
+  }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p> Return an object of all middleware handlers available in the system. Each can be modified while
+ bootstraping or at runtime. See Middleware section for more details. <br>
+ returns an Object of middleware handlers.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  middlewares () {
+    <span class="hljs-keyword">return</span> {
+      <span class="hljs-attr">transport</span>: {
+        <span class="hljs-attr">callReceive</span>: <span class="hljs-keyword">this</span>.serviceRepository.getTransportLayer().Server.callReceiveMiddlewareStack,
+        <span class="hljs-attr">callDispatch</span>: <span class="hljs-keyword">this</span>.serviceRepository.getTransportLayer().Client.callDispatchMidllewareStack
+      },
+      <span class="hljs-attr">serviceRepository</span>: {
+        <span class="hljs-attr">callDispatch</span>: <span class="hljs-keyword">this</span>.serviceRepository.callDispatchMiddlewareStack
+      }
+    }
+  }
+}
+
+<span class="hljs-built_in">module</span>.exports = NodeXYZ</pre></div></div>
             
         </li>
         
