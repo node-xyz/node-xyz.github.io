@@ -25,7 +25,7 @@ The -- dummy services are as follows:
     // math.ms.js
     // a very fancy math module with super fast calculation
     function add(x, y) {
-    return x + y
+      return x + y
     }
 
     function mul(x, y) {
@@ -43,11 +43,11 @@ The -- dummy services are as follows:
 
 Now, assume that these services need to call each other in order to share their services. This is the first place that XYZ will come to action.
 
-In order to have two xyz instances communicate with each other, they need to have a system, a shared system. Information about the system is filled to the xyz instance using a config parameter. The config parameter has information such as local port/it/serviceName and a list of nodes who live inside the system. Note that a node can join the system without being in the static list, this is just a basic example!
+In order to have two xyz instances communicate with each other, they need to have a system, a **shared** system. Information about the system is filled to the xyz instance using a config parameter. The config parameter has information such as local port/ip/serviceName and a list of nodes who live inside the system. Note that a node can join the system without being in the static list, this is just a basic example!
 
     // math.ms.js
     // a very fancy math module with super fast calculation
-    let xyz = require('xyz-core').xyz
+    let xyz = require('xyz-core')
     let mathMS = new xyz({
       selfConf: {
         name: 'MathMS',
@@ -55,10 +55,7 @@ In order to have two xyz instances communicate with each other, they need to hav
         port: 3333
       },
       systemConf: {
-        microservices: [{
-            host: '127.0.0.1',
-            port: 3334
-          }]
+        nodes: ['127.0.0.1:3334']
       }
     })
 
@@ -74,7 +71,7 @@ In order to have two xyz instances communicate with each other, they need to hav
 
     // string.ms.js
     // some ultra hard string manipulations
-    let xyz = require('xyz-core').xyz
+    let xyz = require('xyz-core')
     let stringMS = new xyz({
       selfConf: {
         name: 'stringMS',
@@ -82,10 +79,7 @@ In order to have two xyz instances communicate with each other, they need to hav
         port: 3334
       },
       systemConf: {
-        microservices: [{
-            host: '127.0.0.1',
-            port: 3333
-          }]
+        nodes: ['127.0.0.1:3333']
       }
     })
 
@@ -96,14 +90,16 @@ In order to have two xyz instances communicate with each other, they need to hav
       response.send(payload.toLowerCase())
     })
 
-> The entire process of initializing a system and passing all of the parameters seems too much of a duplicate. We agree! check out the best practices section#common.js
+> The entire process of initializing a system and passing all of the parameters seems too much of a duplicate, and tedious. We agree! check out the best practices section#common.js
 
-And that's it! Now, our services are virtually binded to one another and they can call the service that each of them exposed using `.register`. The `microservices: [...]` key in **systemConf** will declare the list of other nodes that we can connect to. Obviously, they can be local or remote IPs.
+And that's it! Now, our services are virtually binded to one another and they can call the service that each of them exposed using `.register`. The `nodes: [...]` key in **systemConf** will declare the list of other nodes that we can connect to. Obviously, they can be local or remote IPs.
 
 #### A Note on terminology.
 
 Words and phrases in XYZ system are explained in Wiki page. Just to recap, each function exposed via `.register` is a _service_.  
-Each **Node Process**, having a number of services is called a **node** (or in some places a _microservice_, but its just temporary).
+Each **Node Process**, having a number of services is called a **node**.
+
+---
 
 Back to our little system. Now, one of these system can call a service in the other system using the `.call`
 
@@ -120,6 +116,8 @@ Back to our little system. Now, one of these system can call a service in the ot
 You should now see an output like:  
 `my fellow service responded with 10`
 
+You can find the code of this section [here](https://github.com/node-xyz/xyz-core/tree/master/examples/examples_getting_started/helloxyz).
+
 ### What's next?
 
 In this example we hardcoded the list of service, so that they can communicate with each other. This is... just about ok. It is not awesome. What would be awesome is to have nodes joining the system dynamically. Yes, that's what we're going to do in the Next Section.
@@ -130,12 +128,12 @@ In this example we hardcoded the list of service, so that they can communicate w
 
 It would have been much more interesting, if we could add nodes dynamically. Good news: we can.
 
-XYZ nodes can join a system, given that they have a [list of] seed node(s). Seed nodes are the entry point to the system. They should check the authority of the incoming node, if required, and pass the list of nodes available inside the system to it, or any other authentication certificate, again, if required. The fact that there are a lots of ' _if required_ ' phrases in the statement is that all of these steps are optional and the developer can choose to have them. In the most _Wildcard_is scenario, all nodes are public and anyone can join them.
+XYZ nodes can join a system, given that they have a [list of] seed node(s). Seed nodes are the entry point to the system. They should check the authority of the incoming node, if required, and pass the list of nodes available inside the system to it, or any other authentication certificate, again, if required. The fact that there are a lots of ' _if required_ ' phrases in the statement is that all of these steps are optional and the developer can choose to have them. In the most **_Wildcard_ish** scenario, all nodes are public and anyone can join them.
 
 Let's assume that both the _StringMS_ and _MathMS_ in the previous section do not know each other. That is to say, their list of microservice/nodes in _systemConf_ is empty:
 
     // string.ms.js
-    let xyz = require('xyz-core').xyz
+    let xyz = require('xyz-core')
     let stringMS = new xyz({
       selfConf: {
         name: 'stringMS',
@@ -143,12 +141,12 @@ Let's assume that both the _StringMS_ and _MathMS_ in the previous section do no
         port: 3334
       },
       systemConf: {
-        microservices: []
+        nodes: []
       }
     })
 
     // math.ms.js
-    let xyz = require('xyz-core').xyz
+    let xyz = require('xyz-core')
     let mathMS = new xyz({
       selfConf: {
         name: 'MathMS',
@@ -156,31 +154,34 @@ Let's assume that both the _StringMS_ and _MathMS_ in the previous section do no
         port: 3333
       },
       systemConf: {
-        microservices: []
+        nodes: []
       }
     })
 
+> Note that you can omit putting the empty `nodes: []` in your config file. XYZ will populate each key in the config object according to a template. You can see it [here](/apidoc/Constants.html).
+
 Furthermore, let's assume that the MathMS is the constant node in the system and stringMSs are going to come and go. Go ahead and run the mathMS alone, you will see that nothing happens.
 
-Now run the stringMS. you'll se that:  
+Now run the stringMS. you'll see:  
+
 `warn :: Sending a message to /mul from first find strategy failed (Local Response)  
 my fellow service responded with null`
 
 The [first find strategy](https://github.com/node-xyz/xyz.service.send.first.find) is a default behavior embedded inside node XYZ for finding nodes to send messages to. We'll see more on this later. The main point is that the message failed. Obviously because StringMS does not know any mathMS at this point!
 
-Change the stringMS to the following, specifying a new seed node for it. Also add a filed in mathMS that will indicate that this node is allowed to admit new nodes:
+Change the stringMS to the following, specifying a new **seed node** for it. Also add a filed in mathMS that will indicate that this node is allowed to admit new nodes:
 
     // string.ms.js
-    let xyz = require('xyz-core').xyz
+    let xyz = require('xyz-core')
     let stringMS = new xyz({
       selfConf: {
         name: 'stringMS',
         host: '127.0.0.1',
         port: 3334,
-        seed: [{host: '127.0.0.1', port: 3333}]
+        seed: ['127.0.0.1:3333']
       },
       systemConf: {
-        microservices: []
+        nodes: []
       }
     })
 
@@ -194,32 +195,31 @@ Change the stringMS to the following, specifying a new seed node for it. Also ad
         port: 3333
       },
       systemConf: {
-        microservices: []
+        nodes: []
       }
     })
 
+> note that when you want to use a node as seed, that node MUST have `allowJoin` key set to true.
+
 Now, the two nodes have no knowledge of each other, yet they can join and work with each other. Go ahead and run the MathMS, next run the stringMS in a separate terminal and see the results. As you see, the output is still the same.
 
-This get's even more interesting when we add more nodes. You can add more stringMS nodes and see that all of them will eventually find the MathMS and can connect with them. There is only one small problem. All stringMSs are configured to use one port. Hopefully, XYZ provides a way to override any configuration, for debugging purposes mainly. We'll cover this later, but, for now, you can use the `--xyzport` command line argument to override the port. Run many many more StringMS instances with:  
+This get's even more interesting when we add more nodes. You can add more stringMS nodes and see that all of them will eventually find the MathMS and can connect with it. There is only one small problem. All stringMSs are configured to use one port. Hopefully, XYZ provides a way to override any configuration, for debugging purposes mainly. We'll cover this later, but, for now, you can use the `--xyz-port` command line argument to override the port. Run many many more StringMS instances with:  
 
-    $ node math.ms.js --xyzport 5000
-    $ node math.ms.js --xyzport 5001
-    $ node math.ms.js --xyzport 5002
+    $ node math.ms.js --xyz-port 5000
+    $ node math.ms.js --xyz-port 5001
+    $ node math.ms.js --xyz-port 5002
     ...
-
-If you are more interested to see how nodes actually work with each other, see the ()[Service Discovery and Ping] section.
 
 A question might come to mind at this point. We have many sender nodes, and only just one receiver node in this example, so... it is kind obvious how each request gets routed. Assume that we have two receiver nodes (mathMS) and a dozen sender nodes, how could we decide on one of the mathMSs?
 
 You might argue that this is a matter that xyz should handle. Indeed, we do handle it. it's just that we are very keen to make you familiarized whit what's happening under the hood, so that you can change it when required.
 
-In order to have different message routing ways, xyz supports to mechanisms:
+In order to have different message routing ways, xyz supports two mechanisms:
 
   1. Service Discovery middlewares
   2. Path based service identification
 
 The upcoming sections will describe these concepts.
-
 
 Before going into the next section, you might argue that why is this so important? In a microservice-based system, it is crucially important!
 
@@ -227,32 +227,35 @@ If you think about the system as a whole, you come to realize that many many typ
 
 If you are not convinced about this, I highly recommend you to read the [Wiki](https://github.com/node-xyz/xyz-core/wiki/) page of xyz-core, specially the one about [microservices](https://github.com/node-xyz/xyz-core/wiki/Microservices%3F-What%3F).
 
+You can find the code of this section [here](https://github.com/node-xyz/xyz-core/tree/master/examples/examples_getting_started/replicating)
 
 # Service Discovery
 
 As mentioned in the previous section, the process of choosing a destination node when making a call is rather difficult and obscure. XYZ provides a configuration for each of the nodes, so that each node can actually choose a strategy for sending a message.  
 
-The good thing about these plugins is that they are completely modifiable. That is to say, you can write your own strategy and patch it into your system!
+The good thing about these plugins is that they are completely modifiable. That is to say, you can write your own strategy and patch it into your system.
 
-XYZ currently has two trivial approaches implemented as plugins. Let's look at one of them [here](https://github.com/node-xyz/xyz.service.send.first.find/blob/master/call.middleware.first.find.js) :
+XYZ currently has two trivial approaches implemented as plugins. Let's look at one of them [here](https://github.com/node-xyz/xyz.service.send.first.find/blob/master/call.middleware.first.find.js). Let's look at a pseudo-code:
 
 ```javascript
-// Built in winston instances
-const logger = require('xyz-core').logger
-const Path = require('xyz-core').path
-const http = require('http')
-
 function firstFind (params, next, done) {
+  // parameters passed to this middleware by xyz
   let servicePath = params[0],
     userPayload = params[1],
     foreignNodes = params[2],
     transportClient = params[3]
   responseCallback = params[4]
 
+  // foreignNodes is a list of nodes that the current node is aware of
+  // iterate through all nodes in the system.
   for (let node in foreignNodes) {
+
+    // check if it is a match
     matches = Path.match(servicePath, foreignNodes[node])
     logger.debug(`FIRST FIND :: determined matches ${matches} in node ${node} for ${servicePath}`)
     if (matches.length) {
+
+      // terminate and send the message in the first possible match
       logger.debug(`FIRST FIND :: determined node for service ${servicePath} by first find strategy ${node}:${matches[0]}`)
       transportClient.send(matches[0], node , userPayload, responseCallback)
       done()
@@ -274,7 +277,7 @@ module.exports = firstFind
 
 We really don't want to go too deep inside this code at the time, but you can get a general feeling about it that a `Path` object will eventually find a list of nodes that can response to a certain `servicePath` and calls the first one:
 
-`transportClient.send(matches[0], node , userPayload, responseCallback)`.
+`transportClient.send(matches[0], node , userPayload, responseCallback)`
 
 whenever you call `someMs.call('foo' , ()=>{} )` in your code, somewhere along the path, this function will be called and it will find one destination node and invokes a transport client with it. Transport client is the actual module that will make the HTTP/TCP call to destination node.
 
@@ -284,7 +287,7 @@ whenever you call `someMs.call('foo' , ()=>{} )` in your code, somewhere along t
 `logger.warn("Sending a message to ${servicePath} from first find strategy failed (Local Response)")`
 Are you seeing what I am seeing too?
 
-XYZ is configured to work with this module by default. if you wish to change them, a new key named **`defaultSendStrategy`** should be added to the configuration object passed to xyz constructor.
+XYZ is configured to work with this module by default. if you wish to change them, a new key named **`defaultSendStrategy`** should be added to the **selfConf** key passed to xyz constructor.
 
 In order to test this feature, let's use another send strategy, **send.to.all**. You can find the plugin [here](https://github.com/node-xyz/xyz.service.send.to.all).
 
@@ -329,6 +332,8 @@ setInterval(() => {
 
 ```
 
+> Note that you can either `require()` the `xyz.service.send.to.all` or you can pass it as string: `defaultSendStrategy: 'xyz.service.send.to.all'`
+
 First, run the math ms and string ms like before. The string ms will join the math ms. First point is that now, our responses are different, it has been indicated the this values has been responded form which node.
 
 ```
@@ -342,8 +347,8 @@ Now go ahead and run a new math.ms. An old response happens here again. We need 
 Similar to how we can override the port number, a single seed node can also be added by command line argument. Run the new math Ms :
 
 ```
-node math.ms.js --xyzport 5000 --xyzseed "127.0.0.1:3333"
-node math.ms.js --xyzport 5001 --xyzseed "127.0.0.1:3333"
+node math.ms.js --xyz-port 5000 --xyz-seed 127.0.0.1:3333
+node math.ms.js --xyz-port 5001 --xyz-seed 127.0.0.1:3333
 ```
 
 after just a few seconds, the log of string ms should change to
@@ -368,18 +373,22 @@ my fellow service responded with {
   "127.0.0.1:5000:/mul":[null,10]}
 ```
 
+> Note that each xyz node will kick out-of-reach nodes after a certain threshold. This is configured in the ping.default.bootstrap function. You can learn more about it in the section regarding Ping.
+
 As you see, the first parameter is the error and the second parameter is the response. This happens because each node will not immediately assume that another node is offline after one failure. The process and parameters of node failure will be discussed later.
 
 So ... are you not liking the way that send to all is functioning? I mean, who would respond with an array like that? This is actually what we hoped for!  this plugin is just a test plugin that we used in our development. You can easily change it to whatever you like.
 
-For example, you can modify [this line](https://github.com/node-xyz/xyz.service.send.to.all/blob/master/call.send.to.all.js#L31) to get rid of the annoying error.
+For example, you can modify [this line](https://github.com/node-xyz/xyz.service.send.to.all/blob/master/call.send.to.all.js#L31) to get rid of the annoying errors or...
 
 Another interesting send strategy that you might want to implement and test is majority function. You can change the `send.to.all` in a way that it will send the message to all nodes, will wait for all responses, and will return with a single result, if all if the responses from different services were the same. If not, it will return an Error. Who knows, maybe you actually use this Microservice to do floating point calculations. Each machine handles floating point differently and the responses might actually differ!
+
+You can find the code of this section [here](https://github.com/node-xyz/xyz-core/tree/master/examples/examples_getting_started/service-discovery).
 
 
 # Path based service identification
 
-Aside from Service discovery procedures, xyz provides another way to make service invocation even more flexible. It's called **Path Base** service identification. That is to say, each service, aka. function that you expose, will be exposed on a certain path on that process. So far we have used a plain string as the service name. The truth is that those were paths too! XYZ has been adding a single `/` to each of them. Recall one of the logs printed from the previous section. Look at it again:
+Aside from Service discovery procedures, xyz provides another way to make service invocation even more flexible. It's called **Path Base** service identification. That is to say, each service (aka. function) that you expose, will be exposed on a certain path on that process. So far we have used a plain string as the service name. The truth is that those were paths too! XYZ has been adding a single `/` to each of them. Recall one of the logs printed from the previous section. Look at it again:
 
 ```
   "127.0.0.1:5000:/mul":[null,10]}
@@ -387,7 +396,7 @@ Aside from Service discovery procedures, xyz provides another way to make servic
 
 As you see, the actual identifier of the service is actually: **[IP]:[PORT]:/[PATH]**.
 
-As a naive example, let's assume that our math service is super accurate and can add floating point numbers up to thousands of decimal points. But we don't want to waste resource on simple integer arithamtic. Hence, we will devide our services into to section:
+As a naive example, let's assume that our math service is super accurate and can add floating point numbers up to thousands of decimal points. But we don't want to waste resource on simple integer calculations. Hence, we will divide our services into to section:
 
 ```
 decimal/add
@@ -466,7 +475,7 @@ Go ahead and try things like `*/mul` or even `/*/*`.
 
 #### Note on valid Paths and wildcards
 
-Currently, XYZ path parser only supports charachters and wildcards in paths. That is to say, when creating a new service, the valid regex is:
+Currently, XYZ path parser only supports characters and wildcards in paths. That is to say, when creating a new service, the valid regex is:
 
 ```
 /^(\/([a-zA-Z]|[1-9]|\*)+)*$/
@@ -499,9 +508,11 @@ As a final recap:
 
 ![Overall structure of XYZ](https://raw.githubusercontent.com/node-xyz/xyz-core/master/media/mw.png)
 
+> Bad news is that there are a few more middlewares inside a xyz system. But you don't need to know about them now :)).
+
 ### Middleware Stacks
 
-Middlewares are implemented using the GenericMiddlewareHandler Class in XYZ. this class will register an array of functions and passes an object (aka. parameters) through this array of middlewares.
+Middlewares are implemented using the [GenericMiddlewareHandler](/apidoc/generic.middleware.handler.html) Class in XYZ. this class will register an array of functions and passes an object (aka. parameters) through this array of middlewares.
 
 ```
 MiddlewareStack : [Function, Function, Function, ... , Function]
@@ -509,7 +520,7 @@ MiddlewareStack : [Function, Function, Function, ... , Function]
 
 As an example, Whenever a request is received and parsed in Transport Layer, a middleware function will pass it to the Service repository layer. This action will happen in the last function placed in the last index of CallReceiveMiddlewareStack in Transport layer.
 
-> Due to the fact that critical actions such as passing a request object to the upper/lower layer or passing a request out to the HTTP layer happen in middleware, it is crucially important to be very careful with them. Specifically, some middlewares are placed in xyz by default. They should remain in their place, unless you have a good reason to remove them.
+> Due to the fact that critical actions such as passing a request object to the upper/lower layer or passing a request out to the HTTP layer happen in middleware, it is crucially important to be very careful with them. Specifically, some middlewares are placed in xyz by **default**. They should remain in their place, unless you have a good reason to remove them.
 
 As an example, as mentioned above, the middleware placed between Transport layer and Service-Repository layer has such initial state:
 
@@ -531,6 +542,7 @@ The key structure of a middleware is as follows:
     - `params`: an array of parameters values passed to the middleware function.
     - `next`: function that will ignore the rest of the execution of this middleware and invoke the next function in the stack.
     - `end`: will end of the execution of the entire stack.
+    - `xyz`: a reference to the current xyz object. This is useful because all of the information require, such as configurations, Service-Repository layer etc. can be accesses from this object. 
 
 Keeping this ideas in mind, let's write a simple logger middleware:
 

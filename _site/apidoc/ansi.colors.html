@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>ping.receive.event.middleware.js</title>
+  <title>ansi.colors.js</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -42,6 +42,11 @@
                 
                 <a class="source" href="clsuter.listener.html">
                   clsuter.listener.js
+                </a>
+              
+                
+                <a class="source" href="ping.default.html">
+                  ping.default.js
                 </a>
               
                 
@@ -135,6 +140,11 @@
                 </a>
               
                 
+                <a class="source" href="ansi.colors.html">
+                  ansi.colors.js
+                </a>
+              
+                
                 <a class="source" href="commandline.parser.html">
                   commandline.parser.js
                 </a>
@@ -218,7 +228,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>ping.receive.event.middleware.js</h1>
+                  <h1>ansi.colors.js</h1>
               </div>
           </li>
         
@@ -233,22 +243,65 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">const</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../../Log/Logger'</span>)
-<span class="hljs-keyword">const</span> CONSTANTS = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../../Config/Constants'</span>)
-<span class="hljs-keyword">const</span> url = <span class="hljs-built_in">require</span>(<span class="hljs-string">'url'</span>)
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">let</span> colors = {
+  <span class="hljs-string">"reset"</span>: <span class="hljs-string">"\033[0m"</span>,
+  <span class="hljs-string">"bold"</span>: <span class="hljs-string">"\033[1m"</span>,
+  <span class="hljs-string">"boldoff"</span>: <span class="hljs-string">"\033[22m"</span>,
+  <span class="hljs-string">"underline"</span>: <span class="hljs-string">"\033[4m"</span>,
+  <span class="hljs-string">"inverse"</span>: <span class="hljs-string">"\033[7m"</span>,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>foreground colors</p>
 
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">passToRepo</span> (<span class="hljs-params">params, next</span>) </span>{
-  <span class="hljs-keyword">let</span> request = params[<span class="hljs-number">0</span>]
-  <span class="hljs-keyword">let</span> response = params[<span class="hljs-number">1</span>]
-  <span class="hljs-keyword">let</span> body = params[<span class="hljs-number">2</span>]
-  <span class="hljs-keyword">let</span> _transport = params[<span class="hljs-number">3</span>]
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-string">"black"</span>: <span class="hljs-string">"\033[30m"</span>,
+  <span class="hljs-string">"red"</span>: <span class="hljs-string">"\033[31m"</span>,
+  <span class="hljs-string">"green"</span>: <span class="hljs-string">"\033[32m"</span>,
+  <span class="hljs-string">"yellow"</span>: <span class="hljs-string">"\033[33m"</span>,
+  <span class="hljs-string">"blue"</span>: <span class="hljs-string">"\033[34m"</span>,
+  <span class="hljs-string">"magenta"</span>: <span class="hljs-string">"\033[35m"</span>,
+  <span class="hljs-string">"cyan"</span>: <span class="hljs-string">"\033[36m"</span>,
+  <span class="hljs-string">"white"</span>: <span class="hljs-string">"\033[37m"</span>,</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>background colors</p>
 
-  logger.silly(<span class="hljs-string">`PING :: Passing ping to up to service repo`</span>)
-  _transport.emit(CONSTANTS.events.PING, body, response)
-  next()
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  <span class="hljs-string">"bg_black"</span>: <span class="hljs-string">"\033[40m"</span>,
+  <span class="hljs-string">"bg_red"</span>: <span class="hljs-string">"\033[41m"</span>,
+  <span class="hljs-string">"bg_green"</span>: <span class="hljs-string">"\033[42m"</span>,
+  <span class="hljs-string">"bg_yellow"</span>: <span class="hljs-string">"\033[43m"</span>,
+  <span class="hljs-string">"bg_blue"</span>: <span class="hljs-string">"\033[44m"</span>,
+  <span class="hljs-string">"bg_magenta"</span>: <span class="hljs-string">"\033[45m"</span>,
+  <span class="hljs-string">"bg_cyan"</span>: <span class="hljs-string">"\033[46m"</span>,
+  <span class="hljs-string">"bg_white"</span>: <span class="hljs-string">"\033[47m"</span>
 }
 
-<span class="hljs-built_in">module</span>.exports = passToRepo</pre></div></div>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">wrapper</span>(<span class="hljs-params">style, str</span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">${colors[style]}</span><span class="hljs-subst">${str}</span><span class="hljs-subst">${colors[<span class="hljs-string">'reset'</span>]}</span>`</span>
+}
+<span class="hljs-built_in">module</span>.exports = {
+  <span class="hljs-attr">colors</span>: colors,
+  <span class="hljs-attr">wrapper</span>: wrapper
+}</pre></div></div>
             
         </li>
         
