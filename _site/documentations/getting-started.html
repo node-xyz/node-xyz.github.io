@@ -141,7 +141,7 @@ Each <strong>Node Process</strong>, having a number of services is called a <str
 // `resp` is the IncomingMessage instance etc.
 // https://nodejs.org/api/http.html#http_class_http_incomingmessage
 
-stringMS.call('mul', {x: 2, y:5}, (err, body, res) =&gt; {
+stringMS.call({servicePath: 'mul', payload: {x: 2, y:5}}, (err, body, res) =&gt; {
   console.log(`my fellow service responded with ${body}`)
 })
 </code></pre>
@@ -224,7 +224,7 @@ let stringMS = new xyz({
 })
 
 // math.ms.js
-let xyz = require('xyz-core').xyz
+let xyz = require('xyz-core')
 let mathMS = new xyz({
   selfConf: {
     allowJoin: true,
@@ -283,25 +283,28 @@ $ node math.ms.js --xyz-port 5002
 
 <p>XYZ currently has two trivial approaches implemented as plugins. Let’s look at one of them <a href="https://github.com/node-xyz/xyz.service.send.first.find/blob/master/call.middleware.first.find.js">here</a>. Let’s look at a pseudo-code:</p>
 
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">function</span> <span class="nx">firstFind</span> <span class="p">(</span><span class="nx">params</span><span class="p">,</span> <span class="nx">next</span><span class="p">,</span> <span class="nx">done</span><span class="p">)</span> <span class="p">{</span>
-  <span class="c1">// parameters passed to this middleware by xyz</span>
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">http</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'http'</span><span class="p">)</span>
+
+<span class="kd">function</span> <span class="nx">firstFind</span> <span class="p">(</span><span class="nx">params</span><span class="p">,</span> <span class="nx">next</span><span class="p">,</span> <span class="nx">done</span><span class="p">,</span> <span class="nx">xyz</span><span class="p">)</span> <span class="p">{</span>
   <span class="kd">let</span> <span class="nx">servicePath</span> <span class="o">=</span> <span class="nx">params</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
     <span class="nx">userPayload</span> <span class="o">=</span> <span class="nx">params</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-    <span class="nx">foreignNodes</span> <span class="o">=</span> <span class="nx">params</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
-    <span class="nx">transportClient</span> <span class="o">=</span> <span class="nx">params</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
-  <span class="nx">responseCallback</span> <span class="o">=</span> <span class="nx">params</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+    <span class="nx">responseCallback</span> <span class="o">=</span> <span class="nx">params</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 
-  <span class="c1">// foreignNodes is a list of nodes that the current node is aware of</span>
-  <span class="c1">// iterate through all nodes in the system.</span>
+    <span class="nx">foreignNodes</span> <span class="o">=</span> <span class="nx">xyz</span><span class="p">.</span><span class="nx">serviceRepository</span><span class="p">.</span><span class="nx">foreignNodes</span><span class="p">,</span>
+    <span class="nx">transportClient</span> <span class="o">=</span> <span class="nx">xyz</span><span class="p">.</span><span class="nx">serviceRepository</span><span class="p">.</span><span class="nx">transportClient</span>
+
+
+  <span class="kd">let</span> <span class="nx">logger</span> <span class="o">=</span> <span class="nx">xyz</span><span class="p">.</span><span class="nx">logger</span>
+  <span class="kd">let</span> <span class="nx">wrapper</span> <span class="o">=</span> <span class="nx">xyz</span><span class="p">.</span><span class="nx">Util</span><span class="p">.</span><span class="nx">wrapper</span>
+  <span class="kd">let</span> <span class="nx">Path</span> <span class="o">=</span> <span class="nx">xyz</span><span class="p">.</span><span class="nx">path</span>
+
+  <span class="kd">let</span> <span class="nx">serviceTokens</span> <span class="o">=</span> <span class="nx">servicePath</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)</span>
+
   <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">node</span> <span class="k">in</span> <span class="nx">foreignNodes</span><span class="p">)</span> <span class="p">{</span>
-
-    <span class="c1">// check if it is a match</span>
     <span class="nx">matches</span> <span class="o">=</span> <span class="nx">Path</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="nx">servicePath</span><span class="p">,</span> <span class="nx">foreignNodes</span><span class="p">[</span><span class="nx">node</span><span class="p">])</span>
-    <span class="nx">logger</span><span class="p">.</span><span class="nx">debug</span><span class="p">(</span><span class="err">`</span><span class="nx">FIRST</span> <span class="nx">FIND</span> <span class="err">::</span> <span class="nx">determined</span> <span class="nx">matches</span> <span class="nx">$</span><span class="p">{</span><span class="nx">matches</span><span class="p">}</span> <span class="k">in</span> <span class="nx">node</span> <span class="nx">$</span><span class="p">{</span><span class="nx">node</span><span class="p">}</span> <span class="k">for</span> <span class="nx">$</span><span class="p">{</span><span class="nx">servicePath</span><span class="p">}</span><span class="err">`</span><span class="p">)</span>
+    <span class="nx">logger</span><span class="p">.</span><span class="nx">silly</span><span class="p">(</span><span class="err">`</span><span class="nx">FIRST</span> <span class="nx">FIND</span> <span class="err">::</span> <span class="nx">determined</span> <span class="nx">matches</span> <span class="nx">$</span><span class="p">{</span><span class="nx">matches</span><span class="p">}</span> <span class="k">in</span> <span class="nx">node</span> <span class="nx">$</span><span class="p">{</span><span class="nx">node</span><span class="p">}</span> <span class="k">for</span> <span class="nx">$</span><span class="p">{</span><span class="nx">servicePath</span><span class="p">}</span><span class="err">`</span><span class="p">)</span>
     <span class="k">if</span> <span class="p">(</span><span class="nx">matches</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
-
-      <span class="c1">// terminate and send the message in the first possible match</span>
-      <span class="nx">logger</span><span class="p">.</span><span class="nx">debug</span><span class="p">(</span><span class="err">`</span><span class="nx">FIRST</span> <span class="nx">FIND</span> <span class="err">::</span> <span class="nx">determined</span> <span class="nx">node</span> <span class="k">for</span> <span class="nx">service</span> <span class="nx">$</span><span class="p">{</span><span class="nx">servicePath</span><span class="p">}</span> <span class="nx">by</span> <span class="nx">first</span> <span class="nx">find</span> <span class="nx">strategy</span> <span class="nx">$</span><span class="p">{</span><span class="nx">node</span><span class="p">}</span><span class="err">:</span><span class="nx">$</span><span class="p">{</span><span class="nx">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span><span class="err">`</span><span class="p">)</span>
+      <span class="nx">logger</span><span class="p">.</span><span class="nx">verbose</span><span class="p">(</span><span class="err">`</span><span class="nx">$</span><span class="p">{</span><span class="nx">wrapper</span><span class="p">(</span><span class="s1">'bold'</span><span class="p">,</span> <span class="s1">'FIRST FIND'</span><span class="p">)}</span> <span class="err">::</span> <span class="nx">determined</span> <span class="nx">node</span> <span class="k">for</span> <span class="nx">service</span> <span class="nx">$</span><span class="p">{</span><span class="nx">wrapper</span><span class="p">(</span><span class="s1">'bold'</span><span class="p">,</span> <span class="nx">servicePath</span><span class="p">)}</span> <span class="nx">by</span> <span class="nx">first</span> <span class="nx">find</span> <span class="nx">strategy</span> <span class="err">:</span> <span class="nx">$</span><span class="p">{</span><span class="nx">wrapper</span><span class="p">(</span><span class="s1">'bold'</span><span class="p">,</span> <span class="nx">node</span> <span class="o">+</span> <span class="s1">':'</span> <span class="o">+</span> <span class="nx">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="p">}</span><span class="err">`</span><span class="p">)</span>
       <span class="nx">transportClient</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nx">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nx">node</span> <span class="p">,</span> <span class="nx">userPayload</span><span class="p">,</span> <span class="nx">responseCallback</span><span class="p">)</span>
       <span class="nx">done</span><span class="p">()</span>
       <span class="k">return</span>
@@ -321,18 +324,18 @@ $ node math.ms.js --xyz-port 5002
 </code></pre>
 </div>
 
-<p>We really don’t want to go too deep inside this code at the time, but you can get a general feeling about it that a <code class="highlighter-rouge">Path</code> object will eventually find a list of nodes that can response to a certain <code class="highlighter-rouge">servicePath</code> and calls the first one:</p>
+<p>We really don’t want to go too deep inside this code at the time, but you can get a general feeling about it that a <code class="highlighter-rouge">Path</code> object will eventually find a list of nodes that can response to a certain <code class="highlighter-rouge">servicePath</code> (like <code class="highlighter-rouge">/mul</code>) and calls the first one:</p>
 
 <p><code class="highlighter-rouge">transportClient.send(matches[0], node , userPayload, responseCallback)</code></p>
 
-<p>whenever you call <code class="highlighter-rouge">someMs.call('foo' , ()=&gt;{} )</code> in your code, somewhere along the path, this function will be called and it will find one destination node and invokes a transport client with it. Transport client is the actual module that will make the HTTP/TCP call to destination node.</p>
+<p>whenever you call <code class="highlighter-rouge">someMs.call({servicePath:'foo'} , ()=&gt;{} )</code> in your code, somewhere along the path, this function will be called and it will find one destination node and invokes a transport client with it. Transport client is the actual module that will make the HTTP/TCP call to destination node.</p>
 
 <blockquote>
   <p>This structure, a function with parameters passed as array, with <code class="highlighter-rouge">next</code> and <code class="highlighter-rouge">done</code> callbacks is actually the <strong>middleware</strong> signature of XYZ. We’ll learn soon about middleware in this tutorial.</p>
 </blockquote>
 
 <blockquote>
-  <p>Change your string ms to call an invalid service, say, <code class="highlighter-rouge">.call('blahblah', () =&gt; {})</code>. Now look at the warning logs. Now look at the end of this plugin :
+  <p>Change your string ms to call an invalid service, say, <code class="highlighter-rouge">.call({servicePath: 'blahblah'}, () =&gt; {})</code>. Now look at the warning logs. Now look at the end of this plugin :
 <code class="highlighter-rouge">logger.warn("Sending a message to ${servicePath} from first find strategy failed (Local Response)")</code>
 Are you seeing what I am seeing too?</p>
 </blockquote>
@@ -362,10 +365,10 @@ let stringMS = new xyz({
     name: 'stringMS',
     host: '127.0.0.1',
     port: 3334,
-    seed: [{host: '127.0.0.1', port: 3333}]
+    seed: ['127.0.0.1:13333']
   },
   systemConf: {
-    microservices: []
+    node: []
   }
 })
 
@@ -374,7 +377,7 @@ let stringMS = new xyz({
 // our responses are going to be from few possible nodes, hence they are objects from now on!
 // use JSON.stringify instead.
 setInterval(() =&gt; {
-  stringMS.call('mul', {x: 2, y: 5}, (err, body, res) =&gt; {
+  stringMS.call({servicePath:'mul', payload: {x: 2, y: 5}}, (err, body, res) =&gt; {
     console.log(`my fellow service responded with ${JSON.stringify(body)}`)
   })
 }, 2000)
@@ -439,6 +442,14 @@ node math.ms.js --xyz-port 5001 --xyz-seed 127.0.0.1:3333
 
 <p>You can find the code of this section <a href="https://github.com/node-xyz/xyz-core/tree/master/examples/examples_getting_started/service-discovery">here</a>.</p>
 
+<p>Note that you can also pass the send strategy <strong><em>per call</em></strong>. This will override whatever send strategy you have already chosen in <code class="highlighter-rouge">selfConf</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>stringMS.call({servicePath: 'mul', payload: {x: 2, y: 5}, sendStrategy: sendToAll}, (err, body, res) =&gt; {
+    console.log(`my fellwo service reponded with ${body}`)
+})
+</code></pre>
+</div>
+
 <h1 id="path-based-service-identification">Path based service identification</h1>
 
 <p>Aside from Service discovery procedures, xyz provides another way to make service invocation even more flexible. It’s called <strong>Path Base</strong> service identification. That is to say, each service (aka. function) that you expose, will be exposed on a certain path on that process. So far we have used a plain string as the service name. The truth is that those were paths too! XYZ has been adding a single <code class="highlighter-rouge">/</code> to each of them. Recall one of the logs printed from the previous section. Look at it again:</p>
@@ -487,7 +498,7 @@ mathMS.register('float/add', (payload, response) =&gt; {
 <p>Next, change the call path in stringMS:</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>setInterval(() =&gt; {
-  stringMS.call('/decimal/mul', {x: 2, y: 5}, (err, body, res) =&gt; {
+  stringMS.call({servicePath: '/decimal/mul', payload: {x: 2, y: 5}}, (err, body, res) =&gt; {
     console.log(`my fellow service responded with ${JSON.stringify(body)}`)
   })
 }, 2000)
@@ -507,7 +518,7 @@ mathMS.register('float/add', (payload, response) =&gt; {
 <p>That’s right. You can also use the combination of <code class="highlighter-rouge">xyz.call.send.to.all</code> plugin and paths to call multiple services:</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>setInterval(() =&gt; {
-  stringMS.call('/decimal/*', {x: 2, y: 5}, (err, body, res) =&gt; {
+  stringMS.call({servicePath: '/decimal/*', payloa: {x: 2, y: 5}}, (err, body, res) =&gt; {
     console.log(`my fellow service responded with ${JSON.stringify(body)}`)
   })
 }, 2000)
@@ -610,7 +621,7 @@ mathMS.register('float/add', (payload, response) =&gt; {
       <li><code class="highlighter-rouge">params</code>: an array of parameters values passed to the middleware function.</li>
       <li><code class="highlighter-rouge">next</code>: function that will ignore the rest of the execution of this middleware and invoke the next function in the stack.</li>
       <li><code class="highlighter-rouge">end</code>: will end of the execution of the entire stack.</li>
-      <li><code class="highlighter-rouge">xyz</code>: a reference to the current xyz object. This is useful because all of the information require, such as configurations, Service-Repository layer etc. can be accesses from this object.</li>
+      <li><code class="highlighter-rouge">xyz</code>: a reference to the current xyz object. This is useful because all of the information required, such as configurations, Service-Repository layer etc. can be accesses from this object.</li>
     </ul>
   </li>
 </ul>
@@ -634,7 +645,7 @@ module.exports = dummyLogger;
 <p>Each middleware in xyz has specific params structure. As an example, The transport layer call dispatch middleware has the following parameters according to the <a href="https://github.com/node-xyz/xyz-core/blob/master/src/Transport/HTTP/http.client.js#L35">source code</a>: <code class="highlighter-rouge">[requestConfig, callResponseCallback]</code>. That means that the first index is a variable containing request information and the second parameter is the callback function for this call.</p>
 
 <blockquote>
-  <p>Remember how you call something like <code class="highlighter-rouge">someMS.call('somePath', ()=&gt; {})</code>? The second argument to this call is the actual callback function that will be passed to the Transport layer, and you have access to it inside the middleware. This is because the last index of this middleware stack is a function <a href="">that will wrap this request in an http object and pass it to the network</a>. Therefore, it needs the callback function to invoke it when the response is back. Note that this middleware is embedded in xyz and it is not on a separate repository, unlike other middlewares.</p>
+  <p>Remember how you call something like <code class="highlighter-rouge">someMS.call({servicePath: 'somePath'}, ()=&gt; {})</code>? The second argument to this call is the actual callback function that will be passed to the Transport layer, and you have access to it inside the middleware. This is because the last index of this middleware stack is a function <a href="">that will wrap this request in an http object and pass it to the network</a>. Therefore, it needs the callback function to invoke it when the response is back. Note that this middleware is embedded in xyz and it is not on a separate repository, unlike other middlewares.</p>
 </blockquote>
 
 <p>Next, let us see how we can insert this dummy logger to the system. The XYZ interface provides methods for inserting a function to a specific index of a specific MiddlewareStack. As an example, we can insert this middleware in StringMS (continuing from the previous section):</p>
@@ -684,7 +695,7 @@ my fellow service responded with {"127.0.0.1:3333:/decimal/mul":[null,10],"127.0
 
 <p>Suppose that your system uses a very simple  authentication system, kind of a shared-secret mechanism. You want authentication to happen in Transport layer. This is generally better because the Transport layer can drop unauthorized requests immediately and the Service-Repository layer, which is more critical, won’t be bothered to check them twice.</p>
 
-<p>We are going to place two middlewares in Transport layer for this purpose, namely in <strong>CallReceiveMiddlewareStack</strong> and <strong>CallDispatchMiddlewareStack</strong>.</p>
+<p>We are going to place two middlewares in <strong>Transport layer</strong> for this purpose, namely in <strong>CallReceiveMiddlewareStack</strong> and <strong>CallDispatchMiddlewareStack</strong>.</p>
 
 <p>The code of these middlewares should be fairly understandable to you now. The sender side is fairly (perhaps more than <em>fairly</em>) simple:</p>
 
@@ -743,6 +754,61 @@ mathMS.middlewares().transport.callReceive.register(0, require('./auth.receive')
 </div>
 
 <p>Again, note that what you add to the <code class="highlighter-rouge">json</code> key is not available to the application layer. That is to say, you do not need to explicitly delete it from the object. Add a log to the receiving function and and double check this.</p>
+
+<h3 id="a-pretty-print-utility">a pretty-print utility:</h3>
+
+<p>XYZ overrides the default <code class="highlighter-rouge">console.log</code> behavior. So when you print an xyz instance, such as <code class="highlighter-rouge">stringMS</code>, you’ll get something like this:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>selfConfig:
+  {
+  "name": "stringMS",
+  "defaultSendStrategy": "xyz.service.send.first.find",
+  "allowJoin": false,
+  "logLevel": "info",
+  "seed": [
+    "127.0.0.1:3333"
+  ],
+  "port": 3334,
+  "host": "127.0.0.1",
+  "intervals": {
+    "reconnect": 2500
+  },
+  "defaultBootstrap": true,
+  "cli": {
+    "enable": false,
+    "stdio": "console"
+  }
+}
+systemConf:
+  {
+  "nodes": [
+    "127.0.0.1:3334"
+  ]
+}
+____________________  SERVICE REPOSITORY ____________________
+
+Middlewares:
+  callDispatchMiddlewareStack || firstFind[0]
+Services:
+  anonymousFN @ /up
+  anonymousFN @ /down
+
+____________________  TRANSPORT LAYER ____________________
+Transport Client:
+  Middlewares:
+  callDispatchMiddlewareStack || authSend[0] -&gt; callDispatchExport[1]
+  pingDispatchMiddlewareStack || pingDispatchExport[0]
+  joinDispatchMiddlewareStack || joinExport[0]
+
+Transport Server:
+  Middlewares:
+  callReceiveMiddlewareStack || authReceive[0] -&gt; passToRepo[1]
+  pingReceiveMiddlewareStack || passToRepo[0]
+  joinReceiveMiddlewareStack || joinAcceptAll[0]
+</code></pre>
+</div>
+
+<p>You can clearly see the stack of middlewares and how they are places.</p>
 
 
       <footer class="site-footer">

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  
+  <head>
+  <meta charset="UTF-8">
+  <title>Node XYZ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#157878">
+  <link rel="stylesheet" href="/css/normalize.css">
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="/css/cayman.css">
+</head>
+
+
+  <body>
+    <section class="page-header">
+  <h1 class="project-name"><a style="text-decoration: none; color: inherit"href="/">Node XYZ</a></h1>
+  <h2 class="project-tagline">Microservice toolkit for node</h2>
+  <a href="https://github.com/node-xyz" class="btn">View on GitHub</a>
+  <a href="/documentations" class="btn"> Documentation </a>
+  <a href="/apidoc" class="btn"> API Doc </a>
+
+  <div>
+    <span>you are currently seeing </span><strong>How to configure xyz nodes</strong>
+  </div>
+  
+</section>
+
+
+    <section class="main-content">
+      
+      <h1 id="configurations-phases">configurations phases:</h1>
+
+<p>configurations are an important part of the xyz ecosystem, hence it is important for the developer to know how to use them and manipulate them.</p>
+
+<p>XYZ configurations can be set on 3 phases:</p>
+
+<ul>
+  <li>[3] The default value: stored in <a href="https://github.com/node-xyz/xyz-core/blob/master/src/Config/Constants.js#L26"><code class="highlighter-rouge">Constants.js</code></a> file in <code class="highlighter-rouge">xyz-core</code></li>
+  <li>[2] <code class="highlighter-rouge">selfConf</code> and <code class="highlighter-rouge">systemConf</code> at runtime</li>
+  <li>[1] via command line arguments</li>
+</ul>
+
+<p>and each of them have priorities indicated by <code class="highlighter-rouge">[x]</code> in the list. This means that whatever you pass in as <strong>command line argument</strong> will override <code class="highlighter-rouge">selfConf</code> and <code class="highlighter-rouge">Constants.js</code>. Let’s look at each them one by one:</p>
+
+<h3 id="the-default-configuration-constantsjs">The default configuration: Constants.js</h3>
+
+<p>Recall from the two simple services that we worked with in the getting started section. Let’s luch one of them but this time, we are not going to pass any configuration to it:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>let xyz = require('xyz-core')
+let mathMS = new xyz({
+  selfConf: {},
+  systemConf: {nodes: []}
+})
+
+// register any services
+
+console.log(mathMS)
+
+</code></pre>
+</div>
+
+<p>As you can see the system lunches perfectly with the default values.</p>
+
+<h3 id="runtime-configurations-selfconf-and-systemconf">Runtime configurations: selfConf and systemConf</h3>
+
+<p>As you expect, whatever you place in <code class="highlighter-rouge">selfConf</code> and <code class="highlighter-rouge">systemConf</code> at runtime will override these values.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>let mathMS = new xyz({
+  selfConf: {
+    port: 10000,
+    name: 'from-self-conf'
+  },
+  systemConf: {nodes: []}
+})
+
+console.log(mathMS)
+
+</code></pre>
+</div>
+
+<p>pay close attention to the values printed after <code class="highlighter-rouge">console.log(mathMS)</code> and see how <code class="highlighter-rouge">port</code> and <code class="highlighter-rouge">name</code> have changed.</p>
+
+<h3 id="command-line-arguments">Command line arguments</h3>
+
+<p>One last way to change configurations is to use command line arguments. Normally, you would run an instance like:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ node mathMs.js
+</code></pre>
+</div>
+
+<p>But, we have seen in the getting-started section that you can actually override the port value of a node using:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ node math.ms.js --xyz-port 5002
+</code></pre>
+</div>
+
+<p>this is actually a global pattern for overriding the configurations. It goes like this: <code class="highlighter-rouge">--xyz-[CONFIG.KEY] [CONFIG.VALUE]</code></p>
+
+<p>As an example, you can change the name of a service via command line using:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ node math.ms.js --xyz-name sth-from-cli
+</code></pre>
+</div>
+
+<p>If you run a service like this, you’ll see that:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>____________________  GLOBAL ____________________
+selfConfig:
+  {
+  "name": "sth-from-cli",
+  "defaultSendStrategy": "xyz.service.send.first.find",
+  "allowJoin": false,
+  "logLevel": "info",
+  ....
+
+</code></pre>
+</div>
+
+<p>Keys with more depth can also be manipulated using a <code class="highlighter-rouge">.</code> :</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ node mathMs.js --xyz-cli.enable true
+
+// analogous to selfConf: {
+//    ...
+//    cli: {enable : true }
+//    ...  
+</code></pre>
+</div>
+
+<p>A complete example could be as follows:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ node mathMs.js --xyz-logLevel debug --xyz-seed 127.0.0.1:4000 --xyz-defaultSendStrategy xyz.service.send.to.all
+</code></pre>
+</div>
+
+
+      <footer class="site-footer">
+  <span class="site-footer-owner"><a href="http://localhost:4000">Node XYZ</a> is maintained by <a href="">Kian Peymani</a>.</span>
+  <small><span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/pietromenna/jekyll-cayman-theme">Cayman theme</a> by <a href="http://github.com/jasonlong">Jason Long</a>.</span></small>
+</footer>
+
+
+    </section>
+
+  </body>
+</html>

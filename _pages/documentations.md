@@ -19,7 +19,7 @@ The following documentations will help you get started with xyz, and understand 
 
   - **Advance Topics**[*work in progress*]:
     - An odyssey into XYZ: lifecycle of a single requests
-    - Configurations
+    - [Configurations](/documentations/configuration)
     - Bootstrap Functions
     - XYZ Command line interface
     - Logging
