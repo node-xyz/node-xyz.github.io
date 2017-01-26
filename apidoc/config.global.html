@@ -25,21 +25,6 @@
                 </a>
               
                 
-                <a class="source" href="linenumber.html">
-                  linenumber.js
-                </a>
-              
-                
-                <a class="source" href="lang-css.html">
-                  lang-css.js
-                </a>
-              
-                
-                <a class="source" href="prettify.html">
-                  prettify.js
-                </a>
-              
-                
                 <a class="source" href="clsuter.listener.html">
                   clsuter.listener.js
                 </a>
@@ -142,66 +127,6 @@
                 
                 <a class="source" href="machine.reporter.html">
                   machine.reporter.js
-                </a>
-              
-                
-                <a class="source" href="common.html">
-                  common.js
-                </a>
-              
-                
-                <a class="source" href="mock.functions.html">
-                  mock.functions.js
-                </a>
-              
-                
-                <a class="source" href="mock.node.html">
-                  mock.node.js
-                </a>
-              
-                
-                <a class="source" href="mock.system.html">
-                  mock.system.js
-                </a>
-              
-                
-                <a class="source" href="auth.html">
-                  auth.js
-                </a>
-              
-                
-                <a class="source" href="basic.html">
-                  basic.js
-                </a>
-              
-                
-                <a class="source" href="dataTypes.html">
-                  dataTypes.js
-                </a>
-              
-                
-                <a class="source" href="events.and.cluster.html">
-                  events.and.cluster.js
-                </a>
-              
-                
-                <a class="source" href="middleware.service.html">
-                  middleware.service.js
-                </a>
-              
-                
-                <a class="source" href="middleware.transport.html">
-                  middleware.transport.js
-                </a>
-              
-                
-                <a class="source" href="path.html">
-                  path.js
-                </a>
-              
-                
-                <a class="source" href="top.html">
-                  top.js
                 </a>
               
                 
@@ -314,6 +239,9 @@
         <span class="hljs-keyword">if</span> (keys[<span class="hljs-number">0</span>] === <span class="hljs-string">'seed'</span>)
           selfConf[keys[<span class="hljs-number">0</span>]].push(args[arg])
         <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (keys[<span class="hljs-number">0</span>] == <span class="hljs-string">'allowJoin'</span>) {
+          <span class="hljs-comment">/*
+          could also use eval here
+           */</span>
           <span class="hljs-keyword">if</span> (args[arg] === <span class="hljs-string">'0'</span> || args[arg] === <span class="hljs-string">'false'</span>) {
             selfConf[keys[<span class="hljs-number">0</span>]] = <span class="hljs-literal">false</span>
           }<span class="hljs-keyword">else</span> {
@@ -325,7 +253,7 @@
       }
       <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (keys.length === <span class="hljs-number">2</span>) {
         <span class="hljs-keyword">if</span> (! selfConf[keys[<span class="hljs-number">0</span>]]) selfConf[keys[<span class="hljs-number">0</span>]] = {}
-        selfConf[keys[<span class="hljs-number">0</span>]][keys[<span class="hljs-number">1</span>]] = <span class="hljs-built_in">eval</span>(args[arg])
+        selfConf[keys[<span class="hljs-number">0</span>]][keys[<span class="hljs-number">1</span>]] = keys[<span class="hljs-number">1</span>] == <span class="hljs-string">'enable'</span> ? <span class="hljs-built_in">eval</span>(args[arg]) : args[arg]
       }
       <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (keys.length === <span class="hljs-number">3</span>) {
         <span class="hljs-keyword">if</span> (! selfConf[keys[<span class="hljs-number">0</span>]]) selfConf[keys[<span class="hljs-number">0</span>]] = {}
@@ -337,10 +265,7 @@
     }
 
     logger.transports.console.level = selfConf.logLevel
-    logger.info(<span class="hljs-string">`log level set to <span class="hljs-subst">${logger.transports.<span class="hljs-built_in">console</span>.level}</span>`</span>)
-
-    logger.debug(<span class="hljs-string">'final configurations for selfConf is:'</span>)
-    <span class="hljs-built_in">console</span>.log(selfConf)
+    logger.debug(<span class="hljs-string">`log level set to <span class="hljs-subst">${logger.transports.<span class="hljs-built_in">console</span>.level}</span>`</span>)
   },
 
   <span class="hljs-attr">setSystemConf</span>: <span class="hljs-function">(<span class="hljs-params">aConf</span>) =&gt;</span> {
@@ -353,8 +278,6 @@
     <span class="hljs-keyword">if</span> (systemConf.nodes.indexOf(<span class="hljs-string">`<span class="hljs-subst">${selfConf.host}</span>:<span class="hljs-subst">${selfConf.port}</span>`</span>) === <span class="hljs-number">-1</span>) {
       systemConf.nodes.push(<span class="hljs-string">`<span class="hljs-subst">${selfConf.host}</span>:<span class="hljs-subst">${selfConf.port}</span>`</span>)
     }
-    logger.info(<span class="hljs-string">'final configurations for systemConf is:'</span>)
-    <span class="hljs-built_in">console</span>.log(systemConf)
   },
 
   <span class="hljs-attr">getSystemConf</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> systemConf,

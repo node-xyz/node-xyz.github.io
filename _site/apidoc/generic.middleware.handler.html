@@ -25,21 +25,6 @@
                 </a>
               
                 
-                <a class="source" href="linenumber.html">
-                  linenumber.js
-                </a>
-              
-                
-                <a class="source" href="lang-css.html">
-                  lang-css.js
-                </a>
-              
-                
-                <a class="source" href="prettify.html">
-                  prettify.js
-                </a>
-              
-                
                 <a class="source" href="clsuter.listener.html">
                   clsuter.listener.js
                 </a>
@@ -145,66 +130,6 @@
                 </a>
               
                 
-                <a class="source" href="common.html">
-                  common.js
-                </a>
-              
-                
-                <a class="source" href="mock.functions.html">
-                  mock.functions.js
-                </a>
-              
-                
-                <a class="source" href="mock.node.html">
-                  mock.node.js
-                </a>
-              
-                
-                <a class="source" href="mock.system.html">
-                  mock.system.js
-                </a>
-              
-                
-                <a class="source" href="auth.html">
-                  auth.js
-                </a>
-              
-                
-                <a class="source" href="basic.html">
-                  basic.js
-                </a>
-              
-                
-                <a class="source" href="dataTypes.html">
-                  dataTypes.js
-                </a>
-              
-                
-                <a class="source" href="events.and.cluster.html">
-                  events.and.cluster.js
-                </a>
-              
-                
-                <a class="source" href="middleware.service.html">
-                  middleware.service.js
-                </a>
-              
-                
-                <a class="source" href="middleware.transport.html">
-                  middleware.transport.js
-                </a>
-              
-                
-                <a class="source" href="path.html">
-                  path.js
-                </a>
-              
-                
-                <a class="source" href="top.html">
-                  top.js
-                </a>
-              
-                
                 <a class="source" href="xyz.html">
                   xyz.js
                 </a>
@@ -257,6 +182,7 @@ fn2(params)
             
             <div class="content"><div class='highlight'><pre>
 <span class="hljs-keyword">const</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../Log/Logger'</span>)
+<span class="hljs-keyword">const</span> wrapper = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../Util/Util'</span>).wrapper
 
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">GenericMiddlewareHandler</span> </span>{</pre></div></div>
             
@@ -291,6 +217,40 @@ Sice the <code>.apply</code> method is indipendent of the state.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
+              <p>print function</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  _inspect () {
+    <span class="hljs-keyword">let</span> str = <span class="hljs-string">`<span class="hljs-subst">${<span class="hljs-keyword">this</span>.name}</span> || `</span>
+
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-keyword">this</span>.middlewares.length; i++) {
+      <span class="hljs-keyword">if</span> (i === <span class="hljs-keyword">this</span>.middlewares.length - <span class="hljs-number">1</span>) {
+        str += <span class="hljs-string">`<span class="hljs-subst">${<span class="hljs-keyword">this</span>.middlewares[i].name}</span>[<span class="hljs-subst">${i}</span>]`</span>
+      } <span class="hljs-keyword">else</span> {
+        str += <span class="hljs-string">`<span class="hljs-subst">${<span class="hljs-keyword">this</span>.middlewares[i].name}</span>[<span class="hljs-subst">${i}</span>] -&gt; `</span>
+      }
+    }
+
+    <span class="hljs-keyword">return</span> str
+  }
+
+  _inspectJSON () {
+    <span class="hljs-keyword">return</span> {
+      <span class="hljs-attr">name</span>: <span class="hljs-keyword">this</span>.name,
+      <span class="hljs-attr">Middlewares</span>: <span class="hljs-keyword">this</span>.middlewares
+    }
+  }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
               <p>Registering a new middleware.<br></p>
 <p>The number passed to as the first index will be the position of the function
 <strong>0</strong> will prepend the function by default and -1 will append it
@@ -304,19 +264,19 @@ You’ll use 0 most of the time</p>
       <span class="hljs-keyword">this</span>.middlewares.push(fn)
     } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (index == <span class="hljs-number">0</span>) {
       <span class="hljs-keyword">this</span>.middlewares.unshift(fn)
-    }  <span class="hljs-keyword">else</span> {
-      <span class="hljs-keyword">this</span>.middlewares.splice(index, <span class="hljs-number">0</span> , fn)
+    } <span class="hljs-keyword">else</span> {
+      <span class="hljs-keyword">this</span>.middlewares.splice(index, <span class="hljs-number">0</span>, fn)
     }
   }</pre></div></div>
             
         </li>
         
         
-        <li id="section-5">
+        <li id="section-6">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-5">&#182;</a>
+                <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
               <p>apply a specific function from middleware array over a set of arguments.
 Note that <code>.apply</code> will continue to call functions on parameters until the end of
@@ -349,11 +309,11 @@ and end will end the execution of the current stack</p>
         </li>
         
         
-        <li id="section-6">
+        <li id="section-7">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-6">&#182;</a>
+                <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
               <p> Return an array of middlewares registered so far.</p>
 
@@ -366,11 +326,11 @@ and end will end the execution of the current stack</p>
         </li>
         
         
-        <li id="section-7">
+        <li id="section-8">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-7">&#182;</a>
+                <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
               <p>Remove a middleware form the stack</p>
 

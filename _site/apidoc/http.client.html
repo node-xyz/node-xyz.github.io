@@ -25,21 +25,6 @@
                 </a>
               
                 
-                <a class="source" href="linenumber.html">
-                  linenumber.js
-                </a>
-              
-                
-                <a class="source" href="lang-css.html">
-                  lang-css.js
-                </a>
-              
-                
-                <a class="source" href="prettify.html">
-                  prettify.js
-                </a>
-              
-                
                 <a class="source" href="clsuter.listener.html">
                   clsuter.listener.js
                 </a>
@@ -145,66 +130,6 @@
                 </a>
               
                 
-                <a class="source" href="common.html">
-                  common.js
-                </a>
-              
-                
-                <a class="source" href="mock.functions.html">
-                  mock.functions.js
-                </a>
-              
-                
-                <a class="source" href="mock.node.html">
-                  mock.node.js
-                </a>
-              
-                
-                <a class="source" href="mock.system.html">
-                  mock.system.js
-                </a>
-              
-                
-                <a class="source" href="auth.html">
-                  auth.js
-                </a>
-              
-                
-                <a class="source" href="basic.html">
-                  basic.js
-                </a>
-              
-                
-                <a class="source" href="dataTypes.html">
-                  dataTypes.js
-                </a>
-              
-                
-                <a class="source" href="events.and.cluster.html">
-                  events.and.cluster.js
-                </a>
-              
-                
-                <a class="source" href="middleware.service.html">
-                  middleware.service.js
-                </a>
-              
-                
-                <a class="source" href="middleware.transport.html">
-                  middleware.transport.js
-                </a>
-              
-                
-                <a class="source" href="path.html">
-                  path.js
-                </a>
-              
-                
-                <a class="source" href="top.html">
-                  top.js
-                </a>
-              
-                
                 <a class="source" href="xyz.html">
                   xyz.js
                 </a>
@@ -239,6 +164,7 @@
 <span class="hljs-keyword">const</span> machineReport = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../Util/machine.reporter'</span>)
 <span class="hljs-keyword">const</span> _CONFIGURATIONS = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../Config/config.global'</span>)
 <span class="hljs-keyword">let</span> GenericMiddlewareHandler = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../Middleware/generic.middleware.handler'</span>)
+<span class="hljs-keyword">let</span> wrapper = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../Util/Util'</span>).wrapper
 
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">HTTPClient</span> </span>{
   <span class="hljs-keyword">constructor</span> (xyz) {
@@ -246,14 +172,30 @@
     <span class="hljs-keyword">this</span>.pingPrefix = CONSTANTS.url.PING
     <span class="hljs-keyword">this</span>.xyz = xyz
 
-    <span class="hljs-keyword">this</span>.callDispatchMidllewareStack = <span class="hljs-keyword">new</span> GenericMiddlewareHandler(<span class="hljs-keyword">this</span>.xyz, <span class="hljs-string">'callDispatchMidllewareStack'</span>)
-    <span class="hljs-keyword">this</span>.callDispatchMidllewareStack.register(<span class="hljs-number">-1</span>, <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../Middlewares/call/call.dispatch.export.middleware'</span>))
+    <span class="hljs-keyword">this</span>.callDispatchMiddlewareStack = <span class="hljs-keyword">new</span> GenericMiddlewareHandler(<span class="hljs-keyword">this</span>.xyz, <span class="hljs-string">'callDispatchMiddlewareStack'</span>)
+    <span class="hljs-keyword">this</span>.callDispatchMiddlewareStack.register(<span class="hljs-number">-1</span>, <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../Middlewares/call/call.dispatch.export.middleware'</span>))
 
     <span class="hljs-keyword">this</span>.pingDispatchMiddlewareStack = <span class="hljs-keyword">new</span> GenericMiddlewareHandler(<span class="hljs-keyword">this</span>.xyz, <span class="hljs-string">'pingDispatchMiddlewareStack'</span>)
     <span class="hljs-keyword">this</span>.pingDispatchMiddlewareStack.register(<span class="hljs-number">-1</span>, <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../Middlewares/ping/ping.dispatch.export.middleware'</span>))
 
     <span class="hljs-keyword">this</span>.joinDispatchMiddlewareStack = <span class="hljs-keyword">new</span> GenericMiddlewareHandler(<span class="hljs-keyword">this</span>.xyz, <span class="hljs-string">'joinDispatchMiddlewareStack'</span>)
     <span class="hljs-keyword">this</span>.joinDispatchMiddlewareStack.register(<span class="hljs-number">-1</span>, <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../Middlewares/cluster/join.middleware.export'</span>))
+  }
+
+  _inspect () {
+    <span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">${wrapper(<span class="hljs-string">'green'</span>, wrapper(<span class="hljs-string">'bold'</span>, <span class="hljs-string">'Middlewares'</span>))}</span>:
+  <span class="hljs-subst">${<span class="hljs-keyword">this</span>.callDispatchMiddlewareStack._inspect()}</span>
+  <span class="hljs-subst">${<span class="hljs-keyword">this</span>.pingDispatchMiddlewareStack._inspect()}</span>
+  <span class="hljs-subst">${<span class="hljs-keyword">this</span>.joinDispatchMiddlewareStack._inspect()}</span>
+  `</span>
+  }
+
+  _inspectJSON () {
+    <span class="hljs-keyword">return</span> [
+      <span class="hljs-keyword">this</span>.callDispatchMiddlewareStack._inspectJSON(),
+      <span class="hljs-keyword">this</span>.pingDispatchMiddlewareStack._inspectJSON(),
+      <span class="hljs-keyword">this</span>.joinDispatchMiddlewareStack._inspectJSON()
+    ]
   }
 
   send (servicePath, node, userPayload, callResponseCallback) {
@@ -264,7 +206,7 @@
       <span class="hljs-attr">method</span>: <span class="hljs-string">'POST'</span>,
       <span class="hljs-attr">json</span>: { <span class="hljs-attr">userPayload</span>: userPayload, <span class="hljs-attr">service</span>: servicePath}
     }
-    <span class="hljs-keyword">this</span>.callDispatchMidllewareStack.apply([requestConfig, callResponseCallback], <span class="hljs-number">0</span>)
+    <span class="hljs-keyword">this</span>.callDispatchMiddlewareStack.apply([requestConfig, callResponseCallback], <span class="hljs-number">0</span>)
   }
 
   ping (node, pingResponseCallback) {

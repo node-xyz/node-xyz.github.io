@@ -25,21 +25,6 @@
                 </a>
               
                 
-                <a class="source" href="linenumber.html">
-                  linenumber.js
-                </a>
-              
-                
-                <a class="source" href="lang-css.html">
-                  lang-css.js
-                </a>
-              
-                
-                <a class="source" href="prettify.html">
-                  prettify.js
-                </a>
-              
-                
                 <a class="source" href="clsuter.listener.html">
                   clsuter.listener.js
                 </a>
@@ -145,66 +130,6 @@
                 </a>
               
                 
-                <a class="source" href="common.html">
-                  common.js
-                </a>
-              
-                
-                <a class="source" href="mock.functions.html">
-                  mock.functions.js
-                </a>
-              
-                
-                <a class="source" href="mock.node.html">
-                  mock.node.js
-                </a>
-              
-                
-                <a class="source" href="mock.system.html">
-                  mock.system.js
-                </a>
-              
-                
-                <a class="source" href="auth.html">
-                  auth.js
-                </a>
-              
-                
-                <a class="source" href="basic.html">
-                  basic.js
-                </a>
-              
-                
-                <a class="source" href="dataTypes.html">
-                  dataTypes.js
-                </a>
-              
-                
-                <a class="source" href="events.and.cluster.html">
-                  events.and.cluster.js
-                </a>
-              
-                
-                <a class="source" href="middleware.service.html">
-                  middleware.service.js
-                </a>
-              
-                
-                <a class="source" href="middleware.transport.html">
-                  middleware.transport.js
-                </a>
-              
-                
-                <a class="source" href="path.html">
-                  path.js
-                </a>
-              
-                
-                <a class="source" href="top.html">
-                  top.js
-                </a>
-              
-                
                 <a class="source" href="xyz.html">
                   xyz.js
                 </a>
@@ -233,101 +158,135 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">var</span> Path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../src/Service/path'</span>)
-<span class="hljs-keyword">const</span> common = <span class="hljs-built_in">require</span>(<span class="hljs-string">'../common'</span>)
-<span class="hljs-keyword">let</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../src/Log/Logger'</span>)
-<span class="hljs-keyword">const</span> expect = common.expect
-<span class="hljs-keyword">const</span> mockNode = common.mockNode
-<span class="hljs-keyword">const</span> mockSystem = common.mockSystem
-<span class="hljs-keyword">const</span> mockFunctions = common.mockFunctions
-<span class="hljs-keyword">const</span> PathTree = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../src/Service/path.tree'</span>)
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">let</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../Log/Logger'</span>)
 
-<span class="hljs-keyword">let</span> cwd, system, snd, rcv
-before(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">done</span>) </span>{
-  cwd = __filename.slice(<span class="hljs-number">0</span>, __filename.lastIndexOf(<span class="hljs-string">'/'</span>))
-  system = <span class="hljs-keyword">new</span> mockSystem(cwd)
-  system.addNode(<span class="hljs-string">'localhost:3333'</span>)
-  system.addNode(<span class="hljs-string">'localhost:3334'</span>)
-  snd = <span class="hljs-keyword">new</span> mockNode(<span class="hljs-string">'snd'</span>, <span class="hljs-number">3334</span>, cwd, system.getSystemConf())
-  rcv = <span class="hljs-keyword">new</span> mockNode(<span class="hljs-string">'rcv'</span>, <span class="hljs-number">3333</span>, cwd, system.getSystemConf())
+<span class="hljs-keyword">let</span> Path = {
+  <span class="hljs-attr">validate</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">path</span>) </span>{
+    <span class="hljs-keyword">if</span> (path === <span class="hljs-string">'/'</span>) {
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-regexp">/^(\/([a-zA-Z]|[1-9]|\*)+)*$/</span>.test(path)
+  },
 
-  rcv.register(<span class="hljs-string">'/math/decimal/mul'</span>, mockFunctions.mul)
-  rcv.register(<span class="hljs-string">'/math/decimal/add'</span>, mockFunctions.add)
-  rcv.register(<span class="hljs-string">'/math/decimal/sub'</span>, mockFunctions.sub)
-  rcv.register(<span class="hljs-string">'/math/decimal'</span>, mockFunctions.finger)
+  <span class="hljs-attr">format</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">path</span>) </span>{
+    <span class="hljs-keyword">if</span> (path.slice(<span class="hljs-number">0</span>, <span class="hljs-number">1</span>) !== <span class="hljs-string">'/'</span>) {
+      path = <span class="hljs-string">'/'</span> + path
+    }
+    <span class="hljs-keyword">if</span> (path.slice(<span class="hljs-number">-1</span>) === <span class="hljs-string">'/'</span>) {
+      path = path.slice(<span class="hljs-number">0</span>, <span class="hljs-number">-1</span>)
+    }
+    <span class="hljs-keyword">return</span> path
+  },
 
-  setTimeout(done, <span class="hljs-number">500</span>)
-})
-
-it(<span class="hljs-string">'path formating'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">done</span>) </span>{
-  <span class="hljs-keyword">let</span> test = <span class="hljs-string">'a/b/'</span>
-  <span class="hljs-keyword">let</span> test1 = <span class="hljs-string">'/a/b'</span>
-  <span class="hljs-keyword">let</span> test3 = <span class="hljs-string">'/aaa123/123/abc/'</span>
-  expect(Path.format(test)).to.equal(<span class="hljs-string">'/a/b'</span>)
-  expect(Path.format(test1)).to.equal(test1)
-  expect(Path.format(test3)).to.equal(test3.slice(<span class="hljs-number">0</span>, <span class="hljs-number">-1</span>))
-  done()
-})
-
-it(<span class="hljs-string">'path validation'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">done</span>) </span>{
-  <span class="hljs-keyword">let</span> test = <span class="hljs-string">'a/b/'</span>
-  <span class="hljs-keyword">let</span> test1 = <span class="hljs-string">'/a/b'</span>
-  <span class="hljs-keyword">let</span> test2 = <span class="hljs-string">'/'</span>
-  <span class="hljs-keyword">let</span> test3 = <span class="hljs-string">'/aaa123/123/abc/'</span>
-  <span class="hljs-keyword">let</span> test4 = <span class="hljs-string">'/asd//asd'</span>
-  expect(Path.validate(test)).to.equal(<span class="hljs-literal">false</span>)
-  expect(Path.validate(test1)).to.equal(<span class="hljs-literal">true</span>)
-  expect(Path.validate(test2)).to.equal(<span class="hljs-literal">true</span>)
-  expect(Path.validate(test3)).to.equal(<span class="hljs-literal">false</span>)
-  expect(Path.validate(test4)).to.equal(<span class="hljs-literal">false</span>)
-  done()
-})
-
-it(<span class="hljs-string">'adjunct to path tree'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">done</span>) </span>{
-  <span class="hljs-keyword">let</span> pt = <span class="hljs-keyword">new</span> PathTree()
-  <span class="hljs-keyword">let</span> dummy = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{ <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'dummy'</span>)}
-  pt.createPathSubtree(<span class="hljs-string">'/math/add'</span>, dummy)
-  done()
-})
-
-it(<span class="hljs-string">'path mathcing'</span> , <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">done</span>) </span>{
-  <span class="hljs-keyword">let</span> pt = <span class="hljs-keyword">new</span> PathTree()
-
-  <span class="hljs-keyword">let</span> dummy = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{ <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'dummy'</span>)}
-  pt.createPathSubtree(<span class="hljs-string">'/math/add/decimal'</span>, dummy)
-  pt.createPathSubtree(<span class="hljs-string">'/math/add/float'</span>, dummy)
-  pt.createPathSubtree(<span class="hljs-string">'/math/sub/decimal'</span>, dummy)
-  pt.createPathSubtree(<span class="hljs-string">'/math/sub/float'</span>, dummy)
-  pt.createPathSubtree(<span class="hljs-string">'/foo/bar/buzz/duck/go'</span>, dummy)
-  pt.createPathSubtree(<span class="hljs-string">'/foo/bar1/buzz1/duck/go'</span>, dummy)
-  pt.createPathSubtree(<span class="hljs-string">'/foo/bar1/buzz1/duck/g1'</span>, dummy)
-
-  expect(Path.match(<span class="hljs-string">'/math/add/float'</span>, pt.serializedTree).length).to.equal(<span class="hljs-number">1</span>)
-  expect(Path.match(<span class="hljs-string">'/math/add/wrong'</span>, pt.serializedTree).length).to.equal(<span class="hljs-number">0</span>)
-  expect(Path.match(<span class="hljs-string">'/math/add/decimal/extra'</span>, pt.serializedTree).length).to.equal(<span class="hljs-number">0</span>)
-  expect(Path.match(<span class="hljs-string">'/math'</span>, pt.serializedTree).length).to.equal(<span class="hljs-number">1</span>)
-  expect(Path.match(<span class="hljs-string">'/math/add/*'</span>, pt.serializedTree).length).to.equal(<span class="hljs-number">2</span>)
-  expect(Path.match(<span class="hljs-string">'/math/*'</span>, pt.serializedTree).length).to.equal(<span class="hljs-number">2</span>)
-  expect(Path.match(<span class="hljs-string">'/foo/*/*/duck/go'</span>, pt.serializedTree).length).to.equal(<span class="hljs-number">2</span>)
-  expect(Path.match(<span class="hljs-string">'/foo/*/*/duck/*'</span>, pt.serializedTree).length).to.equal(<span class="hljs-number">3</span>)
-
-  done()
-})
-
-it(<span class="hljs-string">'first find scenarios'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">done</span>) </span>{
-  snd.call(<span class="hljs-string">'/math/decimal/mul'</span>, {<span class="hljs-attr">x</span>: <span class="hljs-number">2</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">3</span>} , (err, body, response) =&gt; {
-    expect(body).to.equal(<span class="hljs-number">6</span>)
-    snd.call(<span class="hljs-string">'/math/mul'</span>, {} , (err, body) =&gt; {
-      expect(err).to.equal(<span class="hljs-string">'Not Found'</span>)
-      done()
+  <span class="hljs-attr">merge</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">src, dest, prefix, child</span>) </span>{
+    <span class="hljs-keyword">return</span> src.concat(dest.map(<span class="hljs-function">(<span class="hljs-params">obj</span>) =&gt;</span> {
+      <span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">${prefix.slice(<span class="hljs-number">1</span>)}</span>/<span class="hljs-subst">${child}</span>/<span class="hljs-subst">${obj}</span>`</span>
     })
-  })
-})
+    )
+  },
 
-after(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
-  snd.stop()
-  rcv.stop()
-})</pre></div></div>
+  match(path, serializedTree) {
+    <span class="hljs-keyword">let</span> matches = []
+    <span class="hljs-keyword">let</span> pathToken = path.split(<span class="hljs-string">'/'</span>)
+    <span class="hljs-keyword">let</span> pathIndex = <span class="hljs-number">0</span>
+    <span class="hljs-keyword">let</span> pathTree = serializedTree
+    <span class="hljs-keyword">let</span> computedPath = <span class="hljs-string">''</span>
+    <span class="hljs-keyword">while</span> (<span class="hljs-built_in">Object</span>.keys(pathTree).length) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>wildcard is seen</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>      <span class="hljs-keyword">if</span> (pathToken[pathIndex] === <span class="hljs-string">'*'</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>last token // TODO redundant</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">if</span> (pathIndex === pathToken.length - <span class="hljs-number">1</span>) {
+          <span class="hljs-keyword">for</span> ( <span class="hljs-keyword">let</span> child <span class="hljs-keyword">in</span> pathTree) {
+            matches = <span class="hljs-keyword">this</span>.merge(matches, <span class="hljs-keyword">this</span>.match(<span class="hljs-string">`<span class="hljs-subst">${child}</span>`</span> , pathTree), computedPath, <span class="hljs-string">''</span>)
+          }
+          <span class="hljs-keyword">break</span>
+        }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>intermediate token</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">else</span> {
+          <span class="hljs-keyword">for</span> ( <span class="hljs-keyword">let</span> child <span class="hljs-keyword">in</span> pathTree) {
+            matches = <span class="hljs-keyword">this</span>.merge(matches, <span class="hljs-keyword">this</span>.match(<span class="hljs-string">`<span class="hljs-subst">${pathToken.slice(pathIndex+<span class="hljs-number">1</span>).join(<span class="hljs-string">'/'</span>)}</span>`</span> , pathTree[child]), computedPath, child)
+          }
+          <span class="hljs-keyword">break</span>
+        }
+      }
+      <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (pathTree[pathToken[pathIndex]]) {
+        <span class="hljs-keyword">if</span> (pathTree[pathToken[pathIndex]]) {
+          computedPath = computedPath + <span class="hljs-string">'/'</span> + pathToken[pathIndex]
+          <span class="hljs-keyword">if</span> (pathIndex === pathToken.length - <span class="hljs-number">1</span>) {
+            matches.push(computedPath.slice(<span class="hljs-number">1</span>))
+            <span class="hljs-keyword">break</span>
+          }
+          pathTree = pathTree[pathToken[pathIndex]]
+          pathIndex += <span class="hljs-number">1</span>
+        }<span class="hljs-keyword">else</span> {
+          <span class="hljs-keyword">break</span>
+        }
+      } <span class="hljs-keyword">else</span> {
+        <span class="hljs-keyword">break</span>
+      }
+    }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>TODO Fix this</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">return</span> matches.map(<span class="hljs-function">(<span class="hljs-params">el</span>) =&gt;</span> el.replace(<span class="hljs-string">'//'</span>, <span class="hljs-string">'/'</span>))
+  },
+
+  <span class="hljs-attr">getTokes</span>: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">path</span>) </span>{
+    <span class="hljs-keyword">return</span> path.split(<span class="hljs-string">'/'</span>)
+  }
+}
+
+<span class="hljs-built_in">module</span>.exports = Path</pre></div></div>
             
         </li>
         

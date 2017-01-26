@@ -25,21 +25,6 @@
                 </a>
               
                 
-                <a class="source" href="linenumber.html">
-                  linenumber.js
-                </a>
-              
-                
-                <a class="source" href="lang-css.html">
-                  lang-css.js
-                </a>
-              
-                
-                <a class="source" href="prettify.html">
-                  prettify.js
-                </a>
-              
-                
                 <a class="source" href="clsuter.listener.html">
                   clsuter.listener.js
                 </a>
@@ -145,66 +130,6 @@
                 </a>
               
                 
-                <a class="source" href="common.html">
-                  common.js
-                </a>
-              
-                
-                <a class="source" href="mock.functions.html">
-                  mock.functions.js
-                </a>
-              
-                
-                <a class="source" href="mock.node.html">
-                  mock.node.js
-                </a>
-              
-                
-                <a class="source" href="mock.system.html">
-                  mock.system.js
-                </a>
-              
-                
-                <a class="source" href="auth.html">
-                  auth.js
-                </a>
-              
-                
-                <a class="source" href="basic.html">
-                  basic.js
-                </a>
-              
-                
-                <a class="source" href="dataTypes.html">
-                  dataTypes.js
-                </a>
-              
-                
-                <a class="source" href="events.and.cluster.html">
-                  events.and.cluster.js
-                </a>
-              
-                
-                <a class="source" href="middleware.service.html">
-                  middleware.service.js
-                </a>
-              
-                
-                <a class="source" href="middleware.transport.html">
-                  middleware.transport.js
-                </a>
-              
-                
-                <a class="source" href="path.html">
-                  path.js
-                </a>
-              
-                
-                <a class="source" href="top.html">
-                  top.js
-                </a>
-              
-                
                 <a class="source" href="xyz.html">
                   xyz.js
                 </a>
@@ -241,6 +166,7 @@
 <span class="hljs-keyword">const</span> GenericMiddlewareHandler = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../Middleware/generic.middleware.handler'</span>)
 <span class="hljs-keyword">const</span> machineReport = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../Util/machine.reporter'</span>)
 <span class="hljs-keyword">const</span> _CONFIGURATION = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../Config/config.global'</span>)
+<span class="hljs-keyword">let</span> wrapper = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../Util/Util'</span>).wrapper
 
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">HTTPServer</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">EventEmitter</span> </span>{
   <span class="hljs-keyword">constructor</span> (xyz) {
@@ -248,25 +174,30 @@
     http.globalAgent.maxSockets = <span class="hljs-literal">Infinity</span>
     <span class="hljs-keyword">this</span>.port = _CONFIGURATION.getSelfConf().port
 
-    <span class="hljs-keyword">this</span>.callReceiveMiddlewareStack = <span class="hljs-keyword">new</span> GenericMiddlewareHandler(xyz)
+    <span class="hljs-keyword">this</span>.callReceiveMiddlewareStack = <span class="hljs-keyword">new</span> GenericMiddlewareHandler(xyz, <span class="hljs-string">'callReceiveMiddlewareStack'</span>)
     <span class="hljs-keyword">this</span>.callReceiveMiddlewareStack.register(<span class="hljs-number">-1</span>, <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../Middlewares/call/call.receive.event.middleware'</span>))
 
-    <span class="hljs-keyword">this</span>.pingReceiveMiddlewareStack = <span class="hljs-keyword">new</span> GenericMiddlewareHandler(xyz)
+    <span class="hljs-keyword">this</span>.pingReceiveMiddlewareStack = <span class="hljs-keyword">new</span> GenericMiddlewareHandler(xyz, <span class="hljs-string">'pingReceiveMiddlewareStack'</span>)
     <span class="hljs-keyword">this</span>.pingReceiveMiddlewareStack.register(<span class="hljs-number">-1</span>, <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../Middlewares/ping/ping.receive.event.middleware'</span>))
 
-    <span class="hljs-keyword">this</span>.joinReceiveMiddlewareStack = <span class="hljs-keyword">new</span> GenericMiddlewareHandler(xyz)
+    <span class="hljs-keyword">this</span>.joinReceiveMiddlewareStack = <span class="hljs-keyword">new</span> GenericMiddlewareHandler(xyz, <span class="hljs-string">'joinReceiveMiddlewareStack'</span>)
     <span class="hljs-keyword">this</span>.joinReceiveMiddlewareStack.register(<span class="hljs-number">-1</span>, <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../Middlewares/cluster/join.middleware.accept.all'</span>))
 
     <span class="hljs-keyword">this</span>.server = http.createServer()
       .listen(<span class="hljs-keyword">this</span>.port, () =&gt; {
         logger.info(<span class="hljs-string">`Server listening on port : <span class="hljs-subst">${<span class="hljs-keyword">this</span>.port}</span>`</span>)
       }).on(<span class="hljs-string">'request'</span>, (req, resp) =&gt; {
-      <span class="hljs-keyword">var</span> body = []
-      req
+        <span class="hljs-keyword">var</span> body = []
+        req
         .on(<span class="hljs-string">'data'</span>, (chuck) =&gt; {
           body.push(chuck)
         })
         .on(<span class="hljs-string">'end'</span>, () =&gt; {
+          <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.validator(req, body)) {
+            req.destroy()
+            <span class="hljs-keyword">return</span>
+          }
+
           <span class="hljs-keyword">let</span> parsedUrl = url.parse(req.url)
           <span class="hljs-keyword">let</span> self = <span class="hljs-keyword">this</span> <span class="hljs-comment">// TODO fix this</span>
           <span class="hljs-keyword">if</span> (parsedUrl.pathname === <span class="hljs-string">`/<span class="hljs-subst">${CONSTANTS.url.CALL}</span>`</span>) {
@@ -278,20 +209,48 @@
           } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (parsedUrl.pathname === <span class="hljs-string">`/<span class="hljs-subst">${CONSTANTS.url.JOIN}</span>`</span>) {
             <span class="hljs-keyword">if</span> (_CONFIGURATION.getSelfConf().allowJoin) {
               <span class="hljs-keyword">this</span>.joinReceiveMiddlewareStack.apply([req, resp, <span class="hljs-built_in">JSON</span>.parse(body), self], <span class="hljs-number">0</span>)
-            }<span class="hljs-keyword">else</span> { req.destroy() }
-          }
-          <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (parsedUrl.pathname === <span class="hljs-string">`/<span class="hljs-subst">${CONSTANTS.url.PING}</span>`</span>) {
+            } <span class="hljs-keyword">else</span> { req.destroy() }
+          } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (parsedUrl.pathname === <span class="hljs-string">`/<span class="hljs-subst">${CONSTANTS.url.PING}</span>`</span>) {
             <span class="hljs-keyword">this</span>.pingReceiveMiddlewareStack.apply([req, resp, <span class="hljs-built_in">JSON</span>.parse(body), self], <span class="hljs-number">0</span>)
           } <span class="hljs-keyword">else</span> {
             req.destroy()
           }
         })
-    })
+      })
+  }
+
+  _inspect () {
+    <span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">${wrapper(<span class="hljs-string">'green'</span>, wrapper(<span class="hljs-string">'bold'</span>, <span class="hljs-string">'Middlewares'</span>))}</span>:
+  <span class="hljs-subst">${<span class="hljs-keyword">this</span>.callReceiveMiddlewareStack._inspect()}</span>
+  <span class="hljs-subst">${<span class="hljs-keyword">this</span>.pingReceiveMiddlewareStack._inspect()}</span>
+  <span class="hljs-subst">${<span class="hljs-keyword">this</span>.joinReceiveMiddlewareStack._inspect()}</span>
+  `</span>
+  }
+
+  _inspectJSON () {
+    <span class="hljs-keyword">return</span> [
+      <span class="hljs-keyword">this</span>.callReceiveMiddlewareStack._inspectJSON(),
+      <span class="hljs-keyword">this</span>.pingReceiveMiddlewareStack._inspectJSON(),
+      <span class="hljs-keyword">this</span>.joinReceiveMiddlewareStack._inspectJSON()
+    ]
   }
 
   close () {
     <span class="hljs-keyword">this</span>.server.close()
   }
+
+  validator (req, body) {
+    <span class="hljs-keyword">if</span> (req.method !== <span class="hljs-string">'POST'</span>) {
+      logger.warn(<span class="hljs-string">`a suspicous request was received.`</span>)
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>
+    }
+    <span class="hljs-keyword">if</span> (body.length === <span class="hljs-number">0</span>) {
+      logger.warn(<span class="hljs-string">`a suspicous request was received.`</span>)
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
+  }
+
 }
 
 <span class="hljs-built_in">module</span>.exports = HTTPServer</pre></div></div>

@@ -25,21 +25,6 @@
                 </a>
               
                 
-                <a class="source" href="linenumber.html">
-                  linenumber.js
-                </a>
-              
-                
-                <a class="source" href="lang-css.html">
-                  lang-css.js
-                </a>
-              
-                
-                <a class="source" href="prettify.html">
-                  prettify.js
-                </a>
-              
-                
                 <a class="source" href="clsuter.listener.html">
                   clsuter.listener.js
                 </a>
@@ -142,66 +127,6 @@
                 
                 <a class="source" href="machine.reporter.html">
                   machine.reporter.js
-                </a>
-              
-                
-                <a class="source" href="common.html">
-                  common.js
-                </a>
-              
-                
-                <a class="source" href="mock.functions.html">
-                  mock.functions.js
-                </a>
-              
-                
-                <a class="source" href="mock.node.html">
-                  mock.node.js
-                </a>
-              
-                
-                <a class="source" href="mock.system.html">
-                  mock.system.js
-                </a>
-              
-                
-                <a class="source" href="auth.html">
-                  auth.js
-                </a>
-              
-                
-                <a class="source" href="basic.html">
-                  basic.js
-                </a>
-              
-                
-                <a class="source" href="dataTypes.html">
-                  dataTypes.js
-                </a>
-              
-                
-                <a class="source" href="events.and.cluster.html">
-                  events.and.cluster.js
-                </a>
-              
-                
-                <a class="source" href="middleware.service.html">
-                  middleware.service.js
-                </a>
-              
-                
-                <a class="source" href="middleware.transport.html">
-                  middleware.transport.js
-                </a>
-              
-                
-                <a class="source" href="path.html">
-                  path.js
-                </a>
-              
-                
-                <a class="source" href="top.html">
-                  top.js
                 </a>
               
                 
@@ -308,7 +233,7 @@ there will be no circular dependency</p>
             <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">let</span> sendStategy = Util._require(CONFIG.getSelfConf().defaultSendStrategy)
     <span class="hljs-keyword">if</span> (sendStategy) {
       <span class="hljs-keyword">this</span>.callDispatchMiddlewareStack.register(<span class="hljs-number">0</span>, sendStategy)
-    }<span class="hljs-keyword">else</span> {
+    } <span class="hljs-keyword">else</span> {
       logger.error(<span class="hljs-string">`defaultSendStrategy passed to config [<span class="hljs-subst">${sendStategy}</span>] not found. setting the default value`</span>)
       <span class="hljs-keyword">this</span>.callDispatchMiddlewareStack.register(<span class="hljs-number">0</span>, <span class="hljs-built_in">require</span>(<span class="hljs-string">'xyz.service.send.first.find'</span>))
     }
@@ -380,12 +305,6 @@ there will be no circular dependency</p>
             <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">if</span> (CONFIG.getSelfConf().seed.length) {
       <span class="hljs-keyword">this</span>.contactSeed(<span class="hljs-number">0</span>)
     }
-
-  <span class="hljs-comment">/*
-  Ping Init
-  this.ping()
-  this.pingInterval = setInterval(() =&gt; this.ping(), (this.INTERVALS.ping + Util.Random(this.INTERVALS.threshold)))
-  */</span>
   }</pre></div></div>
             
         </li>
@@ -397,13 +316,34 @@ there will be no circular dependency</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
-              <p> Register a new service at a given path.</p>
-<p> The first parameter <code>path</code> will indicate the path of the service. Note that this path must be valid.</p>
+              <p> Register a new service at a given path.
+ The first parameter <code>path</code> will indicate the path of the service. Note that this path must be valid.</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>  register (path, fn) {
     <span class="hljs-keyword">this</span>.services.createPathSubtree(path, fn)
+  }
+
+  _inspect () {
+    <span class="hljs-keyword">let</span> str = <span class="hljs-string">`
+<span class="hljs-subst">${wrapper(<span class="hljs-string">'green'</span>, wrapper(<span class="hljs-string">'bold'</span>, <span class="hljs-string">'Middlewares'</span>))}</span>:
+  <span class="hljs-subst">${<span class="hljs-keyword">this</span>.callDispatchMiddlewareStack._inspect()}</span>
+<span class="hljs-subst">${wrapper(<span class="hljs-string">'green'</span>, wrapper(<span class="hljs-string">'bold'</span>, <span class="hljs-string">'Services'</span>))}</span>:
+`</span>
+
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> s <span class="hljs-keyword">of</span> <span class="hljs-keyword">this</span>.services.plainTree) {
+      str += <span class="hljs-string">`  <span class="hljs-subst">${s.name}</span> @ <span class="hljs-subst">${s.path}</span>
+`</span>
+    }
+    <span class="hljs-keyword">return</span> str
+  }
+
+  inspectJSON () {
+    <span class="hljs-keyword">return</span> {
+      <span class="hljs-attr">services</span>: <span class="hljs-keyword">this</span>.services.plainTree,
+      <span class="hljs-attr">middlewares</span>: [<span class="hljs-keyword">this</span>.callDispatchMiddlewareStack._inspectJSON()]
+    }
   }</pre></div></div>
             
         </li>
@@ -428,7 +368,7 @@ All of these should happen as the module loads.</p>
         logger.verbose(<span class="hljs-string">`ServiceRepository received service call <span class="hljs-subst">${wrapper(<span class="hljs-string">'bold'</span>, body.serviceName)}</span>`</span>)
         fn(body.userPayload, <span class="hljs-keyword">new</span> XResponse(response))
         <span class="hljs-keyword">return</span>
-      }<span class="hljs-keyword">else</span> {</pre></div></div>
+      } <span class="hljs-keyword">else</span> {</pre></div></div>
             
         </li>
         
@@ -449,7 +389,7 @@ Same problem as explained in TEST/Transport.middleware =&gt; early response</p>
       }
     })
 
-    <span class="hljs-comment">/*DEPRACATED
+    <span class="hljs-comment">/* DEPRACATED
     this.transportServer.on(CONSTANTS.events.PING, (body, response) =&gt; {
       if (Object.keys(this.foreignNodes).indexOf(body.sender) === -1) {
         logger.warn(`new node is pinging me. adding to lists. address : ${body.sender}`)
@@ -457,7 +397,7 @@ Same problem as explained in TEST/Transport.middleware =&gt; early response</p>
       }
       logger.debug(`Responding a PING message from ${body.sender}`)
       response.end(JSON.stringify({services: this.services.serializedTree, nodes: CONFIG.getSystemConf().nodes }))
-    })*/</span>
+    }) */</span>
 
     <span class="hljs-keyword">this</span>.transportServer.on(CONSTANTS.events.JOIN, (body, response) =&gt; {
       response.end(<span class="hljs-built_in">JSON</span>.stringify(CONFIG.getSystemConf()))
@@ -474,12 +414,15 @@ Same problem as explained in TEST/Transport.middleware =&gt; early response</p>
                 <a class="pilcrow" href="#section-12">&#182;</a>
               </div>
               <p>Call a service. A middleware will be called with aproppiate arguments to find the receiving service etc.
-Details about the arguments in <a href="xyz.html"> xyz.js </a></p>
+Details about the arguments in <a href="xyz.html"> xyz.js </a>
+TODO: in this case, unlike in config, sendStrategy MUST be a function
+better to allow string as well</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>  call (servicePath, userPayload, responseCallback, sendStrategy) {
-    <span class="hljs-keyword">if</span> (sendStrategy) {</pre></div></div>
+            <div class="content"><div class='highlight'><pre>  call (opt, responseCallback) {
+    opt.payload = opt.payload || <span class="hljs-literal">null</span>
+    <span class="hljs-keyword">if</span> (opt.sendStrategy) {</pre></div></div>
             
         </li>
         
@@ -494,9 +437,9 @@ Details about the arguments in <a href="xyz.html"> xyz.js </a></p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>      sendStrategy([Path.format(servicePath), userPayload, <span class="hljs-keyword">this</span>.foreignNodes, <span class="hljs-keyword">this</span>.transportClient, responseCallback], <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, <span class="hljs-keyword">this</span>.xyz)
-    }<span class="hljs-keyword">else</span> {
-      <span class="hljs-keyword">this</span>.callDispatchMiddlewareStack.apply([Path.format(servicePath), userPayload, <span class="hljs-keyword">this</span>.foreignNodes, <span class="hljs-keyword">this</span>.transportClient, responseCallback], <span class="hljs-number">0</span>)
+            <div class="content"><div class='highlight'><pre>      opt.sendStrategy([Path.format(opt.servicePath), opt.payload, responseCallback], <span class="hljs-literal">null</span>, <span class="hljs-literal">null</span>, <span class="hljs-keyword">this</span>.xyz)
+    } <span class="hljs-keyword">else</span> {
+      <span class="hljs-keyword">this</span>.callDispatchMiddlewareStack.apply([Path.format(opt.servicePath), opt.payload, responseCallback], <span class="hljs-number">0</span>)
     }
   }</pre></div></div>
             
@@ -517,12 +460,12 @@ We’re gonna keep the code for now</p>
             <div class="content"><div class='highlight'><pre>  ping () {
     <span class="hljs-keyword">let</span> nodes = CONFIG.getSystemConf().nodes
     <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> node <span class="hljs-keyword">of</span> nodes) {
-      <span class="hljs-keyword">this</span>.transportClient.ping(Util.nodeStringToObject(node), (err, body , res) =&gt; {
+      <span class="hljs-keyword">this</span>.transportClient.ping(Util.nodeStringToObject(node), (err, body, res) =&gt; {
         <span class="hljs-keyword">if</span> (err == <span class="hljs-literal">null</span>) {
           <span class="hljs-keyword">this</span>.foreignNodes[node] = body.services
           CONFIG.ensureNodes(body.nodes)
           <span class="hljs-keyword">this</span>.outOfReachNodes[node] = <span class="hljs-number">0</span>
-          logger.verbose(<span class="hljs-string">`<span class="hljs-subst">${wrapper(<span class="hljs-string">'bold'</span>, <span class="hljs-string">'PING'</span>)}</span> success :: response = <span class="hljs-subst">${<span class="hljs-built_in">JSON</span>.stringify(body)}</span>`</span>)
+          logger.debug(<span class="hljs-string">`<span class="hljs-subst">${wrapper(<span class="hljs-string">'bold'</span>, <span class="hljs-string">'PING'</span>)}</span> success :: response = <span class="hljs-subst">${<span class="hljs-built_in">JSON</span>.stringify(body)}</span>`</span>)
         } <span class="hljs-keyword">else</span> {
           <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.outOfReachNodes[node]) {
             <span class="hljs-keyword">this</span>.outOfReachNodes[node] += <span class="hljs-number">1</span>
@@ -557,9 +500,9 @@ We’re gonna keep the code for now</p>
             
             <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">let</span> seeds = CONFIG.getSelfConf().seed
     <span class="hljs-keyword">this</span>.transportClient.contactSeed(Util.nodeStringToObject(seeds[idx]), (err, body, res) =&gt; {
-      <span class="hljs-keyword">if</span> (! err) {
+      <span class="hljs-keyword">if</span> (!err) {
         <span class="hljs-keyword">this</span>.emit(<span class="hljs-string">'cluster:join'</span>)
-        logger.info(<span class="hljs-string">`<span class="hljs-subst">${wrapper(<span class="hljs-string">'bold'</span> , <span class="hljs-string">'JOINED CLUSTER'</span>)}</span>`</span>)
+        logger.info(<span class="hljs-string">`<span class="hljs-subst">${wrapper(<span class="hljs-string">'bold'</span>, <span class="hljs-string">'JOINED CLUSTER'</span>)}</span>`</span>)
         logger.debug(<span class="hljs-string">`Response nodes are <span class="hljs-subst">${body.nodes}</span>`</span>)
         <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> node <span class="hljs-keyword">of</span> body.nodes) {
           <span class="hljs-keyword">this</span>.joinNode(node)
@@ -567,7 +510,7 @@ We’re gonna keep the code for now</p>
         <span class="hljs-keyword">this</span>.ping()
       } <span class="hljs-keyword">else</span> {
         logger.error(<span class="hljs-string">`<span class="hljs-subst">${wrapper(<span class="hljs-string">'bold'</span>, <span class="hljs-string">'JOIN FAILED'</span>)}</span> :: a seed node <span class="hljs-subst">${seeds[idx]}</span> rejected with `</span>)
-        setTimeout(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-keyword">this</span>.contactSeed(idx == seeds.length - <span class="hljs-number">1</span> ? <span class="hljs-number">0</span> : ++idx) , <span class="hljs-keyword">this</span>.INTERVALS.reconnect)
+        setTimeout(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-keyword">this</span>.contactSeed(idx == seeds.length - <span class="hljs-number">1</span> ? <span class="hljs-number">0</span> : ++idx), <span class="hljs-keyword">this</span>.INTERVALS.reconnect)
       }
     })
   }

@@ -25,21 +25,6 @@
                 </a>
               
                 
-                <a class="source" href="linenumber.html">
-                  linenumber.js
-                </a>
-              
-                
-                <a class="source" href="lang-css.html">
-                  lang-css.js
-                </a>
-              
-                
-                <a class="source" href="prettify.html">
-                  prettify.js
-                </a>
-              
-                
                 <a class="source" href="clsuter.listener.html">
                   clsuter.listener.js
                 </a>
@@ -145,66 +130,6 @@
                 </a>
               
                 
-                <a class="source" href="common.html">
-                  common.js
-                </a>
-              
-                
-                <a class="source" href="mock.functions.html">
-                  mock.functions.js
-                </a>
-              
-                
-                <a class="source" href="mock.node.html">
-                  mock.node.js
-                </a>
-              
-                
-                <a class="source" href="mock.system.html">
-                  mock.system.js
-                </a>
-              
-                
-                <a class="source" href="auth.html">
-                  auth.js
-                </a>
-              
-                
-                <a class="source" href="basic.html">
-                  basic.js
-                </a>
-              
-                
-                <a class="source" href="dataTypes.html">
-                  dataTypes.js
-                </a>
-              
-                
-                <a class="source" href="events.and.cluster.html">
-                  events.and.cluster.js
-                </a>
-              
-                
-                <a class="source" href="middleware.service.html">
-                  middleware.service.js
-                </a>
-              
-                
-                <a class="source" href="middleware.transport.html">
-                  middleware.transport.js
-                </a>
-              
-                
-                <a class="source" href="path.html">
-                  path.js
-                </a>
-              
-                
-                <a class="source" href="top.html">
-                  top.js
-                </a>
-              
-                
                 <a class="source" href="xyz.html">
                   xyz.js
                 </a>
@@ -233,16 +158,14 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="hljs-comment">/*var pusage = require('pidusage')
-
-function getMachineusage(cb) {
-  pusage.stat(process.pid, (err, stat) =&gt; {
-    cb(err, stat)
-  })
-
+            <div class="content"><div class='highlight'><pre>
+<span class="hljs-keyword">let</span> machineReporter = {
+  <span class="hljs-attr">getCPU</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> process.cpuUsage(),
+  <span class="hljs-attr">getMem</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> process.memoryUsage(),
+  <span class="hljs-attr">PID</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> process.pid
 }
-module.exports = getMachineusage
-*/</span></pre></div></div>
+
+<span class="hljs-built_in">module</span>.exports = machineReporter</pre></div></div>
             
         </li>
         
