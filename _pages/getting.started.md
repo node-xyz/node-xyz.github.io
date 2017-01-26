@@ -108,7 +108,7 @@ Back to our little system. Now, one of these system can call a service in the ot
     // `resp` is the IncomingMessage instance etc.
     // https://nodejs.org/api/http.html#http_class_http_incomingmessage
 
-    stringMS.call('mul', {x: 2, y:5}, (err, body, res) => {
+    stringMS.call({servicePath: 'mul', payload: {x: 2, y:5}}, (err, body, res) => {
       console.log(`my fellow service responded with ${body}`)
     })
 
@@ -186,7 +186,7 @@ Change the stringMS to the following, specifying a new **seed node** for it. Als
     })
 
     // math.ms.js
-    let xyz = require('xyz-core').xyz
+    let xyz = require('xyz-core')
     let mathMS = new xyz({
       selfConf: {
         allowJoin: true,
@@ -238,25 +238,28 @@ The good thing about these plugins is that they are completely modifiable. That 
 XYZ currently has two trivial approaches implemented as plugins. Let's look at one of them [here](https://github.com/node-xyz/xyz.service.send.first.find/blob/master/call.middleware.first.find.js). Let's look at a pseudo-code:
 
 ```javascript
-function firstFind (params, next, done) {
-  // parameters passed to this middleware by xyz
+let http = require('http')
+
+function firstFind (params, next, done, xyz) {
   let servicePath = params[0],
     userPayload = params[1],
-    foreignNodes = params[2],
-    transportClient = params[3]
-  responseCallback = params[4]
+    responseCallback = params[2]
 
-  // foreignNodes is a list of nodes that the current node is aware of
-  // iterate through all nodes in the system.
+    foreignNodes = xyz.serviceRepository.foreignNodes,
+    transportClient = xyz.serviceRepository.transportClient
+
+
+  let logger = xyz.logger
+  let wrapper = xyz.Util.wrapper
+  let Path = xyz.path
+
+  let serviceTokens = servicePath.split('/')
+
   for (let node in foreignNodes) {
-
-    // check if it is a match
     matches = Path.match(servicePath, foreignNodes[node])
-    logger.debug(`FIRST FIND :: determined matches ${matches} in node ${node} for ${servicePath}`)
+    logger.silly(`FIRST FIND :: determined matches ${matches} in node ${node} for ${servicePath}`)
     if (matches.length) {
-
-      // terminate and send the message in the first possible match
-      logger.debug(`FIRST FIND :: determined node for service ${servicePath} by first find strategy ${node}:${matches[0]}`)
+      logger.verbose(`${wrapper('bold', 'FIRST FIND')} :: determined node for service ${wrapper('bold', servicePath)} by first find strategy : ${wrapper('bold', node + ':' + matches[0]) }`)
       transportClient.send(matches[0], node , userPayload, responseCallback)
       done()
       return
@@ -275,15 +278,15 @@ function firstFind (params, next, done) {
 module.exports = firstFind
 ```
 
-We really don't want to go too deep inside this code at the time, but you can get a general feeling about it that a `Path` object will eventually find a list of nodes that can response to a certain `servicePath` and calls the first one:
+We really don't want to go too deep inside this code at the time, but you can get a general feeling about it that a `Path` object will eventually find a list of nodes that can response to a certain `servicePath` (like `/mul`) and calls the first one:
 
 `transportClient.send(matches[0], node , userPayload, responseCallback)`
 
-whenever you call `someMs.call('foo' , ()=>{} )` in your code, somewhere along the path, this function will be called and it will find one destination node and invokes a transport client with it. Transport client is the actual module that will make the HTTP/TCP call to destination node.
+whenever you call `someMs.call({servicePath:'foo'} , ()=>{} )` in your code, somewhere along the path, this function will be called and it will find one destination node and invokes a transport client with it. Transport client is the actual module that will make the HTTP/TCP call to destination node.
 
 > This structure, a function with parameters passed as array, with `next` and `done` callbacks is actually the **middleware** signature of XYZ. We'll learn soon about middleware in this tutorial.
 
-> Change your string ms to call an invalid service, say, `.call('blahblah', () => {})`. Now look at the warning logs. Now look at the end of this plugin :
+> Change your string ms to call an invalid service, say, `.call({servicePath: 'blahblah'}, () => {})`. Now look at the warning logs. Now look at the end of this plugin :
 `logger.warn("Sending a message to ${servicePath} from first find strategy failed (Local Response)")`
 Are you seeing what I am seeing too?
 
@@ -313,10 +316,10 @@ let stringMS = new xyz({
     name: 'stringMS',
     host: '127.0.0.1',
     port: 3334,
-    seed: [{host: '127.0.0.1', port: 3333}]
+    seed: ['127.0.0.1:13333']
   },
   systemConf: {
-    microservices: []
+    node: []
   }
 })
 
@@ -325,7 +328,7 @@ let stringMS = new xyz({
 // our responses are going to be from few possible nodes, hence they are objects from now on!
 // use JSON.stringify instead.
 setInterval(() => {
-  stringMS.call('mul', {x: 2, y: 5}, (err, body, res) => {
+  stringMS.call({servicePath:'mul', payload: {x: 2, y: 5}}, (err, body, res) => {
     console.log(`my fellow service responded with ${JSON.stringify(body)}`)
   })
 }, 2000)
@@ -385,6 +388,14 @@ Another interesting send strategy that you might want to implement and test is m
 
 You can find the code of this section [here](https://github.com/node-xyz/xyz-core/tree/master/examples/examples_getting_started/service-discovery).
 
+Note that you can also pass the send strategy ***per call***. This will override whatever send strategy you have already chosen in `selfConf`:
+
+```
+stringMS.call({servicePath: 'mul', payload: {x: 2, y: 5}, sendStrategy: sendToAll}, (err, body, res) => {
+    console.log(`my fellwo service reponded with ${body}`)
+})
+```
+
 
 # Path based service identification
 
@@ -435,7 +446,7 @@ Next, change the call path in stringMS:
 
 ```
 setInterval(() => {
-  stringMS.call('/decimal/mul', {x: 2, y: 5}, (err, body, res) => {
+  stringMS.call({servicePath: '/decimal/mul', payload: {x: 2, y: 5}}, (err, body, res) => {
     console.log(`my fellow service responded with ${JSON.stringify(body)}`)
   })
 }, 2000)
@@ -453,7 +464,7 @@ That's right. You can also use the combination of `xyz.call.send.to.all` plugin 
 
 ```
 setInterval(() => {
-  stringMS.call('/decimal/*', {x: 2, y: 5}, (err, body, res) => {
+  stringMS.call({servicePath: '/decimal/*', payloa: {x: 2, y: 5}}, (err, body, res) => {
     console.log(`my fellow service responded with ${JSON.stringify(body)}`)
   })
 }, 2000)
@@ -542,7 +553,7 @@ The key structure of a middleware is as follows:
     - `params`: an array of parameters values passed to the middleware function.
     - `next`: function that will ignore the rest of the execution of this middleware and invoke the next function in the stack.
     - `end`: will end of the execution of the entire stack.
-    - `xyz`: a reference to the current xyz object. This is useful because all of the information require, such as configurations, Service-Repository layer etc. can be accesses from this object. 
+    - `xyz`: a reference to the current xyz object. This is useful because all of the information required, such as configurations, Service-Repository layer etc. can be accesses from this object.
 
 Keeping this ideas in mind, let's write a simple logger middleware:
 
@@ -562,7 +573,7 @@ Next important step is to know what is the content of `params`.
 
 Each middleware in xyz has specific params structure. As an example, The transport layer call dispatch middleware has the following parameters according to the [source code](https://github.com/node-xyz/xyz-core/blob/master/src/Transport/HTTP/http.client.js#L35): `[requestConfig, callResponseCallback]`. That means that the first index is a variable containing request information and the second parameter is the callback function for this call.
 
-> Remember how you call something like `someMS.call('somePath', ()=> {})`? The second argument to this call is the actual callback function that will be passed to the Transport layer, and you have access to it inside the middleware. This is because the last index of this middleware stack is a function [that will wrap this request in an http object and pass it to the network](). Therefore, it needs the callback function to invoke it when the response is back. Note that this middleware is embedded in xyz and it is not on a separate repository, unlike other middlewares.
+> Remember how you call something like `someMS.call({servicePath: 'somePath'}, ()=> {})`? The second argument to this call is the actual callback function that will be passed to the Transport layer, and you have access to it inside the middleware. This is because the last index of this middleware stack is a function [that will wrap this request in an http object and pass it to the network](). Therefore, it needs the callback function to invoke it when the response is back. Note that this middleware is embedded in xyz and it is not on a separate repository, unlike other middlewares.
 
 Next, let us see how we can insert this dummy logger to the system. The XYZ interface provides methods for inserting a function to a specific index of a specific MiddlewareStack. As an example, we can insert this middleware in StringMS (continuing from the previous section):
 
@@ -607,7 +618,7 @@ The parameters are also now clear. Note that except the payload, all of these pa
 
 Suppose that your system uses a very simple  authentication system, kind of a shared-secret mechanism. You want authentication to happen in Transport layer. This is generally better because the Transport layer can drop unauthorized requests immediately and the Service-Repository layer, which is more critical, won't be bothered to check them twice.
 
-We are going to place two middlewares in Transport layer for this purpose, namely in **CallReceiveMiddlewareStack** and **CallDispatchMiddlewareStack**.
+We are going to place two middlewares in **Transport layer** for this purpose, namely in **CallReceiveMiddlewareStack** and **CallDispatchMiddlewareStack**.
 
 The code of these middlewares should be fairly understandable to you now. The sender side is fairly (perhaps more than *fairly*) simple:
 
@@ -664,3 +675,59 @@ mathMS.middlewares().transport.callReceive.register(0, require('./auth.receive')
 ```
 
 Again, note that what you add to the `json` key is not available to the application layer. That is to say, you do not need to explicitly delete it from the object. Add a log to the receiving function and and double check this.
+
+
+### a pretty-print utility:
+
+XYZ overrides the default `console.log` behavior. So when you print an xyz instance, such as `stringMS`, you'll get something like this:
+
+```
+selfConfig:
+  {
+  "name": "stringMS",
+  "defaultSendStrategy": "xyz.service.send.first.find",
+  "allowJoin": false,
+  "logLevel": "info",
+  "seed": [
+    "127.0.0.1:3333"
+  ],
+  "port": 3334,
+  "host": "127.0.0.1",
+  "intervals": {
+    "reconnect": 2500
+  },
+  "defaultBootstrap": true,
+  "cli": {
+    "enable": false,
+    "stdio": "console"
+  }
+}
+systemConf:
+  {
+  "nodes": [
+    "127.0.0.1:3334"
+  ]
+}
+____________________  SERVICE REPOSITORY ____________________
+
+Middlewares:
+  callDispatchMiddlewareStack || firstFind[0]
+Services:
+  anonymousFN @ /up
+  anonymousFN @ /down
+
+____________________  TRANSPORT LAYER ____________________
+Transport Client:
+  Middlewares:
+  callDispatchMiddlewareStack || authSend[0] -> callDispatchExport[1]
+  pingDispatchMiddlewareStack || pingDispatchExport[0]
+  joinDispatchMiddlewareStack || joinExport[0]
+
+Transport Server:
+  Middlewares:
+  callReceiveMiddlewareStack || authReceive[0] -> passToRepo[1]
+  pingReceiveMiddlewareStack || passToRepo[0]
+  joinReceiveMiddlewareStack || joinAcceptAll[0]
+```
+
+You can clearly see the stack of middlewares and how they are places.
