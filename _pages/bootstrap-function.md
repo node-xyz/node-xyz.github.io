@@ -74,16 +74,24 @@ module.exports = {
 So, given that this bootstrap function is written once, you can always use it inside any of your microservices with just one (or two, including the `require` statement) line of code:
 
 ```
-let xyzMonitor = require('./../xyz.monitor.basic.bootstrap')
+let xyzMonitor = require('./../xyz.monitor.basic.bootstrap').bootstrap
 let mathMs = new XYZ({
   selfConf: {...},
   systemConf: { nodes: []}
 })
 
-xyzMonitor.bootstrap(mathMs, 7000)
+mathMs.bootstrap(xyzMonitor, 7000)
 
 ```
 
 There is complete example of this [here](https://github.com/node-xyz/xyz.monitor.basic.bootstrap/tree/master/example). After you set up this bootstrap function, you can view a nice monitoring page at your localhost (and on port `7000` in this case):
 
 ![example monitor app](/assets/monitor.png)
+
+
+Note that `xyz.bootstrap(aFunction, ...args)` is completely equal to `aFunction(xyz, ...args)`. The inly difference is that we suggest using the first way, because in this way xyz can track and know which bootstrap functions have been applied and show them in logs. As an example, in this monitoring web page you can see that: 
+
+```
+Bootstrap Functions:
+  pingBoostraper,basicMonitorBootstrap
+```

@@ -36,10 +36,14 @@ The following documentations will help you get started with xyz, and understand 
 
   - **Advance Topics**[*work in progress*]:
     - An odyssey into XYZ: lifecycle of a single requests
+    - [Configurations](/documentations/configuration)
+    - [Bootstrap Functions](/documentations/bootstrap-function)
+    - [Events](/documentations/events)
     - XYZ Command line interface
     - Logging
-    - Explaining how middlewares actually work
+    - Explaining how a middleware actually works
     - Best practices
+
 
   ---
 
