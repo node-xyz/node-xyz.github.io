@@ -4,7 +4,7 @@ title: Getting Started with Node XYZ
 permalink: /documentations/events
 ---
 
-#Events
+# Events
 
 Due to the fact that xyz provides middleware handlers for most of the tasks and requests, most of the customized functionality can be implemented using them. Though, some events can also become very handy.
 
@@ -20,6 +20,9 @@ The current emitted events are as follows:
 
   - `'request:receive'`: emitted whenever a request (analogous to `.call()` from another service) is received. Parameters: an object with keys:
     - body: payload received with the request
+
+  - `'request:send'`: emitted whenever a request (analogous to `.call()` from another service) is being sent. Parameters: an object with keys:
+    - opt: options passed to the `.call()`
 
   - `'cluster:join'`: emitted whenever a new node's join request has been received.  Parameters: an object with keys:
     - body: payload received with the join request
