@@ -1,18 +1,46 @@
 <!DOCTYPE html>
 <html lang="en-us">
-  
-  {% include head.html %}
+{% include head.html %}
+<body>
 
-  <body>
-    {% include page-header.html %}
+<style media="screen">
+body {
+  background-color: var(--light-color);
+  color: var(--dark-color)
+}
+</style>
+{% include fix-head.html %}
+<section class="container">
 
-    <section class="main-content">
-      
-      {{ content }}
+  <ol class="breadcrumb" style="margin: 10px; color: white;">
+    <li><a class='spacing' href="{{ site.baseurl }}/">Node XYZ </a></li>
+    {% capture page_url_without_index_html %}{{ page.url | remove: "/index.html" }}{% endcapture %}
+    {% assign splitted_url_parts = page_url_without_index_html | split: '/' %}
+    {% capture forLoopMaxInt %}{{ splitted_url_parts.size | minus:1 }}{% endcapture %}
+    {% for i in (1..forLoopMaxInt) %}
+    {% capture current_breadcrumb_url %}{{next_prepender}}/{{ splitted_url_parts[i] }}/index.html{% endcapture %}
+    {% capture current_breadcrumb_md_url %}{{next_prepender}}/{{ splitted_url_parts[i] }}/{% endcapture %}
+    {% capture next_prepender %}{{next_prepender}}/{{ splitted_url_parts[i] }}{% endcapture %}
+    {% for breadcrumb_page in site.pages %}
 
-      {% include page-footer.html %}
+    {% if current_breadcrumb_url == breadcrumb_page.url or
+      current_breadcrumb_md_url == breadcrumb_page.url %}
+      {% capture breadcrumb_page_page_url_without_index_html %}{{ breadcrumb_page.url | remove: "index.html" }}{% endcapture %}
+      {% assign j = forLoopMaxInt | plus: 0 %}
+      <li {% if i == j %}class="active"{% endif %}>
+        <a style="color: inherit" href="{{ site.baseurl }}{{breadcrumb_page_page_url_without_index_html}}">{{breadcrumb_page.breadcrumb}}</a>
+      </li>
+      {% endif %}
+      {% endfor %}
+      {% endfor %}
+    </ol>
 
-    </section>
+    <hr>
 
-  </body>
+
+    {{ content }}
+
+  </section>
+  {% include page-footer.html %}
+</body>
 </html>

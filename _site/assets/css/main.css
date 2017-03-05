@@ -1,0 +1,141 @@
+
+
+html {
+  --very-dark: rgb(43, 62, 80);
+  --dark-color: #34495e;
+  --info-color: #c75858;
+  --success-color: #16a085;
+  --light-color:#ecf0f1;
+}
+
+.spacing {
+  letter-spacing: 5px;
+}
+.padding {
+  padding: 10px;
+}
+
+.margin-sm {
+  margin: 5px;
+
+}
+
+.margin {
+  margin: 10px
+}
+
+.strong {
+  font-weight: 800;
+}
+.center {
+  text-align: center;
+}
+
+br{
+  border-color: var(--dark-color)
+}
+
+.emph {
+  color: var(--info-color)
+}
+/* PRE */
+.main-content pre {
+  padding: 0.8rem;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font: 1rem Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  color: #567482;
+  word-wrap: normal;
+  background-color: #f3f6fa;
+  border: solid 1px #dce6f0;
+  border-radius: 0.3rem;
+}
+.main-content pre > code {
+  padding: 0;
+  margin: 0;
+  font-size: 0.9rem;
+  color: #567482;
+  word-break: normal;
+  white-space: pre;
+  background: transparent;
+  border: 0;
+}
+.main-content .highlight {
+  margin-bottom: 1rem;
+}
+.main-content .highlight pre {
+  margin-bottom: 0;
+  word-break: normal;
+}
+.main-content .highlight pre,
+.main-content pre {
+  padding: 0.8rem;
+  overflow: auto;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  border-radius: 0.3rem;
+  -webkit-overflow-scrolling: touch;
+}
+.main-content pre code,
+.main-content pre tt {
+  display: inline;
+  max-width: initial;
+  padding: 0;
+  margin: 0;
+  overflow: initial;
+  line-height: inherit;
+  word-wrap: normal;
+  background-color: transparent;
+  border: 0;
+}
+.main-content pre code:before, .main-content pre code:after,
+.main-content pre tt:before,
+.main-content pre tt:after {
+  content: normal;
+}
+
+/*   fancy header */
+
+.bb{
+  position: relative;
+  text-align: center;
+  letter-spacing: 10px;
+  margin-bottom: 50px ;
+  font-size: 3em
+}
+.bb:before {
+  content: '';
+  position: absolute;
+  left: 45%;
+  width: 10%;
+  top : calc(100% + 20px);
+  border-bottom: 3px solid var(--info-color);
+  -webkit-transition: all .3s ease;
+  -moz-transition: all .3s ease;
+  -ms-transition: all .3s ease;
+  -o-transition: all .3s ease;
+  transition: all .3s ease;
+}
+
+.bb:after {
+  content: '';
+  position: absolute;
+  left: 48.785%;
+  width: 2.5%;
+  top : calc(100% + 20px);
+  border-bottom: 1px solid var(--info-color);
+  -webkit-transition: all .3s ease;
+  -moz-transition: all .3s ease;
+  -ms-transition: all .3s ease;
+  -o-transition: all .3s ease;
+  transition: all .3s ease;
+}
+
+.bb:hover:before {
+  width: 20%;
+  left:40%;
+}
+
+.bb:hover:after {
+  top : calc(100% + 30px);
+}

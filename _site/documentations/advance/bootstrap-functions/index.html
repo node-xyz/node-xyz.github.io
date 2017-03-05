@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta charset="UTF-8">
+  <title>Node XYZ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#157878">
+  <link rel="stylesheet" href="/assets/css/normalize.css">
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="/assets/css/theme.css">
+  <!-- <link rel="stylesheet" href="/assets/css/cayman.css"> -->
+  <link rel="stylesheet" href="/assets/css/main.css">
+</head>
+
+<body>
+
+<style media="screen">
+body {
+  background-color: var(--light-color);
+  color: var(--dark-color)
+}
+</style>
+<style media="screen">
+/* Nav */
+#mainNav {
+  color: var(--light-color) !important;
+}
+
+</style>
+
+<nav class="navbar navbar-inverse" style="margin:0" id="mainNav">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand spacing" href="/">NODE XYZ</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Repositories <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li class="padding"> CORE REPOSITORIES </li>
+            <li><a href="https://github.com/node-xyz/xyz-core" class="spacing">xyz.core</a></li>
+            <li><a href="https://github.com/node-xyz/xyz-cli" class="spacing">xyz.cli</a></li>
+            <li role="separator" class="divider"></li>
+            <li class="padding"> ADDITIONAL </li>
+            <li><a href="https://github.com/node-xyz/xyz.monitor.basic.bootstrap" class="spacing">xyz.monitor</a></li>
+            <li><a href="https://github.com/node-xyz/xyz.ping.swim.bootstrap" class="spacing">xyz.ping.swim</a></li>
+            <li><a href="https://github.com/node-xyz/xyz.ping.stochastic.bootstrap" class="spacing">xyz.ping.stochastic</a></li>
+          </ul>
+        </li>
+      </ul>
+
+      <ul class="nav navbar-nav navbar-left">
+        <!-- <li><a href="#">Link</a></li> -->
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Documentations <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li class="padding"> READING </li>
+            <li><a href="/documentations/getting-started">Getting Started</a></li>
+            <li><a href="/documentations/advance">Advance Topics</a></li>
+            <li><a href="/apidoc">API DOC</a></li>
+            <li role="separator" class="divider"></li>
+            <li class="padding"> EXAMPLES </li>
+            <li class="spacing"><a href="https://github.com/node-xyz/xyz.example.logger.bootstrap">xyz.logger.bootstrap</a></li>
+            <li class="spacing"><a href="https://github.com/node-xyz/xyz.example.auth.basic.receive">xyz.auth.basic.receive</a></li>
+            <li class="spacing"><a href="https://github.com/node-xyz/xyz.example.auth.basic.send">xyz.auth.send.receive</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+<section class="container">
+
+  <ol class="breadcrumb" style="margin: 10px; color: white;">
+    <li><a class='spacing' href="/">Node XYZ </a></li>
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+      
+
+    
+      
+      
+      <li >
+        <a style="color: inherit" href="/documentations/">documentation</a>
+      </li>
+      
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+      
+    
+    
+    
+    
+
+    
+      
+
+    
+      
+
+    
+      
+      
+      <li >
+        <a style="color: inherit" href="/documentations/advance/">advance</a>
+      </li>
+      
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+      
+    
+    
+    
+    
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+      
+      <li class="active">
+        <a style="color: inherit" href="/documentations/advance/bootstrap-functions/">ootstrap-function</a>
+      </li>
+      
+      
+      
+    </ol>
+
+    <hr>
+
+
+    <h1 id="bootstrap-functions">Bootstrap functions</h1>
+
+<p>Configuring an xyz instance can sometimes be annoying. Many nodes want to have the same configurations, same middlewares etc, but is is good to copy and paste a chunk of code in all of these microservices? I mean, think about it, Aside from <code class="highlighter-rouge">.register</code> which creates new endpoints for functions, there is a good chance that most of the lines of the microservices that you are writing are the same among all of the microservices in that application/project. One of the ways to encapsulate these common steps in an isolated environment so that they can be reused is <strong>Bootstrap function</strong>.</p>
+
+<p>Bootstrap functions are… nothing in fact. They’re just functions that take in the current xyz instance as argument and are free to make any modifications to it. This can include <code class="highlighter-rouge">exposing new functions</code>, listening to <code class="highlighter-rouge">events</code>, registering new <code class="highlighter-rouge">middlewares</code> etc.</p>
+
+<p>A complete example of this is the <a href="https://github.com/node-xyz/xyz.monitor.basic.bootstrap">Monitor Bootstrap function</a>. Let’s have a closer look at this bootstrap function:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>let express = require('express')
+let monitorCallReceive = require('./middleware/xyz.monitor.call.receive.middleware')
+let monitorCallSend = require('./middleware/xyz.monitor.call.send.middleware')
+let load = { snd: 0, rcv: 0}
+let logger
+
+function basicMonitorBootstrap (xyz, port = 5000) {
+  /*
+  Initialize a simple express server
+   */
+  logger = xyz.logger
+  var app = express()
+  app.use(express.static(__dirname + '/lib'))
+
+  app.get('/', function (req, res) {
+    res.sendFile(__dirname + '/index.html')
+  })
+
+  app.get('/all', function (req, res) {
+    res.json({load: load, inspectJSON: xyz.inspectJSON(), inspect: xyz.inspect()})
+  })
+  app.listen(port, function () {
+    logger.info(`monitor server started at port ${port}`)
+  })
+
+  /*
+  Register required middlewares
+   */
+  xyz.serviceRepository.transportServer.callReceiveMiddlewareStack.register(0,
+    monitorCallReceive)
+  xyz.serviceRepository.transportClient.callDispatchMiddlewareStack.register(0,
+    monitorCallSend)
+}
+
+module.exports = {
+  bootstrap: basicMonitorBootstrap,
+  setSendLoad: (aLoad) =&gt; {
+    load.snd = aLoad
+  },
+  setRcvLoad: (aLoad) =&gt; {
+    load.rcv = aLoad
+  }
+}
+</code></pre>
+</div>
+
+<ul>
+  <li>It can be seen that every bootstrap module must return a function (the actual bootstrap function) that takes the <code class="highlighter-rouge">xyz</code> object as an argument. In this case, this bootstrap function exports <code class="highlighter-rouge">bootstrap: basicMonitorBootstrap</code> which will be later used to apply this bootstrap function.</li>
+  <li>Inside a bootstrap function, you are allowed to do almost any thing. In this case, we are creating a very simple express server to serve a single html file and a json API and we are registering two new middlewares inside the system.</li>
+  <li>Note that theses two middlewares that we are exposing will later on used
+    <div class="highlighter-rouge"><pre class="highlight"><code>setSendLoad: (aLoad) =&gt; {
+  load.snd = aLoad
+},
+setRcvLoad: (aLoad) =&gt; {
+  load.rcv = aLoad
+}
+</code></pre>
+    </div>
+    <p>to set an estimate value for the load on the node. These values will then be served through the HTTP server.</p>
+  </li>
+</ul>
+
+<p>So, given that this bootstrap function is written once, you can always use it inside any of your microservices with just one (or two, including the <code class="highlighter-rouge">require</code> statement) line of code:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>let xyzMonitor = require('./../xyz.monitor.basic.bootstrap').bootstrap
+let mathMs = new XYZ({
+  selfConf: {...},
+  systemConf: { nodes: []}
+})
+
+mathMs.bootstrap(xyzMonitor, 7000)
+
+</code></pre>
+</div>
+
+<p>There is complete example of this <a href="https://github.com/node-xyz/xyz.monitor.basic.bootstrap/tree/master/example">here</a>. After you set up this bootstrap function, you can view a nice monitoring page at your localhost (and on port <code class="highlighter-rouge">7000</code> in this case):</p>
+
+<p><img src="/assets/monitor.png" alt="example monitor app" /></p>
+
+<p>Note that <code class="highlighter-rouge">xyz.bootstrap(aFunction, ...args)</code> is completely equal to <code class="highlighter-rouge">aFunction(xyz, ...args)</code>. The inly difference is that we suggest using the first way, because in this way xyz can track and know which bootstrap functions have been applied and show them in logs. As an example, in this monitoring web page you can see that:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Bootstrap Functions:
+  pingBoostraper,basicMonitorBootstrap
+</code></pre>
+</div>
+
+
+
+  </section>
+  
+<style media="screen">
+  .site-footer{
+    padding: 30px;
+    color: var(--light-color);
+    background-color: var(--very-dark);
+  }
+</style>
+<footer class="site-footer">
+  <span class="site-footer-owner">
+    <a href="http://localhost:3333">Node XYZ</a>
+     is maintained by <a href="">Kian Peymani & Ajand </a></span>
+  <small>
+    <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a></small>
+</footer>
+
+<script
+  src="https://code.jquery.com/jquery-3.1.1.min.js"
+  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+  crossorigin="anonymous"></script>
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" charset="utf-8"></script>
+
+</body>
+</html>

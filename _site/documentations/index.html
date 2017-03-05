@@ -1,87 +1,220 @@
 <!DOCTYPE html>
 <html lang="en-us">
-  
-  <head>
+<head>
   <meta charset="UTF-8">
   <title>Node XYZ</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#157878">
-  <link rel="stylesheet" href="/css/normalize.css">
+  <link rel="stylesheet" href="/assets/css/normalize.css">
   <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
-  <link rel="stylesheet" href="/css/cayman.css">
+  <link rel="stylesheet" href="/assets/css/theme.css">
+  <!-- <link rel="stylesheet" href="/assets/css/cayman.css"> -->
+  <link rel="stylesheet" href="/assets/css/main.css">
 </head>
 
+<body>
 
-  <body>
-    <section class="page-header">
-  <h1 class="project-name"><a style="text-decoration: none; color: inherit"href="/">Node XYZ</a></h1>
-  <h2 class="project-tagline">Microservice toolkit for node</h2>
-  <a href="https://github.com/node-xyz" class="btn">View on GitHub</a>
-  <a href="/documentations" class="btn"> Documentation </a>
-  <a href="/apidoc" class="btn"> API Doc </a>
+<style media="screen">
+body {
+  background-color: var(--light-color);
+  color: var(--dark-color)
+}
+</style>
+<style media="screen">
+/* Nav */
+#mainNav {
+  color: var(--light-color) !important;
+}
 
-  <div>
-    <span>you are currently seeing </span><strong>List of all XYZ documentations</strong>
-  </div>
-  
-</section>
+</style>
 
+<nav class="navbar navbar-inverse" style="margin:0" id="mainNav">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand spacing" href="/">NODE XYZ</a>
+    </div>
 
-    <section class="main-content">
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Repositories <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li class="padding"> CORE REPOSITORIES </li>
+            <li><a href="https://github.com/node-xyz/xyz-core" class="spacing">xyz.core</a></li>
+            <li><a href="https://github.com/node-xyz/xyz-cli" class="spacing">xyz.cli</a></li>
+            <li role="separator" class="divider"></li>
+            <li class="padding"> ADDITIONAL </li>
+            <li><a href="https://github.com/node-xyz/xyz.monitor.basic.bootstrap" class="spacing">xyz.monitor</a></li>
+            <li><a href="https://github.com/node-xyz/xyz.ping.swim.bootstrap" class="spacing">xyz.ping.swim</a></li>
+            <li><a href="https://github.com/node-xyz/xyz.ping.stochastic.bootstrap" class="spacing">xyz.ping.stochastic</a></li>
+          </ul>
+        </li>
+      </ul>
+
+      <ul class="nav navbar-nav navbar-left">
+        <!-- <li><a href="#">Link</a></li> -->
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Documentations <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li class="padding"> READING </li>
+            <li><a href="/documentations/getting-started">Getting Started</a></li>
+            <li><a href="/documentations/advance">Advance Topics</a></li>
+            <li><a href="/apidoc">API DOC</a></li>
+            <li role="separator" class="divider"></li>
+            <li class="padding"> EXAMPLES </li>
+            <li class="spacing"><a href="https://github.com/node-xyz/xyz.example.logger.bootstrap">xyz.logger.bootstrap</a></li>
+            <li class="spacing"><a href="https://github.com/node-xyz/xyz.example.auth.basic.receive">xyz.auth.basic.receive</a></li>
+            <li class="spacing"><a href="https://github.com/node-xyz/xyz.example.auth.basic.send">xyz.auth.send.receive</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+<section class="container">
+
+  <ol class="breadcrumb" style="margin: 10px; color: white;">
+    <li><a class='spacing' href="/">Node XYZ </a></li>
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
       
-      <h2 id="documentations">Documentations</h2>
 
-<p>The following documentations will help you get started with xyz, and understand it better:</p>
+    
+      
+      
+      <li class="active">
+        <a style="color: inherit" href="/documentations/">documentation</a>
+      </li>
+      
+      
 
-<ul>
-  <li><a href="/documentations/getting-started"><strong>Getting started</strong></a>: a minimal 5 step tutorial, covering installation, setting up and writing a simple microservices. This tutorial is consisted of:
-    <ul>
-      <li><a href="/documentations/getting-started#hello-xyz">Hello XYZ</a></li>
-      <li><a href="/documentations/getting-started#replicating-your-nodes-and-services">Replicate your services</a></li>
-      <li><a href="/documentations/getting-started#service-discovery">Service Discovery</a></li>
-      <li><a href="/documentations/getting-started#path-based-service-identification">Path based services</a></li>
-      <li><a href="/documentations/getting-started#middlewares">Middlewares</a></li>
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+      
+    </ol>
+
+    <hr>
+
+
+    <h2 class="bb spacing"> DOCUMENTATIONS </h2>
+
+
+
+<div class="row center">
+  <div class="col col-md-6 padding">
+    <a class='btn btn-primary spacing btn-block' href="getting-started"> GETTING STARTED </a>
+    <h5>a minimal 5 step tutorial, covering installation, setting up and writing a simple microservice</h5>
+    <ul style="text-align:left">
+      <li class="">
+        <a href="getting-started#hello-xyz"> Hello xyz </a>
+      </li>
+      <li class="">
+        <a href="getting-started#replicating-your-nodes-and-services"> Replicate your Services </a>
+      </li>
+
+      <li class="">
+        <a href="getting-started#service-discovery"> Service Discovery </a>
+      </li>
+
+      <li class="">
+        <a href="getting-started#path-based-service-identification"> Path based services </a>
+      </li>
+
+      <li class="">
+        <a href="getting-started#middlewares"> Middlewares </a>
+      </li>
+
     </ul>
-  </li>
-</ul>
-
-<hr />
-
-<ul>
-  <li><strong>Advance Topics</strong>[<em>work in progress</em>]:
-    <ul>
-      <li>An odyssey into XYZ: lifecycle of a single requests</li>
-      <li><a href="/documentations/configuration">Configurations</a></li>
-      <li><a href="/documentations/bootstrap-function">Bootstrap Functions</a></li>
-      <li>Events</li>
-      <li>XYZ Command line interface</li>
-      <li>Logging</li>
-      <li>Explaining how a middleware actually works</li>
-      <li>Best practices</li>
-    </ul>
-  </li>
-</ul>
-
-<hr />
-
-<ul>
-  <li><strong>Wiki</strong>: More technical details about the architecture and aims of xyz can be found in our <a href="https://github.com/node-xyz/xyz-core/wiki">wiki page</a></li>
-</ul>
-
-<hr />
-
-<ul>
-  <li><a href="/apidoc"><strong>API Doc</strong></a></li>
-</ul>
+  </div>
 
 
-      <footer class="site-footer">
-  <span class="site-footer-owner"><a href="http://localhost:4000">Node XYZ</a> is maintained by <a href="">Kian Peymani</a>.</span>
-  <small><span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/pietromenna/jekyll-cayman-theme">Cayman theme</a> by <a href="http://github.com/jasonlong">Jason Long</a>.</span></small>
+  <div class="col col-md-6 padding ">
+    <a href="advance" class="btn btn-success spacing btn-block"> ADVANCE TOPICS </a>
+    <h5> Advanced Topics in XYZ</h5>
+    <div class="margin-sm">
+      <a href='advance/configuration' class="btn btn-default btn-sm spacing"> Configurations </a>
+    </div>
+
+    <div class="margin-sm">
+      <a href='advance/bootstrap-function' class="btn btn-default btn-sm spacing"> Bootstrap Functions </a>
+    </div>
+
+    <div class="margin-sm">
+      <a here="advance/events" href class="btn btn-default btn-sm spacing"> Events </a>
+    </div>
+
+  </div>
+</div>
+
+<hr>
+
+<div class="row">
+  <div class="col col-md-6 padding spacing">
+    <a href="/apidoc" class="btn btn-warning btn-block"> API DOC</a>
+  </div>
+
+
+  <div class="col col-md-6 padding spacing">
+    <a href="https://github.com/node-xyz/xyz-core/wiki" class="btn btn-default btn-block"> GITHUB WIKI</a>
+  </div>
+
+
+</div>
+
+
+
+  </section>
+  
+<style media="screen">
+  .site-footer{
+    padding: 30px;
+    color: var(--light-color);
+    background-color: var(--very-dark);
+  }
+</style>
+<footer class="site-footer">
+  <span class="site-footer-owner">
+    <a href="http://localhost:3333">Node XYZ</a>
+     is maintained by <a href="">Kian Peymani & Ajand </a></span>
+  <small>
+    <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a></small>
 </footer>
 
+<script
+  src="https://code.jquery.com/jquery-3.1.1.min.js"
+  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+  crossorigin="anonymous"></script>
 
-    </section>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" charset="utf-8"></script>
 
-  </body>
+</body>
 </html>

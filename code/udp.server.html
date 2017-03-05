@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>udp.server.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page_wrapper">
+            <div id="jump_page">
+              
+                
+                <a class="source" href="index.html">
+                  index.js
+                </a>
+              
+                
+                <a class="source" href="ping.basic.html">
+                  ping.basic.js
+                </a>
+              
+                
+                <a class="source" href="process.inspect.event.html">
+                  process.inspect.event.js
+                </a>
+              
+                
+                <a class="source" href="process.network.event.html">
+                  process.network.event.js
+                </a>
+              
+                
+                <a class="source" href="Constants.html">
+                  Constants.js
+                </a>
+              
+                
+                <a class="source" href="config.global.html">
+                  config.global.js
+                </a>
+              
+                
+                <a class="source" href="Logger.html">
+                  Logger.js
+                </a>
+              
+                
+                <a class="source" href="generic.middleware.handler.html">
+                  generic.middleware.handler.js
+                </a>
+              
+                
+                <a class="source" href="service.first.find.html">
+                  service.first.find.js
+                </a>
+              
+                
+                <a class="source" href="service.send.to.all.html">
+                  service.send.to.all.js
+                </a>
+              
+                
+                <a class="source" href="path.html">
+                  path.js
+                </a>
+              
+                
+                <a class="source" href="path.tree.html">
+                  path.tree.js
+                </a>
+              
+                
+                <a class="source" href="service.repository.html">
+                  service.repository.js
+                </a>
+              
+                
+                <a class="source" href="http.server.html">
+                  http.server.js
+                </a>
+              
+                
+                <a class="source" href="http.export.middleware.html">
+                  http.export.middleware.js
+                </a>
+              
+                
+                <a class="source" href="http.receive.event.html">
+                  http.receive.event.js
+                </a>
+              
+                
+                <a class="source" href="udp.export.middleware.html">
+                  udp.export.middleware.js
+                </a>
+              
+                
+                <a class="source" href="udp.receive.event.html">
+                  udp.receive.event.js
+                </a>
+              
+                
+                <a class="source" href="join.middleware.accept.all.html">
+                  join.middleware.accept.all.js
+                </a>
+              
+                
+                <a class="source" href="Transport.html">
+                  Transport.js
+                </a>
+              
+                
+                <a class="source" href="udp.server.html">
+                  udp.server.js
+                </a>
+              
+                
+                <a class="source" href="XResponse.html">
+                  XResponse.js
+                </a>
+              
+                
+                <a class="source" href="Util.html">
+                  Util.js
+                </a>
+              
+                
+                <a class="source" href="commandline.parser.html">
+                  commandline.parser.js
+                </a>
+              
+                
+                <a class="source" href="machine.reporter.html">
+                  machine.reporter.js
+                </a>
+              
+                
+                <a class="source" href="xyz.html">
+                  xyz.js
+                </a>
+              
+            </div>
+          </div>
+        </li>
+      </ul>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>udp.server.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="hljs-keyword">const</span> dgram = <span class="hljs-built_in">require</span>(<span class="hljs-string">'dgram'</span>)
+<span class="hljs-keyword">const</span> EventEmitter = <span class="hljs-built_in">require</span>(<span class="hljs-string">'events'</span>)
+<span class="hljs-keyword">const</span> logger = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../Log/Logger'</span>)
+<span class="hljs-keyword">const</span> GenericMiddlewareHandler = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../Middleware/generic.middleware.handler'</span>)
+<span class="hljs-keyword">const</span> _CONFIGURATION = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../Config/config.global'</span>)
+<span class="hljs-keyword">let</span> wrapper = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./../../Util/Util'</span>).wrapper
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UDPServer</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">EventEmitter</span> </span>{
+  <span class="hljs-keyword">constructor</span> (xyz, port) {
+    <span class="hljs-keyword">super</span>()
+    <span class="hljs-keyword">this</span>.port = _CONFIGURATION.getSelfConf().port
+    <span class="hljs-keyword">this</span>.xyz = xyz
+
+    <span class="hljs-keyword">this</span>.server = dgram.createSocket(<span class="hljs-string">'udp4'</span>)
+    <span class="hljs-keyword">this</span>.routes = {}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>user defined routes</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>
+    <span class="hljs-keyword">this</span>.server.on(<span class="hljs-string">'listening'</span>, () =&gt; {
+      <span class="hljs-keyword">let</span> address = <span class="hljs-keyword">this</span>.server.address()
+      logger.info(<span class="hljs-string">`UDP Server listening on port <span class="hljs-subst">${address.address}</span>:<span class="hljs-subst">${address.port}</span>`</span>)
+    })
+    .on(<span class="hljs-string">'message'</span>, (message, remote) =&gt; {
+      <span class="hljs-keyword">let</span> _message = <span class="hljs-built_in">JSON</span>.parse(message.toString())
+      <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> route <span class="hljs-keyword">in</span> <span class="hljs-keyword">this</span>.routes) {
+        <span class="hljs-keyword">if</span> (_message.path === <span class="hljs-string">`/<span class="hljs-subst">${route}</span>`</span>) {
+          logger.debug(<span class="hljs-string">`udp message received for /<span class="hljs-subst">${wrapper(<span class="hljs-string">'bold'</span>, route)}</span>`</span>)
+          <span class="hljs-keyword">this</span>.routes[route].apply([_message, remote, port], <span class="hljs-number">0</span>)
+          <span class="hljs-keyword">break</span>
+        }
+      }
+    })
+    .bind(port, _CONFIGURATION.getSelfConf().host)
+  }
+
+  inspect () {
+    <span class="hljs-keyword">let</span> ret = <span class="hljs-string">`<span class="hljs-subst">${wrapper(<span class="hljs-string">'green'</span>, wrapper(<span class="hljs-string">'bold'</span>, <span class="hljs-string">'Middlewares'</span>))}</span>:\n`</span>
+
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> route <span class="hljs-keyword">in</span> <span class="hljs-keyword">this</span>.routes) {
+      ret += <span class="hljs-string">`    <span class="hljs-subst">${<span class="hljs-keyword">this</span>.routes[route].inspect()}</span>\n`</span>
+    }
+    <span class="hljs-keyword">return</span> ret
+  }
+
+  inspectJSON () {
+    <span class="hljs-keyword">let</span> ret = []
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> route <span class="hljs-keyword">in</span> <span class="hljs-keyword">this</span>.routes) ret.push(<span class="hljs-keyword">this</span>.routes[route].inspectJSON())
+    <span class="hljs-keyword">return</span> ret
+  }
+
+  close () {
+    <span class="hljs-keyword">this</span>.server.close()
+  }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>will initialize a new route with one default middleware
+NOTE: this is experimental and there is no support to send sth directly to this
+from whithin xyz. this is designed mostly for users outside of the system to have
+a communication way</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>  registerRoute (prefix, gmwh) {
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.routes[prefix]) {
+      logger.warn(<span class="hljs-string">`call middleware with prefix <span class="hljs-subst">${prefix}</span> already exists`</span>)
+      <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>
+    } <span class="hljs-keyword">else</span> {
+      gmwh = gmwh || <span class="hljs-keyword">new</span> GenericMiddlewareHandler(<span class="hljs-keyword">this</span>.xyz, <span class="hljs-string">`<span class="hljs-subst">${prefix}</span>-MddlewareHandler`</span>, prefix)
+      <span class="hljs-keyword">this</span>.routes[prefix] = gmwh
+      logger.info(<span class="hljs-string">`HTTP Server:: new call route <span class="hljs-subst">${wrapper(<span class="hljs-string">'bold'</span>, prefix)}</span> added`</span>)
+      <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>
+    }
+  }
+
+}
+
+<span class="hljs-built_in">module</span>.exports = UDPServer</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>

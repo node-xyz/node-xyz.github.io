@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en-us">
+{% include head.html %}
+<body>
+
+  <style media="screen">
+  /*   fancy header */
+
+  #large-header {
+    -webkit-box-shadow: 0 2px 2px rgba(0, 0, 0, .2) ;
+    -moz-box-shadow: 0 2px 2px rgba(0, 0, 0, .2) ;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, .2) ;
+  }
+  .large-header {
+    background-color: var(--very-dark)
+  }
+
+  .main-title {
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    color: #f9f1e9 !important;
+    text-align: center;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate3d(-50%,-50%,0);
+    transform: translate3d(-50%,-50%,0);
+  }
+
+  .main-title {
+    text-transform: uppercase;
+    font-size: 4em;
+    letter-spacing: 0.1em;
+  }
+
+  .main-title p {
+    font-size: 18px;
+  }
+
+  .main-title .thin {
+    font-weight: 200;
+  }
+  </style>
+
+{% include fix-head.html %}
+<div id="large-header" class="large-header">
+  <canvas id="demo-canvas"></canvas>
+  <div class="main-title">
+    <h1 style="color: white">NODE <span class="thin">XYZ</span></h1>
+    <p>microservices microframework for node</p>
+
+    <div>
+      <a href="https://github.com/node-xyz/" type="button" class="btn btn-default"> VIEW ON GITHUB </a>
+      <a href="/documentations/getting-started" type="button" class="btn btn-primary"> GETTING STARTED </a>
+    </div>
+  </div>
+
+</div>
+
+  {{ content }}
+
+  {% include page-footer.html %}
+  {% include fancy-import-js.html %}
+</body>
+</html>

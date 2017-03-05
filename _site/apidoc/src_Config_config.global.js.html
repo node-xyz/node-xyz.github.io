@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>src/Config/config.global.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GenericMiddlewareHandler.html">GenericMiddlewareHandler</a><ul class='methods'><li data-type='method'><a href="GenericMiddlewareHandler.html#apply">apply</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#getMiddlewares">getMiddlewares</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#inspect">inspect</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#inspectJSON">inspectJSON</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#register">register</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#remove">remove</a></li></ul></li><li><a href="ServiceRepository.html">ServiceRepository</a><ul class='methods'><li data-type='method'><a href="ServiceRepository.html#bindTransportEvent">bindTransportEvent</a></li><li data-type='method'><a href="ServiceRepository.html#inspect">inspect</a></li><li data-type='method'><a href="ServiceRepository.html#inspectJSON">inspectJSON</a></li><li data-type='method'><a href="ServiceRepository.html#register">register</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#braodcastLocal">braodcastLocal</a></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">src/Config/config.global.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>let CONSTANTS = require('./../Config/Constants')
+let argParser = require('./../Util/commandline.parser')
+let logger = require('./../Log/Logger')
+
+let systemConf
+let selfConf = {}
+
+function MergeRecursive (obj1, obj2) {
+  for (var p in obj2) {
+    try {
+      if (obj2[p].constructor === Object) {
+        obj1[p] = MergeRecursive(obj1[p], obj2[p])
+      } else {
+        obj1[p] = obj2[p]
+      }
+    } catch (e) {
+      obj1[p] = obj2[p]
+    }
+  }
+  return obj1
+}
+
+let configuration = {
+  joinNode: (aNode) => {
+    if (systemConf.nodes.indexOf(aNode) > -1) {
+      logger.warn(`Node ${aNode} already in systemConf. Passing.`)
+    } else {
+      logger.info(`A new node {${aNode}} added to systemConf`)
+      systemConf.nodes.push(aNode)
+    }
+  },
+
+  ensureNode: (aNode) => {
+    if (systemConf.nodes.indexOf(aNode) === -1) {
+      logger.info(`A new node {${aNode}} added to systemConf`)
+      systemConf.nodes.push(aNode)
+      return 1
+    }
+    return -1
+  },
+
+  kickNode: (aNode) => {
+    let index = systemConf.nodes.indexOf(aNode)
+    if (index > -1) {
+      logger.warn(`node ${aNode} removed from systemConf.`)
+      systemConf.nodes.splice(systemConf.nodes.indexOf(aNode), 1)
+    } else {
+      logger.warn(`Attempting to remove ${aNode} which does not exist`)
+    }
+  },
+
+  /**
+   * a Duplicate function to joinNode. The only difference is logging and the fact
+   * that this one takes an array of nodes
+   * @param  {String} someNodes a list of nodes
+   */
+  ensureNodes: (someNodes) => {
+    for (let aNode of someNodes) {
+      if (systemConf.nodes.indexOf(aNode) === -1) {
+        logger.info(`A new node {${aNode}} added to systemConf`)
+        systemConf.nodes.push(aNode)
+      }
+    }
+  },
+
+  setSelfConf: (aConf, cmdLineArgs) => {
+    logger.info('Setting default selfConf')
+    selfConf = CONSTANTS.defaultConfig.selfConf
+    logger.info('Reading selfConf from user')
+    selfConf = MergeRecursive(selfConf, aConf)
+    logger.info('Reading selfConf from command line')
+    // TODO use MergeRecursive function to get rid of this shitty code
+
+    // this is to allow cli admin to inject some args like commandline arguments
+    let args = cmdLineArgs ? cmdLineArgs : argParser.xyzGeneric()
+    for (let arg in args) {
+      logger.verbose(`overriding selfConf.${arg} from command line value {${args[arg]}}`)
+      let keys = arg.split('.')
+      // length 1
+      if (keys.length === 1) {
+        if (keys[0] === 'seed') {
+          selfConf[keys[0]].push(args[arg])
+        } else if (keys[0] === 'defaultBootstrap') {
+          // could also use eval here
+          if (args[arg] === '0' || args[arg] === 'false') {
+            selfConf[keys[0]] = false
+          } else {
+            selfConf[keys[0]] = true
+          }
+        } else {
+          selfConf[keys[0]] = args[arg]
+        }
+      } else if (keys.length === 2) {
+        if (!selfConf[keys[0]]) selfConf[keys[0]] = {}
+        selfConf[keys[0]][keys[1]] = keys[1] === 'enable' ? eval(args[arg]) : args[arg]
+      } else if (keys.length === 3) {
+        if (!selfConf[keys[0]]) selfConf[keys[0]] = {}
+        if (!selfConf[keys[1]]) selfConf[keys[1]] = {}
+        selfConf[keys[0]][keys[1]][keys[2]] = args[arg]
+      } else {
+        logger.error('command line arguments with more than three sub-keys are not allowed. passing')
+      }
+    }
+
+    logger.transports.console.level = selfConf.logLevel
+    logger.debug(`log level set to ${logger.transports.console.level}`)
+  },
+
+  setSystemConf: (aConf) => {
+    logger.info('Setting default systemConf')
+    systemConf = CONSTANTS.defaultConfig.systemConf
+    logger.info('reading systemConf from user')
+    systemConf = MergeRecursive(systemConf, aConf)
+    logger.info('Reading selfConf from command line')
+    let args = argParser.xyzGeneric('--xys-')
+    for (let arg in args) {
+      logger.verbose(`overriding systemConf.${arg} from command line value {${args[arg]}}`)
+      if (arg === 'node') {
+        if (typeof (args[arg]) === 'object') {
+          systemConf.nodes = systemConf.nodes.concat(args[arg])
+        } else {
+          systemConf.nodes.push(args[arg])
+        }
+      }
+    }
+
+    logger.debug('Adding self to systemConf by default')
+    if (systemConf.nodes.indexOf(`${selfConf.host}:${selfConf.transport[0].port}`) === -1) {
+      systemConf.nodes.push(`${selfConf.host}:${selfConf.transport[0].port}`)
+    }
+  },
+
+  addServer: (aServer) => {
+    for (let s of selfConf.transport) {
+      if (s.port === aServer.port) {
+        logger.error(`cannot add a server with port ${aServer.port} to selfConf. already exists`)
+        return false
+      }
+    }
+    logger.info(`new server ${JSON.stringify(aServer)} added at runtime to selfConf`)
+    selfConf.transport.push(aServer)
+  },
+
+  getSystemConf: () => systemConf,
+
+  getSelfConf: () => selfConf
+}
+
+module.exports = configuration
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Sun Mar 05 2017 20:47:52 GMT+0330 (IRST) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
