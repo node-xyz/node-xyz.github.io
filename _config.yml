@@ -1,6 +1,6 @@
 # Setup
-title:        Node XYZ
-tagline:      Microservice toolkit for node
+title:        NODE XYZ
+tagline:      Microservice microframework for node
 baseurl:      ""
 # paginate:     1
 
@@ -17,4 +17,7 @@ gems:
 include: ['_pages']
 exclude: ['example/*']
 #Others
-# markdown: kramdown
+markdown: kramdown
+
+kramdown:
+  syntax_highlighter: rouge

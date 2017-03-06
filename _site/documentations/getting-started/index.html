@@ -2,14 +2,15 @@
 <html lang="en-us">
 <head>
   <meta charset="UTF-8">
-  <title>Node XYZ</title>
+  <title>NODE XYZ</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#157878">
   <link rel="stylesheet" href="/assets/css/normalize.css">
   <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" href="/assets/css/theme.css">
-  <!-- <link rel="stylesheet" href="/assets/css/cayman.css"> -->
-  <link rel="stylesheet" href="/assets/css/main.css">
+  <link rel="stylesheet" href="/assets/css/syntax.css">
+  <!-- <link rel="stylesheet" href="/assets/css/main.css"> -->
+  <link rel="stylesheet" href="/assets/css/stylish.css">
 </head>
 
 <body>
@@ -70,9 +71,10 @@ body {
             <li><a href="/apidoc">API DOC</a></li>
             <li role="separator" class="divider"></li>
             <li class="padding"> EXAMPLES </li>
+            <li class="spacing"><a href="https://github.com/node-xyz/xyz.example.getting.started">xyz.getting.started</a></li>
             <li class="spacing"><a href="https://github.com/node-xyz/xyz.example.logger.bootstrap">xyz.logger.bootstrap</a></li>
             <li class="spacing"><a href="https://github.com/node-xyz/xyz.example.auth.basic.receive">xyz.auth.basic.receive</a></li>
-            <li class="spacing"><a href="https://github.com/node-xyz/xyz.example.auth.basic.send">xyz.auth.send.receive</a></li>
+            <li class="spacing"><a href="https://github.com/node-xyz/xyz.example.auth.basic.send">xyz.auth.basic.send</a></li>
           </ul>
         </li>
       </ul>
@@ -119,17 +121,14 @@ body {
 
     
       
-      
-    
-    
-    
-    
 
     
       
-
-    
       
+    
+    
+    
+    
 
     
       
@@ -151,6 +150,15 @@ body {
 
     
       
+
+    
+      
+
+    
+      
+
+    
+      
       
     </ol>
 
@@ -163,232 +171,257 @@ body {
   </div>
 
   <div class="col col-md-10">
-    <h4 id="contents">Contents</h4>
-
-<ul>
-  <li><a href="/documentations/getting-started#hello-xyz">Hello XYZ</a></li>
-  <li><a href="/documentations/getting-started#replicating-your-nodes-and-services">Replicate your services</a></li>
-  <li><a href="/documentations/getting-started#service-discovery">Service Discovery</a></li>
-  <li><a href="/documentations/getting-started#path-based-service-identification">Path based services</a></li>
-  <li><a href="/documentations/getting-started#middlewares">Middlewares</a></li>
-</ul>
-
-<h1 id="hello-xyz">Hello XYZ</h1>
+    <h1 id="hello-xyz">Hello XYZ</h1>
 
 <p>This brief tutorial will help you fathom the concepts of XYZ, and help you get started with it.</p>
 
+<p>The only dependency of this tutorial is <code class="highlighter-rouge">xyz-core</code>, which has only one logging dependency itself. You can install it  in your woking directory using:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ npm install xyz-core --save
+</code></pre>
+</div>
+
+<p>The code and testcases of this documentation is available <a href="https://github.com/node-xyz/xyz.example.getting.started">here</a></p>
+
+<p>Let’s get this tutorial started!</p>
+
 <h3 id="baby-microservice">Baby Microservice</h3>
 
-<p>Assume that we only have two services that will communicate with each other. Suppose that each of these services (aka Node modules) have another API exposed two end users. That is not our business at the moment, since as mentioned before, XYZ will divide the matter of end user and the matter of system. Now, our goal is to focus on what is important to our own system.</p>
+<p>Assume that we only have two services that will communicate with each other. Suppose that each of these services (aka. Node modules) have another API exposed two end users. That is not our business at the moment, since XYZ will divide <strong>the matter of end user</strong> and the <strong>matter of system</strong>. This means that although you can have end user calling the APIs created in this tutorial, their main goal is to serve other nodes inside your own system. In this section, our goal is to focus on what is important to our own system.</p>
 
-<p>The – dummy services are as follows:</p>
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code>    <span class="c1">// math.ms.js</span>
-    <span class="c1">// a very fancy math module with super fast calculation</span>
-    <span class="kd">function</span> <span class="nx">add</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">return</span> <span class="nx">x</span> <span class="o">+</span> <span class="nx">y</span>
-    <span class="p">}</span>
+<p>The – dummy – services are as follows:</p>
 
-    <span class="kd">function</span> <span class="nx">mul</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">return</span> <span class="nx">x</span> <span class="o">*</span> <span class="nx">y</span>
-    <span class="p">}</span>
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="c1">// math.ms.js</span>
+<span class="c1">// a very fancy math module with super fast calculation</span>
+<span class="kd">function</span> <span class="nx">add</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">x</span> <span class="o">+</span> <span class="nx">y</span>
+<span class="p">}</span>
 
-    <span class="c1">// string.ms.js</span>
-    <span class="c1">// some ultra hard string manipulations</span>
-    <span class="kd">function</span> <span class="nx">up</span><span class="p">(</span><span class="nx">str</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">return</span> <span class="nx">s</span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">()</span>
-    <span class="p">}</span>
-    <span class="kd">function</span> <span class="nx">down</span><span class="p">(</span><span class="nx">str</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">return</span> <span class="nx">s</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">()</span>
-    <span class="p">}</span>
+<span class="kd">function</span> <span class="nx">mul</span><span class="p">(</span><span class="nx">x</span><span class="p">,</span> <span class="nx">y</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">x</span> <span class="o">*</span> <span class="nx">y</span>
+<span class="p">}</span>
+
+<span class="c1">// string.ms.js</span>
+<span class="c1">// some ultra fast string manipulations</span>
+<span class="kd">function</span> <span class="nx">up</span><span class="p">(</span><span class="nx">str</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">s</span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">()</span>
+<span class="p">}</span>
+<span class="kd">function</span> <span class="nx">down</span><span class="p">(</span><span class="nx">str</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">s</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">()</span>
+<span class="p">}</span>
 </code></pre>
 </div>
-<p>Now, assume that these services need to call each other in order to share their services. This is the first place that XYZ will come to action.</p>
 
-<p>In order to have two xyz instances communicate with each other, they need to have a system, a <strong>shared</strong> system. Information about the system is filled to the xyz instance using a config parameter. The config parameter has information such as local port/ip/serviceName and a list of nodes who live inside the system. Note that a node can join the system without being in the static list, this is just a basic example!</p>
+<p>Note that these functionalities are, of course, way to small and naive to be exposed as a standalone service, even in a microservice architecture. But we will stick to these services, <strong>Math</strong> and <strong>String</strong> in some of our tutorial to keep things simple.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>// math.ms.js
-// a very fancy math module with super fast calculation
-let xyz = require('xyz-core')
-let mathMS = new xyz({
-  selfConf: {
-    name: 'MathMS',
-    host: '127.0.0.1',
-    port: 3333
-  },
-  systemConf: {
-    nodes: ['127.0.0.1:3334']
-  }
-})
+<p>Now, assume that these services need to call each other in order to share their services, or more realistic, in order to do something for the end-user. This is the first place that XYZ will come to action.</p>
 
-// expose these function over the system
-mathMS.register('mul', (payload, response) =&gt; {
-  response.send(payload.x * payload.y)
-})
+<p>In order to have two xyz instances communicate with each other, they need to have a system, a <strong>shared</strong> system. Information about the system is filled to the xyz instance using a <code class="highlighter-rouge">config</code> parameter. The config parameter has information such as local <code class="highlighter-rouge">port</code>/<code class="highlighter-rouge">ip</code>/<code class="highlighter-rouge">service name</code> and a list of nodes who live inside the system. Note that a node can join the system without being in the static list (more on this later), this is just a basic example!</p>
 
-// expose these function over the system
-mathMS.register('add', (payload, response) =&gt; {
-  response.send(payload.x + payload.y)
-})
+<p>Our two services are going to be deployed with the following topology:</p>
 
-// string.ms.js
-// some ultra hard string manipulations
-let xyz = require('xyz-core')
-let stringMS = new xyz({
-  selfConf: {
-    name: 'stringMS',
-    host: '127.0.0.1',
-    port: 3334
-  },
-  systemConf: {
-    nodes: ['127.0.0.1:3333']
-  }
-})
+<ul>
+  <li>math.ms will be hosted on port 4000 of the local machine</li>
+  <li>string.ms will be hosted on port 5000 of the local machine</li>
+</ul>
 
-stringMS.register('up', (payload, response) =&gt; {
-  response.send(payload.toUpperCase())
-})
-stringMS.register('down', (payload, response) =&gt; {
-  response.send(payload.toLowerCase())
-})
-</code></pre>
-</div>
+<p>Therefore, we need to pass the address of the other node to each of the nodes. This will be placed inside <code class="highlighter-rouge">systemConf.nodes</code>.</p>
+
+<p>Let’s look at the <code class="highlighter-rouge">math.ms.js</code> first:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">// math.ms.js</span>
+<span class="c1">// a very fancy math module with super fast calculation</span>
+<span class="kd">let</span> <span class="nx">XYZ</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'xyz-core'</span><span class="p">)</span>
+
+<span class="kd">let</span> <span class="nx">mathMS</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XYZ</span><span class="p">({</span>
+  <span class="na">selfConf</span><span class="p">:</span> <span class="p">{</span>
+    <span class="c1">// will indicate the name of the sevice in logs</span>
+    <span class="na">name</span><span class="p">:</span> <span class="s1">'math.ms'</span><span class="p">,</span>
+    <span class="c1">// default hostname</span>
+    <span class="na">host</span><span class="p">:</span> <span class="s1">'127.0.0.1'</span>
+  <span class="p">},</span>
+  <span class="na">systemConf</span><span class="p">:</span> <span class="p">{</span>
+    <span class="c1">// list of other addresses</span>
+    <span class="na">nodes</span><span class="p">:</span> <span class="p">[</span><span class="s1">'127.0.0.1:5000'</span><span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+
+<span class="c1">// expose these function over the system</span>
+
+<span class="nx">mathMS</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="s1">'mul'</span><span class="p">,</span> <span class="p">(</span><span class="nx">payload</span><span class="p">,</span> <span class="nx">response</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">response</span><span class="p">.</span><span class="nx">jsonify</span><span class="p">(</span><span class="nx">payload</span><span class="p">.</span><span class="nx">x</span> <span class="o">*</span> <span class="nx">payload</span><span class="p">.</span><span class="nx">y</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="nx">mathMS</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="s1">'add'</span><span class="p">,</span> <span class="p">(</span><span class="nx">payload</span><span class="p">,</span> <span class="nx">response</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">response</span><span class="p">.</span><span class="nx">jsonify</span><span class="p">(</span><span class="nx">payload</span><span class="p">.</span><span class="nx">x</span> <span class="o">+</span> <span class="nx">payload</span><span class="p">.</span><span class="nx">y</span><span class="p">)</span>
+<span class="p">})</span></code></pre></figure>
+
+<p>Strange thing is that we did not tell <code class="highlighter-rouge">math.ms</code> to place itself on port 4000. Why?</p>
 
 <blockquote>
-  <p>The entire process of initializing a system and passing all of the parameters seems too much of a duplicate, and tedious. We agree! check out the best practices section#common.js</p>
+  <p>Each node will load itself with one HTTP server on port 4000 by default. You can read more about thr default values in <a href="">Configuration</a> section and more about Servers in <a href="">Server Management</a> section</p>
 </blockquote>
 
-<p>And that’s it! Now, our services are virtually binded to one another and they can call the service that each of them exposed using <code class="highlighter-rouge">.register</code>. The <code class="highlighter-rouge">nodes: [...]</code> key in <strong>systemConf</strong> will declare the list of other nodes that we can connect to. Obviously, they can be local or remote IPs.</p>
+<p>And the <code class="highlighter-rouge">string.ms</code> is fairly similar. We expose some functions relating to string objects. The most important difference is that now we must explicitly tell <code class="highlighter-rouge">string.ms</code> to listen on port 5000. This can be done using the <code class="highlighter-rouge">selfConf.transport[]</code> array.</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">//string.ms.js</span>
+<span class="kd">let</span> <span class="nx">XYZ</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'xyz-core'</span><span class="p">)</span>
+
+<span class="kd">let</span> <span class="nx">stringMS</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XYZ</span><span class="p">({</span>
+  <span class="na">selfConf</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">name</span><span class="p">:</span> <span class="s1">'string.ms'</span><span class="p">,</span>
+    <span class="na">host</span><span class="p">:</span> <span class="s1">'127.0.0.1'</span><span class="p">,</span>
+    <span class="na">transport</span><span class="p">:</span> <span class="p">[{</span><span class="na">type</span><span class="p">:</span> <span class="s1">'HTTP'</span><span class="p">,</span> <span class="na">port</span><span class="p">:</span> <span class="mi">5000</span><span class="p">}]</span>
+  <span class="p">},</span>
+  <span class="na">systemConf</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">nodes</span><span class="p">:</span> <span class="p">[</span><span class="s1">'127.0.0.1:4000'</span><span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+<span class="nx">stringMS</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="s1">'up'</span><span class="p">,</span> <span class="p">(</span><span class="nx">payload</span><span class="p">,</span> <span class="nx">response</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">response</span><span class="p">.</span><span class="nx">jsonify</span><span class="p">(</span><span class="nx">payload</span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">())</span>
+<span class="p">})</span>
+<span class="nx">stringMS</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="s1">'down'</span><span class="p">,</span> <span class="p">(</span><span class="nx">payload</span><span class="p">,</span> <span class="nx">response</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">response</span><span class="p">.</span><span class="nx">jsonify</span><span class="p">(</span><span class="nx">payload</span><span class="p">.</span><span class="nx">toLowerCase</span><span class="p">())</span>
+<span class="p">})</span></code></pre></figure>
+
+<p>Now, if you run both <code class="highlighter-rouge">math.ms.js</code> and <code class="highlighter-rouge">string.ms.js</code>, you’ll notice that… well, nothing is yet happening because we didn’t write any code for anything to happen! We will add some code in a minute to have one service calling the other one.</p>
+
+<blockquote>
+  <p>I see an error: <code class="highlighter-rouge">[math.ms@127.0.0.1:4000] error :: Ping Error :: 127.0.0.1:5000 has been out of reach for x pings :: ... </code></p>
+</blockquote>
+
+<p>This is natural. XYZ has a built in and configurable service discovery mechanism out of the box. You can disable it of course, but it will work by default. This is error is because each node will iteratively check other node’s health by pinging it and the reason you are seeing this is because <code class="highlighter-rouge">string.ms</code> was not able to respond to a ping message. This error should go away as you run <code class="highlighter-rouge">string.ms</code></p>
+
+<blockquote>
+  <p><strong>notes about the default ping</strong>: XYZ offers a few ping strategies, explained in a different section (<a href="">Ping Types</a>). The <a href="">default ping</a> is a naive, yet reliable approach which is easy and appropriate to use in test environmetns. Using the default ping, each node will probe other nodes and wait for a response. If a node is out of reach for 10 pings, it will be removed from the <code class="highlighter-rouge">systemConf.nodes[]</code>. The default interval for pinging is 2000ms.</p>
+</blockquote>
+
+<p>Moving away from all that ping stuff. Now, thanks to the service discovery mechanism, our services are virtually binded to one another and they can call the services that each of them is exposing using <code class="highlighter-rouge">.register()</code>. The good part of <code class="highlighter-rouge">.register()</code> is that the callee is transparent to the location of this function (or at least, has the option to be) and can call it very easily. Let’s see how:</p>
+
+<p>Add the following to <code class="highlighter-rouge">string.ms.js</code>:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">setInterval</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// .call will invoke a foreign (or even local) service exposed using .register</span>
+  <span class="c1">// servicePath must be identical in caller and callee</span>
+  <span class="nx">stringMS</span><span class="p">.</span><span class="nx">call</span><span class="p">({</span><span class="na">servicePath</span><span class="p">:</span> <span class="s1">'mul'</span><span class="p">,</span> <span class="na">payload</span><span class="p">:</span> <span class="p">{</span><span class="na">x</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="na">y</span><span class="p">:</span> <span class="mi">5</span><span class="p">}},</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">body</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="err">`</span><span class="nx">response</span> <span class="nx">of</span> <span class="nx">mul</span> <span class="o">=&gt;</span> <span class="nx">$</span><span class="p">{</span><span class="nx">body</span><span class="p">}</span> <span class="p">[</span><span class="nx">err</span> <span class="nx">$</span><span class="p">{</span><span class="nx">err</span><span class="p">}]</span><span class="err">`</span><span class="p">)</span>
+  <span class="p">})</span>
+<span class="p">},</span> <span class="mi">2000</span><span class="p">)</span></code></pre></figure>
+
+<p>You should now see an output like:
+<code class="highlighter-rouge">response of mul =&gt; 10 [err null]</code></p>
 
 <h4 id="a-note-on-terminology">A Note on terminology.</h4>
 
-<p>Words and phrases in XYZ system are explained in Wiki page. Just to recap, each function exposed via <code class="highlighter-rouge">.register</code> is a <em>service</em>.
-Each <strong>Node Process</strong>, having a number of services is called a <strong>node</strong>.</p>
+<p>Before going any further, it is important to be on the same page regarding terminology.</p>
 
-<hr />
+<ul>
+  <li><span class="spacing"> SERVICE </span>: each function – or literally any piece of code – exposed via <code class="highlighter-rouge">.register</code> is a <strong><em>service</em></strong>.</li>
+  <li><span class="spacing"> NODE </span>: Each <em>Node Process</em>, having a number of <em>services</em> exposed using <code class="highlighter-rouge">xyz-core</code> and <code class="highlighter-rouge">.register()</code> is called a <strong>node</strong>.</li>
+</ul>
 
-<p>Back to our little system. Now, one of these system can call a service in the other system using the <code class="highlighter-rouge">.call</code></p>
+<h4 id="whats-next">What’s next?</h4>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>//stringMS
-// note that these callback styles are inherited from node's native http module.
-// `resp` is the IncomingMessage instance etc.
-// https://nodejs.org/api/http.html#http_class_http_incomingmessage
+<p>In this example we hardcoded the list of service, so that they can communicate with each other. This is… just about ok. It is not awesome. What would be awesome is to have nodes joining the system dynamically. Yes, that’s what we’re going to do in the Next Section. Aside from being way less <em>Cool</em>, having a fixed list of nodes in a [micro]service based architecture is almost useless. There is a pretty good chance of having <em>new nodes</em>, or seeing <em>existing nodes crash or restart</em>. We can not achieve a <strong><em>proper service discovery</em></strong> using a fixed list of nodes.</p>
 
-stringMS.call({servicePath: 'mul', payload: {x: 2, y:5}}, (err, body, res) =&gt; {
-  console.log(`my fellow service responded with ${body}`)
-})
-</code></pre>
-</div>
-
-<p>You should now see an output like:
-<code class="highlighter-rouge">my fellow service responded with 10</code></p>
-
-<p>You can find the code of this section <a href="https://github.com/node-xyz/xyz-core/tree/master/examples/examples_getting_started/helloxyz">here</a>.</p>
-
-<h3 id="whats-next">What’s next?</h3>
-
-<p>In this example we hardcoded the list of service, so that they can communicate with each other. This is… just about ok. It is not awesome. What would be awesome is to have nodes joining the system dynamically. Yes, that’s what we’re going to do in the Next Section.</p>
-
-<hr />
+<p>Furthermore, you can even test this flaw in the current system. If you kill <code class="highlighter-rouge">math.ms</code>, you’ll seee immediatly that the response of <code class="highlighter-rouge">.call()</code> changes to <code class="highlighter-rouge">null</code>. And the sad part is that if you do not re-lunch <code class="highlighter-rouge">math.ms</code> before 10 ping cycles is over, <code class="highlighter-rouge">string.ms</code> will remove it from its <code class="highlighter-rouge">systemConf</code> (literrly, it will forget about <code class="highlighter-rouge">math.ms</code> and remove all of its information. like a sad break-up) and there is no coming back from this. (just kidding. there is a way called <code class="highlighter-rouge">seed nodes</code> and we will get to it soon)</p>
 
 <h1 id="replicating-your-nodes-and-services">Replicating Your Nodes and Services</h1>
 
+<p>In the end of the last section, we reached a conclusion:</p>
+
 <p>It would have been much more interesting, if we could add nodes dynamically. Good news: we can.</p>
 
-<p>XYZ nodes can join a system, given that they have a [list of] seed node(s). Seed nodes are the entry point to the system. They should check the authority of the incoming node, if required, and pass the list of nodes available inside the system to it, or any other authentication certificate, again, if required. The fact that there are a lots of ‘ <em>if required</em> ‘ phrases in the statement is that all of these steps are optional and the developer can choose to have them. In the most <strong>_Wildcard_ish</strong> scenario, all nodes are public and anyone can join them.</p>
+<p>XYZ nodes can join a system, given that they have a [list of] seed node[s]. Seed nodes are the entry point to the system. They should check the authority of the incoming node, if required, and pass the list of nodes available inside the system to it, or any other authentication certificate, again, if required. The fact that there are a lots of ‘ <em>if required</em> ‘ phrases in the last statement is that all of these steps (like any authentication or certificate exchange) are optional and the developer can choose to have them. In the most <strong><em>Wildcard</em>-ish</strong> scenario, all nodes are open to accpeing join requests and any other node can join them only by knowing their IP address.</p>
 
-<p>Let’s assume that both the <em>StringMS</em> and <em>MathMS</em> in the previous section do not know each other. That is to say, their list of microservice/nodes in <em>systemConf</em> is empty:</p>
+<p>This <strong>Join Mechanism</strong> is a subset of the <strong>Ping Mechanism</strong>. In other words, every ping mechanism should implement how and when join requests should be accepted. Since the <a href=""><em>default ping</em></a> is pretty naive and focuses of test and developement phases, it does not <strong>enforce</strong> any authentication. Albeit, we will see in the end of this tutorial that we can modify this behaviour with some small changes.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>// string.ms.js
-let xyz = require('xyz-core')
-let stringMS = new xyz({
-  selfConf: {
-    name: 'stringMS',
-    host: '127.0.0.1',
-    port: 3334
-  },
-  systemConf: {
-    nodes: []
-  }
-})
+<p>Let’s assume that both the string.ms and <em>math.ms</em> in the previous section do not know each other beforehand. That is to say, their <code class="highlighter-rouge">systemConf.nodes[]</code> is empty:</p>
 
-// math.ms.js
-let xyz = require('xyz-core')
-let mathMS = new xyz({
-  selfConf: {
-    name: 'MathMS',
-    host: '127.0.0.1',
-    port: 3333
-  },
-  systemConf: {
-    nodes: []
-  }
-})
-</code></pre>
-</div>
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">let</span> <span class="nx">stringMS</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XYZ</span><span class="p">({</span>
+  <span class="na">selfConf</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">name</span><span class="p">:</span> <span class="s1">'string.ms'</span><span class="p">,</span>
+    <span class="na">host</span><span class="p">:</span> <span class="s1">'127.0.0.1'</span><span class="p">,</span>
+    <span class="na">transport</span><span class="p">:</span> <span class="p">[{</span><span class="na">type</span><span class="p">:</span> <span class="s1">'HTTP'</span><span class="p">,</span> <span class="na">port</span><span class="p">:</span> <span class="mi">5000</span><span class="p">}]</span>
+  <span class="p">},</span>
+  <span class="na">systemConf</span><span class="p">:</span> <span class="p">{</span><span class="na">nodes</span><span class="p">:</span> <span class="p">[]}</span>
+<span class="p">})</span></code></pre></figure>
+
+<p>and</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">let</span> <span class="nx">mathMS</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XYZ</span><span class="p">({</span>
+  <span class="na">selfConf</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">name</span><span class="p">:</span> <span class="s1">'math.ms'</span><span class="p">,</span>
+    <span class="na">host</span><span class="p">:</span> <span class="s1">'127.0.0.1'</span>
+  <span class="p">},</span>
+  <span class="na">systemConf</span><span class="p">:</span> <span class="p">{</span><span class="na">nodes</span><span class="p">:</span> <span class="p">[]}</span>
+<span class="p">})</span></code></pre></figure>
 
 <blockquote>
-  <p>Note that you can omit putting the empty <code class="highlighter-rouge">nodes: []</code> in your config file. XYZ will populate each key in the config object according to a template. You can see it <a href="/apidoc/Constants.html">here</a>.</p>
+  <p>Note that you can omit putting the empty <code class="highlighter-rouge">nodes: []</code> in your config file. In fact, you can initialize youre system using <code class="highlighter-rouge">new XYZ({})</code>. See the <a href="">Configuration</a> section for more information about the default valuse.</p>
 </blockquote>
 
-<p>Furthermore, let’s assume that the MathMS is the constant node in the system and stringMSs are going to come and go. Go ahead and run the mathMS alone, you will see that nothing happens.</p>
+<p>Furthermore, let’s assume that the <code class="highlighter-rouge">math.ms</code> is the constant node in the system and <code class="highlighter-rouge">string.ms</code>’s are going to come and go. Go ahead and run the <code class="highlighter-rouge">math.ms.js</code> alone, you will see that nothing happens. It’s ok. math.ms does nothing.</p>
 
-<p>Now run the stringMS. you’ll see:</p>
+<p>Now run the <code class="highlighter-rouge">string.ms.js</code>. you’ll see:</p>
 
-<p><code class="highlighter-rouge">warn :: Sending a message to /mul from first find strategy failed (Local Response)
-my fellow service responded with null</code></p>
-
-<p>The <a href="https://github.com/node-xyz/xyz.service.send.first.find">first find strategy</a> is a default behavior embedded inside node XYZ for finding nodes to send messages to. We’ll see more on this later. The main point is that the message failed. Obviously because StringMS does not know any mathMS at this point!</p>
-
-<p>Change the stringMS to the following, specifying a new <strong>seed node</strong> for it. Also add a filed in mathMS that will indicate that this node is allowed to admit new nodes:</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>// string.ms.js
-let xyz = require('xyz-core')
-let stringMS = new xyz({
-  selfConf: {
-    name: 'stringMS',
-    host: '127.0.0.1',
-    port: 3334,
-    seed: ['127.0.0.1:3333']
-  },
-  systemConf: {
-    nodes: []
-  }
-})
-
-// math.ms.js
-let xyz = require('xyz-core')
-let mathMS = new xyz({
-  selfConf: {
-    allowJoin: true,
-    name: 'MathMS',
-    host: '127.0.0.1',
-    port: 3333
-  },
-  systemConf: {
-    nodes: []
-  }
-})
+<div class="highlighter-rouge"><pre class="highlight"><code>[2017-3-6 16:11:30][string.ms@127.0.0.1:5000] warn :: Sending a message to /mul from first find strategy failed (Local Response)
+response of mul =&gt; null [err Not Found]
 </code></pre>
 </div>
+
+<p>The <a href="">first find strategy</a> is a default behavior embedded inside node XYZ for finding nodes to send messages to. In more advanced sections of this documentation, you’ll learn that the <code class="highlighter-rouge">sendStrategy</code> is actuallya middleware in <code class="highlighter-rouge">xyz-core</code>. This enables you to change any function inside the middleware at runtime. More on this later!</p>
+
+<p>The main point is that <strong>the message failed</strong>. Obviously because string.ms does not know any math.ms at this point, so it does not actually send the message to the network and instead, it will locally respond to it with en error.</p>
+
+<p>Change the <code class="highlighter-rouge">string.ms.js</code> to the following, specifying a new <strong>seed node</strong> for it.</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">let</span> <span class="nx">stringMS</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XYZ</span><span class="p">({</span>
+  <span class="na">selfConf</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">name</span><span class="p">:</span> <span class="s1">'string.ms'</span><span class="p">,</span>
+    <span class="na">host</span><span class="p">:</span> <span class="s1">'127.0.0.1'</span><span class="p">,</span>
+    <span class="c1">// new parameter</span>
+    <span class="na">seed</span><span class="p">:</span> <span class="p">[</span><span class="s1">'127.0.0.1:4000'</span><span class="p">],</span>
+    <span class="na">transport</span><span class="p">:</span> <span class="p">[{</span><span class="na">type</span><span class="p">:</span> <span class="s1">'HTTP'</span><span class="p">,</span> <span class="na">port</span><span class="p">:</span> <span class="mi">5000</span><span class="p">}]</span>
+  <span class="p">},</span>
+  <span class="na">systemConf</span><span class="p">:</span> <span class="p">{</span><span class="na">nodes</span><span class="p">:</span> <span class="p">[]}</span>
+<span class="p">})</span></code></pre></figure>
+
+<p>Note that you do not need to chnage <code class="highlighter-rouge">math.ms.js</code> at all. Joining is a part of Ping and pings a er configured using a different approach  (if you are curious, using <a href="">Bootstrap Functions</a>), not using the xyz constructor.</p>
+
+<p>Now, the two nodes have no previous knowledge of each other, yet they can join and work with each other. Go ahead and run the math.ms, next run the string.ms in a separate terminal and see the results. As you see, the output is still the same. You might also see a <code class="highlighter-rouge">info</code> log indicating that join has been successfully approved.</p>
+
+<p>in <code class="highlighter-rouge">string.ms.js</code>:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>string.ms@127.0.0.1:5000] info :: JOIN PING ACCEPTED. response : ...
+</code></pre>
+</div>
+
+<p>in <code class="highlighter-rouge">math.ms.js</code>:</p>
+<div class="highlighter-rouge"><pre class="highlight"><code>[math.ms@127.0.0.1:4000] info :: A new node {127.0.0.1:5000} added to systemConf
+</code></pre>
+</div>
+
+<p>This get’s even more interesting when we add more nodes. You can add more string.ms nodes and see that all of them will eventually find the math.ms and can connect with it. To be more accurate, the do not just find <code class="highlighter-rouge">math.ms</code>, they find all of the nodes in the system, including the previously deployed <code class="highlighter-rouge">string.ms</code>s.</p>
+
+<p>To test this, there is only one small problem. All string.ms ss are configured to use one port. Hopefully, XYZ provides a way to override any configuration, for debugging purposes mainly. We’ll cover this later (see [Configuration] for more detail), but, for now, you can use the <code class="highlighter-rouge">--xyz-transport.0.port</code> command line argument to override the port. Run many many more StringMS instances with:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="gp">$ </span>node string.ms.js --xyz-transport.0.port 5001
+<span class="gp">$ </span>node string.ms.js --xyz-transport.0.port 5002
+<span class="gp">$ </span>node string.ms.js --xyz-transport.0.port 5003
+...</code></pre></figure>
 
 <blockquote>
-  <p>note that when you want to use a node as seed, that node MUST have <code class="highlighter-rouge">allowJoin</code> key set to true.</p>
+  <p>The <code class="highlighter-rouge">--xyz</code> prefix is backdoor for overriding <strong>any</strong> value in <code class="highlighter-rouge">selfConf</code>. Keeping this in mind, I think you can find the relation between <code class="highlighter-rouge">--xyz-transport.0.port 5001</code> and <code class="highlighter-rouge">selfConf : {transport: [{type: 'HTTP', port:  5001}]}</code></p>
 </blockquote>
 
-<p>Now, the two nodes have no knowledge of each other, yet they can join and work with each other. Go ahead and run the MathMS, next run the stringMS in a separate terminal and see the results. As you see, the output is still the same.</p>
+<p>All of your logs should indicate that all <code class="highlighter-rouge">string.ms</code> nodes are calling <code class="highlighter-rouge">mul</code> successfully and all nodes should be logged <code class="highlighter-rouge">joined</code> in <code class="highlighter-rouge">math.ms</code>.</p>
 
-<p>This get’s even more interesting when we add more nodes. You can add more stringMS nodes and see that all of them will eventually find the MathMS and can connect with it. There is only one small problem. All stringMSs are configured to use one port. Hopefully, XYZ provides a way to override any configuration, for debugging purposes mainly. We’ll cover this later, but, for now, you can use the <code class="highlighter-rouge">--xyz-port</code> command line argument to override the port. Run many many more StringMS instances with:</p>
+<p>A question might come to mind at this point. We have many sender nodes, and only just one receiver node in this example. So… it is kinda obvious how each request gets routed. In other words, a <code class="highlighter-rouge">string.ms</code> does not have that much of an option!</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>$ node math.ms.js --xyz-port 5000
-$ node math.ms.js --xyz-port 5001
-$ node math.ms.js --xyz-port 5002
-...
-</code></pre>
-</div>
+<p>Assume that we have two receiver nodes (math.ms) and a dozen sender nodes, how could we decide on one of the math.ms nodes?</p>
 
-<p>A question might come to mind at this point. We have many sender nodes, and only just one receiver node in this example, so… it is kind obvious how each request gets routed. Assume that we have two receiver nodes (mathMS) and a dozen sender nodes, how could we decide on one of the mathMSs?</p>
-
-<p>You might argue that this is a matter that xyz should handle. Indeed, we do handle it. it’s just that we are very keen to make you familiarized whit what’s happening under the hood, so that you can change it when required.</p>
+<p>You might argue that this is a matter that xyz should handle. Indeed, we do handle it. it’s just that we are very keen to keep you involved whit what’s happening under the hood, so that you can change it when required.</p>
 
 <p>In order to have different message routing ways, xyz supports two mechanisms:</p>
 
@@ -403,208 +436,179 @@ $ node math.ms.js --xyz-port 5002
 
 <p>If you think about the system as a whole, you come to realize that many many types of messages might be sent. One node might want to broadcast a message to <strong>all other nodes</strong>, or to a subset of them. A node might want to apprise just a few database nodes about a record update, and many many more events that might happen!</p>
 
-<p>If you are not convinced about this, I highly recommend you to read the <a href="https://github.com/node-xyz/xyz-core/wiki/">Wiki</a> page of xyz-core, specially the one about <a href="https://github.com/node-xyz/xyz-core/wiki/Microservices%3F-What%3F">microservices</a>.</p>
-
-<p>You can find the code of this section <a href="https://github.com/node-xyz/xyz-core/tree/master/examples/examples_getting_started/replicating">here</a></p>
-
 <h1 id="service-discovery">Service Discovery</h1>
 
-<p>As mentioned in the previous section, the process of choosing a destination node when making a call is rather difficult and obscure. XYZ provides a configuration for each of the nodes, so that each node can actually choose a strategy for sending a message.</p>
+<p>As mentioned in the previous section, the process of choosing a destination node when making a call is rather difficult and obscure. XYZ provides a configuration for each of the nodes, so that each node can actually choose a strategy for sending a message. Note that each node can have its own <code class="highlighter-rouge">sendStrategy</code>.</p>
 
-<p>The good thing about these plugins is that they are completely modifiable. That is to say, you can write your own strategy and patch it into your system.</p>
+<p>The good thing about the <code class="highlighter-rouge">sendStrategy</code> is that it is a <strong>plugin</strong> (aka. middleware). these middlewares are completely modifiable. That is to say, you can write your own strategy and patch it into your system.</p>
 
-<p>XYZ currently has two trivial approaches implemented as plugins. Let’s look at one of them <a href="https://github.com/node-xyz/xyz.service.send.first.find/blob/master/call.middleware.first.find.js">here</a>. Let’s look at a pseudo-code:</p>
+<p>Although one of the reasons for having send strategies as a plugin is to keep the main repository minimal ,<code class="highlighter-rouge">xyz-core</code> has a few fundamental send strategies built in:</p>
 
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">http</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'http'</span><span class="p">)</span>
+<ul>
+  <li><span class="spacing"> <a href="">xyz.first.find</a> </span> . <strong><em>Note that this is the default sendStrategy</em></strong>.</li>
+  <li><span class="spacing"> <a href="">xyz.send.to.all</a> </span></li>
+  <li><span class="spacing"> <a href="">xyz.send.to.target</a> </span></li>
+  <li><span class="spacing"> <a href="">xyz.broadcast.local</a> </span></li>
+  <li><span class="spacing"> <a href="">xyz.broadcast.global</a> </span></li>
+</ul>
 
-<span class="kd">function</span> <span class="nx">firstFind</span> <span class="p">(</span><span class="nx">params</span><span class="p">,</span> <span class="nx">next</span><span class="p">,</span> <span class="nx">done</span><span class="p">,</span> <span class="nx">xyz</span><span class="p">)</span> <span class="p">{</span>
-  <span class="kd">let</span> <span class="nx">servicePath</span> <span class="o">=</span> <span class="nx">params</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-    <span class="nx">userPayload</span> <span class="o">=</span> <span class="nx">params</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-    <span class="nx">responseCallback</span> <span class="o">=</span> <span class="nx">params</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<p>In this tutorial we are only interested in the first two.</p>
 
-    <span class="nx">foreignNodes</span> <span class="o">=</span> <span class="nx">xyz</span><span class="p">.</span><span class="nx">serviceRepository</span><span class="p">.</span><span class="nx">foreignNodes</span><span class="p">,</span>
-    <span class="nx">transportClient</span> <span class="o">=</span> <span class="nx">xyz</span><span class="p">.</span><span class="nx">serviceRepository</span><span class="p">.</span><span class="nx">transportClient</span>
+<p>We will avoid going into the code of these middlewares(although they are fairly simple and you can probably get a feeling by seeing the source code), but it is crucially important to understand exactly what they are doing.</p>
 
+<p>The <code class="highlighter-rouge">sendStrategy</code> middleware has the following main duty:</p>
 
-  <span class="kd">let</span> <span class="nx">logger</span> <span class="o">=</span> <span class="nx">xyz</span><span class="p">.</span><span class="nx">logger</span>
-  <span class="kd">let</span> <span class="nx">wrapper</span> <span class="o">=</span> <span class="nx">xyz</span><span class="p">.</span><span class="nx">Util</span><span class="p">.</span><span class="nx">wrapper</span>
-  <span class="kd">let</span> <span class="nx">Path</span> <span class="o">=</span> <span class="nx">xyz</span><span class="p">.</span><span class="nx">path</span>
+<blockquote>
+  <p>it must receive all of the parameters that you pass to <code class="highlighter-rouge">.call()</code>, with some additional information that <code class="highlighter-rouge">xyz-core</code> injects to it, and pass this message request to the <code class="highlighter-rouge">Transport</code> layer.</p>
+</blockquote>
 
-  <span class="kd">let</span> <span class="nx">serviceTokens</span> <span class="o">=</span> <span class="nx">servicePath</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)</span>
+<p>(You will soon understand clearly what the <strong>Transport layer</strong> is. For now you can assume that it handles network messages.)</p>
 
-  <span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">node</span> <span class="k">in</span> <span class="nx">foreignNodes</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">matches</span> <span class="o">=</span> <span class="nx">Path</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="nx">servicePath</span><span class="p">,</span> <span class="nx">foreignNodes</span><span class="p">[</span><span class="nx">node</span><span class="p">])</span>
-    <span class="nx">logger</span><span class="p">.</span><span class="nx">silly</span><span class="p">(</span><span class="err">`</span><span class="nx">FIRST</span> <span class="nx">FIND</span> <span class="err">::</span> <span class="nx">determined</span> <span class="nx">matches</span> <span class="nx">$</span><span class="p">{</span><span class="nx">matches</span><span class="p">}</span> <span class="k">in</span> <span class="nx">node</span> <span class="nx">$</span><span class="p">{</span><span class="nx">node</span><span class="p">}</span> <span class="k">for</span> <span class="nx">$</span><span class="p">{</span><span class="nx">servicePath</span><span class="p">}</span><span class="err">`</span><span class="p">)</span>
-    <span class="k">if</span> <span class="p">(</span><span class="nx">matches</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
-      <span class="nx">logger</span><span class="p">.</span><span class="nx">verbose</span><span class="p">(</span><span class="err">`</span><span class="nx">$</span><span class="p">{</span><span class="nx">wrapper</span><span class="p">(</span><span class="s1">'bold'</span><span class="p">,</span> <span class="s1">'FIRST FIND'</span><span class="p">)}</span> <span class="err">::</span> <span class="nx">determined</span> <span class="nx">node</span> <span class="k">for</span> <span class="nx">service</span> <span class="nx">$</span><span class="p">{</span><span class="nx">wrapper</span><span class="p">(</span><span class="s1">'bold'</span><span class="p">,</span> <span class="nx">servicePath</span><span class="p">)}</span> <span class="nx">by</span> <span class="nx">first</span> <span class="nx">find</span> <span class="nx">strategy</span> <span class="err">:</span> <span class="nx">$</span><span class="p">{</span><span class="nx">wrapper</span><span class="p">(</span><span class="s1">'bold'</span><span class="p">,</span> <span class="nx">node</span> <span class="o">+</span> <span class="s1">':'</span> <span class="o">+</span> <span class="nx">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="p">}</span><span class="err">`</span><span class="p">)</span>
-      <span class="nx">transportClient</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nx">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nx">node</span> <span class="p">,</span> <span class="nx">userPayload</span><span class="p">,</span> <span class="nx">responseCallback</span><span class="p">)</span>
-      <span class="nx">done</span><span class="p">()</span>
-      <span class="k">return</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
+<p>In other words, (at least using <code class="highlighter-rouge">xyz.first.find</code>) you never call a service by specifying its exact <code class="highlighter-rouge">ip:port</code>. <strong>This information will be discovered using sendStrategy</strong>. (awkward side note: <code class="highlighter-rouge">xyz.send.to.target</code> is a sendStrategy middleware that accepts the ip and port of the destination from you and redirects the message exactly to that node, regardless of any other information)</p>
 
-  <span class="c1">// if no node matched</span>
-  <span class="nx">logger</span><span class="p">.</span><span class="nx">warn</span><span class="p">(</span><span class="err">`</span><span class="nx">Sending</span> <span class="nx">a</span> <span class="nx">message</span> <span class="nx">to</span> <span class="nx">$</span><span class="p">{</span><span class="nx">servicePath</span><span class="p">}</span> <span class="nx">from</span> <span class="nx">first</span> <span class="nx">find</span> <span class="nx">strategy</span> <span class="nx">failed</span> <span class="p">(</span><span class="nx">Local</span> <span class="nx">Response</span><span class="p">)</span><span class="err">`</span><span class="p">)</span>
-  <span class="k">if</span> <span class="p">(</span><span class="nx">responseCallback</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">responseCallback</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">STATUS_CODES</span><span class="p">[</span><span class="mi">404</span><span class="p">],</span> <span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">)</span>
-    <span class="nx">done</span><span class="p">()</span>
-    <span class="k">return</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+<p>In order to investigate the last sentence better, let’s verbally describe how <code class="highlighter-rouge">xyz.first.find</code> does its duty:</p>
 
-<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">firstFind</span>
+<ol>
+  <li>After you send a message using <code class="highlighter-rouge">.call()</code>, the send strategy function will be invoked. this function has access to all of the parameters of <code class="highlighter-rouge">.call()</code> and some additional data.</li>
+  <li>One of these additional data, is list of functions exposed by <strong>all of the nodes in the system</strong>. This information is persisted throughout the system during ping calls.</li>
+  <li>Assuming that you called a service with <code class="highlighter-rouge"><span class="p">{</span><span class="err">servicePath:</span><span class="w"> </span><span class="err">'foo'</span><span class="p">}</span></code>, <code class="highlighter-rouge">xyz.first.find</code> will then search this list and find all of the nodes that have enlisted <code class="highlighter-rouge">foo</code> as on of their functions.</li>
+  <li>Finally it will invoke the Transport layer <strong>with the ip and port of the first node</strong> in the list that can response to this message. (and the rest of the job will be carried by the Transport layer middlewares).</li>
+</ol>
+
+<p>The <code class="highlighter-rouge">send.to.all</code> works in similar manner, but it will send the message to <strong>all of the nodes that have <code class="highlighter-rouge">foo</code> as an exposed service</strong>.</p>
+
+<p>XYZ is configured to work with <em>first find</em> by default. if you wish to change this, a new key named <strong><code class="highlighter-rouge">defaultSendStrategy</code></strong> should be added to the <strong>selfConf</strong> key passed to xyz constructor. Built in middlewares can be imported from <code class="highlighter-rouge">xyz-core/src/Service/Middlewares/[...]</code>. Let’s set <code class="highlighter-rouge">send.to.all</code> function for <code class="highlighter-rouge">string.ms.js</code>:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">let</span> <span class="nx">stringMS</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XYZ</span><span class="p">({</span>
+  <span class="na">selfConf</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">name</span><span class="p">:</span> <span class="s1">'string.ms'</span><span class="p">,</span>
+    <span class="na">host</span><span class="p">:</span> <span class="s1">'127.0.0.1'</span><span class="p">,</span>
+    <span class="na">seed</span><span class="p">:</span> <span class="p">[</span><span class="s1">'127.0.0.1:4000'</span><span class="p">],</span>
+    <span class="na">defaultSendStrategy</span><span class="p">:</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'xyz-core/src/Service/Middleware/service.send.to.all'</span><span class="p">),</span>
+    <span class="na">transport</span><span class="p">:</span> <span class="p">[{</span><span class="na">type</span><span class="p">:</span> <span class="s1">'HTTP'</span><span class="p">,</span> <span class="na">port</span><span class="p">:</span> <span class="mi">5000</span><span class="p">}]</span>
+  <span class="p">},</span>
+  <span class="na">systemConf</span><span class="p">:</span> <span class="p">{</span><span class="na">nodes</span><span class="p">:</span> <span class="p">[]}</span>
+<span class="p">})</span></code></pre></figure>
+
+<p>Again, the code of <code class="highlighter-rouge">math.ms</code> does not have to change at all. In fact, math.ms does not care about any of this, since it’s sitting in the receiving side of this scenario.</p>
+
+<p>Before going any further, you can see at this very point that <code class="highlighter-rouge">send.to.all</code> has had some effetcs!. run one math and one string service and see the difference in the response. Since <code class="highlighter-rouge">send.to.all</code> assumes multiple messages are being sent, it also returns an object of responses in return:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>response of mul <span class="o">=</span>&gt; <span class="o">{</span><span class="s2">"127.0.0.1:4000:/mul"</span>:[null,10]<span class="o">}</span> <span class="o">[</span>err null]
 </code></pre>
 </div>
 
-<p>We really don’t want to go too deep inside this code at the time, but you can get a general feeling about it that a <code class="highlighter-rouge">Path</code> object will eventually find a list of nodes that can response to a certain <code class="highlighter-rouge">servicePath</code> (like <code class="highlighter-rouge">/mul</code>) and calls the first one:</p>
+<p>So if we run three math.ms instances, <code class="highlighter-rouge">send.to.all</code> finds three target nodes and we expect to receive an object with three keys in return, each indicating the response of that node!</p>
 
-<p><code class="highlighter-rouge">transportClient.send(matches[0], node , userPayload, responseCallback)</code></p>
+<p>Let’s run 3 math services, and a dozen of string services. The configurations are similar to the previous section. <code class="highlighter-rouge">string.ms</code> has <em>send to all</em> as sendStrategy and <code class="highlighter-rouge">127.0.0.1:4000</code> as seed node.</p>
 
-<p>whenever you call <code class="highlighter-rouge">someMs.call({servicePath:'foo'} , ()=&gt;{} )</code> in your code, somewhere along the path, this function will be called and it will find one destination node and invokes a transport client with it. Transport client is the actual module that will make the HTTP/TCP call to destination node.</p>
+<p>You can run your services in the following order:</p>
 
-<blockquote>
-  <p>This structure, a function with parameters passed as array, with <code class="highlighter-rouge">next</code> and <code class="highlighter-rouge">done</code> callbacks is actually the <strong>middleware</strong> signature of XYZ. We’ll learn soon about middleware in this tutorial.</p>
-</blockquote>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">//default math at port 4000
+<span class="gp">$ </span>node math.ms.js
 
-<blockquote>
-  <p>Change your string ms to call an invalid service, say, <code class="highlighter-rouge">.call({servicePath: 'blahblah'}, () =&gt; {})</code>. Now look at the warning logs. Now look at the end of this plugin :
-<code class="highlighter-rouge">logger.warn("Sending a message to ${servicePath} from first find strategy failed (Local Response)")</code>
-Are you seeing what I am seeing too?</p>
-</blockquote>
+//default string at port 5000
+<span class="gp">$ </span>node string.ms.js
 
-<p>XYZ is configured to work with this module by default. if you wish to change them, a new key named <strong><code class="highlighter-rouge">defaultSendStrategy</code></strong> should be added to the <strong>selfConf</strong> key passed to xyz constructor.</p>
+// more string on different ports
+<span class="gp">$ </span>node string.ms.js --xyz-transport.0.port 5001
+<span class="gp">$ </span>node string.ms.js --xyz-transport.0.port 5002</code></pre></figure>
 
-<p>In order to test this feature, let’s use another send strategy, <strong>send.to.all</strong>. You can find the plugin <a href="https://github.com/node-xyz/xyz.service.send.to.all">here</a>.</p>
+<p>at this point, each string will have receive a response like:</p>
 
-<p>First, include this plugin inside your working directory:</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>npm install xyz.service.send.to.all
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>response of mul <span class="o">=</span>&gt; <span class="o">{</span><span class="s2">"127.0.0.1:4000:/mul"</span>:[null,10]<span class="o">}</span> <span class="o">[</span>err null]
 </code></pre>
 </div>
 
-<p>Next, we are going to run three math services, and a dozen of string services. The configurations are similar to the previous section. We only have to configure string.ms to use <code class="highlighter-rouge">xyz.service.send.to.all</code> :</p>
+<p>As you add more <code class="highlighter-rouge">math.ms</code> to the system, all information regarding join event will be propagated to the system and string.ms will receive more and more response!</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>// math.ms.js
-// same as before
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">//note that these new instances must have a seed node,
+//otherwise they can not find the rest of the system!
 
+<span class="gp">$ </span>node math.ms.js --xyz-transport.0.port 3999 --xyz-seed 127.0.0.1:4000
+<span class="gp">$ </span>node math.ms.js --xyz-transport.0.port 3998 --xyz-seed 127.0.0.1:4000
+<span class="gp">$ </span>node math.ms.js --xyz-transport.0.port 3997 --xyz-seed 127.0.0.1:4000</code></pre></figure>
 
-// string.ms.js
-let sendToAll = require('xyz.service.send.to.all')
+<p>Similar to how we can override the port number, a single seed node can also be added by command line argument using the <code class="highlighter-rouge">--xyz</code> prefix.</p>
 
-let stringMS = new xyz({
-  defaultSendStrategy: sendToAll,
-  selfConf: {
-    name: 'stringMS',
-    host: '127.0.0.1',
-    port: 3334,
-    seed: ['127.0.0.1:13333']
-  },
-  systemConf: {
-    node: []
-  }
-})
+<p>At this point, you should expect to see:</p>
 
-...
-
-// our responses are going to be from few possible nodes, hence they are objects from now on!
-// use JSON.stringify instead.
-setInterval(() =&gt; {
-  stringMS.call({servicePath:'mul', payload: {x: 2, y: 5}}, (err, body, res) =&gt; {
-    console.log(`my fellow service responded with ${JSON.stringify(body)}`)
-  })
-}, 2000)
-
-</code></pre>
-</div>
-
-<blockquote>
-  <p>Note that you can either <code class="highlighter-rouge">require()</code> the <code class="highlighter-rouge">xyz.service.send.to.all</code> or you can pass it as string: <code class="highlighter-rouge">defaultSendStrategy: 'xyz.service.send.to.all'</code></p>
-</blockquote>
-
-<p>First, run the math ms and string ms like before. The string ms will join the math ms. First point is that now, our responses are different, it has been indicated the this values has been responded form which node.</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>my fellow service responded with {"127.0.0.1:3333:/mul":[null,10]}
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>response of mul <span class="o">=</span>&gt; <span class="o">{</span>
+  <span class="s2">"127.0.0.1:4000:/mul"</span>:[null,10],
+  <span class="s2">"127.0.0.1:3998:/mul"</span>:[null,10],
+  <span class="s2">"127.0.0.1:3997:/mul"</span>:[null,10],
+  <span class="s2">"127.0.0.1:3999:/mul"</span>:[null,10]
+<span class="o">}</span>
 </code></pre>
 </div>
 
 <p>in each array response, the first index is the error and the second one is the actual response.</p>
 
-<p>Now go ahead and run a new math.ms. An old response happens here again. We need the new instance of Math ms to have a seed node, yet, we didn’t include it in it’s configuration.</p>
+<p>In fact, if you close one of the math.ms nodes, you’ll see the response to be:</p>
 
-<p>Similar to how we can override the port number, a single seed node can also be added by command line argument. Run the new math Ms :</p>
+<p>Assuming tht you kill <code class="highlighter-rouge">math.ms@127.0.0.1:3998</code>:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>node math.ms.js --xyz-port 5000 --xyz-seed 127.0.0.1:3333
-node math.ms.js --xyz-port 5001 --xyz-seed 127.0.0.1:3333
-</code></pre>
-</div>
-
-<p>after just a few seconds, the log of string ms should change to</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>my fellow service responded with {
-    "127.0.0.1:3333:/mul":[null,10],
-    "127.0.0.1:5000:/mul":[null,10],
-    "127.0.0.1:5001:/mul":[null,10]
-}
-</code></pre>
-</div>
-
-<p>In fact, if you close one of the mathMSs, you’ll see the response to be:</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>my fellow service responded with {
-  "127.0.0.1:5001:/mul":[
-    {"code":"ECONNREFUSED","errno":"ECONNREFUSED","syscall":"connect","address":"127.0.0.1","port":5001},
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>response of mul <span class="o">=</span>&gt; <span class="o">{</span>
+  <span class="s2">"127.0.0.1:4000:/mul"</span>:[null,10],
+  <span class="s2">"127.0.0.1:3998:/mul"</span>:[
+    <span class="o">{</span><span class="s2">"code"</span>:<span class="s2">"ECONNREFUSED"</span>,<span class="s2">"errno"</span>:<span class="s2">"ECONNREFUSED"</span>,<span class="s2">"syscall"</span>:<span class="s2">"connect"</span>,<span class="s2">"address"</span>:<span class="s2">"127.0.0.1"</span>,<span class="s2">"port"</span>:5001<span class="o">}</span>,
     null
-  ],
-  "127.0.0.1:3333:/mul":[null,10],
-  "127.0.0.1:5000:/mul":[null,10]}
+  <span class="o">]</span>,
+  <span class="s2">"127.0.0.1:3997:/mul"</span>:[null,10],
+  <span class="s2">"127.0.0.1:3999:/mul"</span>:[null,10]
+<span class="o">}</span>
 </code></pre>
 </div>
 
 <blockquote>
-  <p>Note that each xyz node will kick out-of-reach nodes after a certain threshold. This is configured in the ping.default.bootstrap function. You can learn more about it in the section regarding Ping.</p>
+  <p>Note that each xyz node will kick out-of-reach nodes after a certain threshold. You can learn more about it in the <a href="">Ping Types</a>.</p>
 </blockquote>
 
-<p>As you see, the first parameter is the error and the second parameter is the response. This happens because each node will not immediately assume that another node is offline after one failure. The process and parameters of node failure will be discussed later.</p>
+<p>As you see, the first parameter is the error and the second parameter is the response. This happens because each node will not immediately assume that an other node is offline after one failure, so it will keep sending the message to it. If you wait for 10 ping, you will see that all nodes will eventually update their <code class="highlighter-rouge">systemConf</code> and will not send any message to this node.</p>
 
-<p>So … are you not liking the way that send to all is functioning? I mean, who would respond with an array like that? This is actually what we hoped for!  this plugin is just a test plugin that we used in our development. You can easily change it to whatever you like.</p>
-
-<p>For example, you can modify <a href="https://github.com/node-xyz/xyz.service.send.to.all/blob/master/call.send.to.all.js#L31">this line</a> to get rid of the annoying errors or…</p>
-
-<p>Another interesting send strategy that you might want to implement and test is majority function. You can change the <code class="highlighter-rouge">send.to.all</code> in a way that it will send the message to all nodes, will wait for all responses, and will return with a single result, if all if the responses from different services were the same. If not, it will return an Error. Who knows, maybe you actually use this Microservice to do floating point calculations. Each machine handles floating point differently and the responses might actually differ!</p>
-
-<p>You can find the code of this section <a href="https://github.com/node-xyz/xyz-core/tree/master/examples/examples_getting_started/service-discovery">here</a>.</p>
+<p>Another interesting send strategy that you might want to implement and test is majority function. You can change the <code class="highlighter-rouge">send.to.all</code> in a way that it will send the message to all accpetable nodes, will wait for all responses, and will return with a single result, if all if the responses from different services were the same. If not, it will return an Error. Who knows, maybe you actually use this Microservice to do floating point calculations. Each machine handles floating point differently and the responses might actually differ!</p>
 
 <p>Note that you can also pass the send strategy <strong><em>per call</em></strong>. This will override whatever send strategy you have already chosen in <code class="highlighter-rouge">selfConf</code>:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>stringMS.call({servicePath: 'mul', payload: {x: 2, y: 5}, sendStrategy: sendToAll}, (err, body, res) =&gt; {
-    console.log(`my fellwo service reponded with ${body}`)
-})
-</code></pre>
-</div>
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">let</span> <span class="nx">sendToAll</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'xyz-core/src/Service/Middleware/service.send.to.all'</span><span class="p">)</span>
+<span class="kd">let</span> <span class="nx">firstFind</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'xyz-core/src/Service/Middleware/service.first.find'</span><span class="p">)</span>
+<span class="nx">setInterval</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">stringMS</span><span class="p">.</span><span class="nx">call</span><span class="p">({</span><span class="na">servicePath</span><span class="p">:</span> <span class="s1">'mul'</span><span class="p">,</span> <span class="na">payload</span><span class="p">:</span> <span class="p">{</span><span class="na">x</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="na">y</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span> <span class="na">sendStrategy</span><span class="p">:</span> <span class="nx">sendToAll</span><span class="p">},</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">body</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="err">`</span><span class="nx">response</span> <span class="nx">of</span> <span class="nx">mul</span> <span class="o">=&gt;</span> <span class="nx">$</span><span class="p">{</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">body</span><span class="p">)}</span> <span class="p">[</span><span class="nx">err</span> <span class="nx">$</span><span class="p">{</span><span class="nx">err</span><span class="p">}]</span><span class="err">`</span><span class="p">)</span>
+  <span class="p">})</span>
+
+  <span class="nx">stringMS</span><span class="p">.</span><span class="nx">call</span><span class="p">({</span><span class="na">servicePath</span><span class="p">:</span> <span class="s1">'mul'</span><span class="p">,</span> <span class="na">payload</span><span class="p">:</span> <span class="p">{</span><span class="na">x</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="na">y</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span> <span class="na">sendStrategy</span><span class="p">:</span> <span class="nx">firstFind</span><span class="p">},</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">body</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="err">`</span><span class="nx">response</span> <span class="nx">of</span> <span class="nx">mul</span> <span class="o">=&gt;</span> <span class="nx">$</span><span class="p">{</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">body</span><span class="p">)}</span> <span class="p">[</span><span class="nx">err</span> <span class="nx">$</span><span class="p">{</span><span class="nx">err</span><span class="p">}]</span><span class="err">`</span><span class="p">)</span>
+  <span class="p">})</span>
+<span class="p">},</span> <span class="mi">1000</span><span class="p">)</span></code></pre></figure>
 
 <h1 id="path-based-service-identification">Path based service identification</h1>
 
-<p>Aside from Service discovery procedures, xyz provides another way to make service invocation even more flexible. It’s called <strong>Path Base</strong> service identification. That is to say, each service (aka. function) that you expose, will be exposed on a certain path on that process. So far we have used a plain string as the service name. The truth is that those were paths too! XYZ has been adding a single <code class="highlighter-rouge">/</code> to each of them. Recall one of the logs printed from the previous section. Look at it again:</p>
+<p>Aside from Service discovery middlewares, xyz provides yet another way to make service invocation even more flexible. It’s called <strong>Path Base</strong> service identification. That is to say, each service (aka. function) that you expose, will be exposed on a certain path on that process. So far we have used a plain string as the service name. The truth is that those were paths too! XYZ has been adding a single <code class="highlighter-rouge">/</code> to each of them. Recall one of the logs printed from the previous section. Look at it again:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>  "127.0.0.1:5000:/mul":[null,10]}
+<div class="highlighter-rouge"><pre class="highlight"><code>  "127.0.0.1:4000:/mul":[null,10]}
 </code></pre>
 </div>
 
-<p>As you see, the actual identifier of the service is actually: <strong>[IP]:[PORT]:/[PATH]</strong>.</p>
+<p>As you see, the actual <strong>identifier of the service</strong> is actually: <strong>[IP]:[PORT]:/[PATH]</strong>.</p>
 
-<p>As a naive example, let’s assume that our math service is super accurate and can add floating point numbers up to thousands of decimal points. But we don’t want to waste resource on simple integer calculations. Hence, we will divide our services into to section:</p>
+<p>Recalling from the last section, The <code class="highlighter-rouge">[IP]:[PORT]</code> portion of this identifier must be discovered and decided upon in the <strong>sending side</strong>, the caller. Once the IP and PORT has been resolved using a send strategy, the message will be sent to that node. The last part of the address, the <strong>:/[PATH]</strong>, will be used at the <strong>receiving side</strong>, which help the callee decide whihc of its exposed functions to invoke.</p>
+
+<p>Of course, this does not separate these two identifiers entirely. As an example, in <code class="highlighter-rouge">first.find</code>, the sender must be aware of the <strong>PATH</strong> of services exposed by other nodes, while <code class="highlighter-rouge">send.to.target</code> will send a message to a specific <strong>IP:PORT</strong> regardless of the <strong>PATH</strong>.</p>
+
+<p>As a naive example, let’s assume that our math service is super accurate and can add floating point numbers up to thousands digits of accuracy. But we don’t want to waste resource on simple integer calculations. Hence, we will divide our services into to section:</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>decimal/add
 decimal/mul
 
 float/add
-float/add
+float/mul
 </code></pre>
 </div>
 
 <p>Applying this turns out to be very easy!</p>
 
-<p>Change the address of each function is mathMS:</p>
+<p>Change the first parameter, the <em>Path</em>, of each function is math.ms:</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>mathMS.register('decimal/mul', (payload, response) =&gt; {
   response.send(payload.x * payload.y)
@@ -644,33 +648,57 @@ mathMS.register('float/add', (payload, response) =&gt; {
 <ol>
   <li>better grouping and organization among services.</li>
   <li>allow more meaningful names and identification</li>
-  <li>allow grouping call:</li>
+  <li>allow multiple calls at once -<em>Wildcard</em>-:</li>
 </ol>
 
-<p>That’s right. You can also use the combination of <code class="highlighter-rouge">xyz.call.send.to.all</code> plugin and paths to call multiple services:</p>
+<p>Let’s see all of these in action! We will use the same configuration like the previous section.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>setInterval(() =&gt; {
-  stringMS.call({servicePath: '/decimal/*', payloa: {x: 2, y: 5}}, (err, body, res) =&gt; {
-    console.log(`my fellow service responded with ${JSON.stringify(body)}`)
-  })
-}, 2000)
-</code></pre>
-</div>
+<p>First, let’s have string.ms make two message calls:</p>
 
-<p>Now our response is:</p>
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">setInterval</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">stringMS</span><span class="p">.</span><span class="nx">call</span><span class="p">({</span>
+    <span class="na">servicePath</span><span class="p">:</span> <span class="s1">'/decimal/mul'</span><span class="p">,</span>
+    <span class="na">payload</span><span class="p">:</span> <span class="p">{</span><span class="na">x</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="na">y</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span>
+    <span class="na">sendStrategy</span><span class="p">:</span> <span class="nx">firstFind</span>
+  <span class="p">},</span>
+  <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">body</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="err">`</span><span class="o">/</span><span class="nx">decimal</span><span class="o">/</span><span class="nx">mul</span> <span class="p">[</span><span class="nx">firstFind</span><span class="p">]</span> <span class="o">=&gt;</span> <span class="nx">$</span><span class="p">{</span><span class="nx">body</span><span class="p">}</span> <span class="p">[</span><span class="nx">err</span> <span class="nx">$</span><span class="p">{</span><span class="nx">err</span><span class="p">}]</span><span class="err">`</span><span class="p">)</span>
+  <span class="p">})</span>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>my fellow service responded with {
-  "127.0.0.1:3333:/decimal/mul":[null,10],
-  "127.0.0.1:3333:/decimal/add":[null,7]
-}
+  <span class="nx">stringMS</span><span class="p">.</span><span class="nx">call</span><span class="p">({</span>
+    <span class="na">servicePath</span><span class="p">:</span> <span class="s1">'/decimal/*'</span><span class="p">,</span>
+    <span class="na">payload</span><span class="p">:</span> <span class="p">{</span><span class="na">x</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="na">y</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span>
+    <span class="na">sendStrategy</span><span class="p">:</span> <span class="nx">sendToAll</span>
+  <span class="p">},</span>
+  <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">body</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="err">`</span><span class="o">/</span><span class="nx">decimal</span><span class="o">/*</span> <span class="p">[</span><span class="nx">sendToAll</span><span class="p">]</span><span class="o">=&gt;</span> <span class="nx">$</span><span class="p">{</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">body</span><span class="p">)}</span> <span class="p">[</span><span class="nx">err</span> <span class="nx">$</span><span class="p">{</span><span class="nx">err</span><span class="p">}]</span><span class="err">`</span><span class="p">)</span>
+  <span class="p">})</span>
+<span class="p">},</span> <span class="mi">1000</span><span class="p">)</span></code></pre></figure>
+
+<p>Before testing this, let’s try and understand how it is going to work:</p>
+
+<p>The first call is lucid. we try to find <code class="highlighter-rouge">/decimal/mul</code> in a node using <code class="highlighter-rouge">firstFind</code> which will eventually find one node that can respond to this.</p>
+
+<p>But in the second case, you should know somethings beforehand. Specifically talking about <code class="highlighter-rouge">sendToAll</code>, this sendStrategy will take into consider both the <strong>IP:PORT</strong> and <strong>PATH</strong>. In other words, it will first resolve the path, if it contains <code class="highlighter-rouge">*</code>. Next it will iterate over nodes and find those who can respond to a specific path.</p>
+
+<p>Taking this into account, in the second case, <code class="highlighter-rouge">/decimal/*</code> will first translate into [<code class="highlighter-rouge">decimal/mul</code>, <code class="highlighter-rouge">decimal/add</code>]. Next, all possible target nodes for each of these paths will be resolved and the message will be sent to all of them.</p>
+
+<p>With these explanations in mind, the output of the previous  double call is:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>/decimal/mul [firstFind] =&gt; 10 [err null]
+/decimal/* [sendToAll]=&gt; {
+  "127.0.0.1:4000:/decimal/mul":[null,10],
+  "127.0.0.1:4000:/decimal/add":[null,7]}
 </code></pre>
 </div>
 
 <blockquote>
-  <p>Note that this example is working only because we are using <code class="highlighter-rouge">xyz.call.send.to.all</code> as send strategy is StringMS.</p>
+  <p>Note that this example is working only because we are using <code class="highlighter-rouge">service.send.to.all</code> as send strategy is second call. <code class="highlighter-rouge">first.find</code> would simple call either one of <code class="highlighter-rouge">/decimal/add</code> or <code class="highlighter-rouge">/decimal/mul</code> in only one of possible nodes</p>
 </blockquote>
 
 <p>Go ahead and try things like <code class="highlighter-rouge">*/mul</code> or even <code class="highlighter-rouge">/*/*</code>.</p>
+
+<p>It would be helpful to mix the this section and the last one. Go ahead and run a few math.ms nodes and a single string.ms node with <code class="highlighter-rouge">sendToAll</code> as sendStrategy and see the output.</p>
 
 <h4 id="note-on-valid-paths-and-wildcards">Note on valid Paths and wildcards</h4>
 
@@ -684,37 +712,16 @@ mathMS.register('float/add', (payload, response) =&gt; {
 
 <h1 id="middlewares">Middlewares</h1>
 
-<p>Middlewares are nothing new to you. You have already seen them. <code class="highlighter-rouge">xyz.service.send.to.all</code> was a simple middleware in xyz system. In this section we are going to get into the details of middleware and use them to develop an authentication mechanisms.</p>
+<p>Middlewares are nothing new to you. You have already seen them. <code class="highlighter-rouge">send.to.all</code> was a simple middleware in xyz system. In this section we are going to get into the details of middleware and use them to develop an authentication mechanisms.</p>
 
 <h3 id="middlewares-and-layers-in-xyz">Middlewares and Layers in XYZ</h3>
 
-<p>So far, our system has been plain open! No authentication. That is not good. The good news is that XYZ does not provide any authentication mechanisms by default. You heard me, <strong>No authentication mechanisms</strong>. As opposed to application-dependent steps like authentication which are not compulsory in xyz, middlewares are. That is to say, whatever happens, requests will go through a middleware in xyz.</p>
+<p>So far, our system has been plain open! No authentication. That is not good. The good news is that XYZ does not provide any authentication mechanisms by default. You heard me, <strong>No authentication mechanisms</strong>. As opposed to application-dependent steps like authentication which are not compulsory in xyz, <strong>middlewares</strong> are. That is to say, whatever happens, requests will go through a middleware in xyz.</p>
 
-<p>In order to understand the place and organization of middleware in xyz, you should get a bit more familiar with it. A brief summery of the architecture of xyz is proivded in the <a href="https://github.com/node-xyz/xyz-core/wiki/XYZ-in-a-nutshell#the-close-up-picture">wiki page of xyz-core</a>. before going any further, read it carefully.</p>
-
-<p>As you return to this page, you should have a superficial knowledge about how xyz middlewares works and where they are. Just to recap:</p>
+<p>In order to understand the place and organization of middleware in xyz, you should get a bit more familiar with it.</p>
 
 <blockquote>
   <p>XYZ consists of 3 main layers. <code class="highlighter-rouge">xyz-core</code>, <code class="highlighter-rouge">Service-Repository</code> and <code class="highlighter-rouge">Transport</code>. The pipeline that will communicate a message from one layer to another is a <strong>middleware</strong>.</p>
-</blockquote>
-
-<p>Furthermore,</p>
-
-<blockquote>
-  <p>Three main middlewares exist in xyz. Two of which are invoked when a call is being sent and one when a call is being received:</p>
-  <ul>
-    <li>Service Level CallDispatchMiddlewareStack</li>
-    <li>Transport Layer CallDispatchMiddlewareStack</li>
-    <li>Transport Layer CallReceiveMiddlewareStack</li>
-  </ul>
-</blockquote>
-
-<p>As a final recap:</p>
-
-<p><img src="https://raw.githubusercontent.com/node-xyz/xyz-core/master/media/mw.png" alt="Overall structure of XYZ" /></p>
-
-<blockquote>
-  <p>Bad news is that there are a few more middlewares inside a xyz system. But you don’t need to know about them now :)).</p>
 </blockquote>
 
 <h3 id="middleware-stacks">Middleware Stacks</h3>
@@ -725,20 +732,23 @@ mathMS.register('float/add', (payload, response) =&gt; {
 </code></pre>
 </div>
 
-<p>As an example, Whenever a request is received and parsed in Transport Layer, a middleware function will pass it to the Service repository layer. This action will happen in the last function placed in the last index of CallReceiveMiddlewareStack in Transport layer.</p>
+<p>As an example, Whenever a request is received and parsed in Transport Layer, a middleware function will pass it to the Service repository layer. This action will happen in the last function placed in the last index of this middleware in Transport layer.</p>
+
+<p>This enables us to prepend / append more functions to this array and perform any type of pre/post process on every request. After seeing the syntax structure of each middleware in the next section, we will actually use this to add a generic authentication middleware to our system.</p>
+
+<h3 id="middleware-stacks-in-xyz">Middleware Stacks in XYZ</h3>
+
+<p>The overall structure of xyz, in the simplest form can be explained like this:</p>
+
+<p><img src="/assets/img/arch-c.png" alt="xyz-arch" /></p>
+
+<p>Although it is good for you to have a glimpse of some components like multiple servers and routes, this image is exhustively complicated for this tutorial. Let’s relax this into something simpler:</p>
+
+<p><img src="/assets/img/arch-s.png" alt="xyz-arch-simple" /></p>
 
 <blockquote>
   <p>Due to the fact that critical actions such as passing a request object to the upper/lower layer or passing a request out to the HTTP layer happen in middleware, it is crucially important to be very careful with them. Specifically, some middlewares are placed in xyz by <strong>default</strong>. They should remain in their place, unless you have a good reason to remove them.</p>
 </blockquote>
-
-<p>As an example, as mentioned above, the middleware placed between Transport layer and Service-Repository layer has such initial state:</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>// Initial state of CallReceiveMiddlewareStack
-[Funciton():passToTransportLayer]
-</code></pre>
-</div>
-
-<p>This enables us to prepend more functions to this array and perform any type of process. After seeing the syntax structure of each middleware in the next section, we will actually use this to add a generic authentication middleware to our system.</p>
 
 <h3 id="middleware-syntax">Middleware syntax</h3>
 
@@ -957,7 +967,7 @@ Transport Server:
 </style>
 <footer class="site-footer">
   <span class="site-footer-owner">
-    <a href="http://localhost:3333">Node XYZ</a>
+    <a href="http://localhost:2000">NODE XYZ</a>
      is maintained by <a href="">Kian Peymani & Ajand </a></span>
   <small>
     <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a></small>
