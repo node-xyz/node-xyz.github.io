@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>src/Service/Middleware/service.broadcast.global.js - Documentation</title>
+    <title>HTTPServer - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -27,90 +27,220 @@
 
 <div id="main">
     
-    <h1 class="page-title">src/Service/Middleware/service.broadcast.global.js</h1>
+    <h1 class="page-title">HTTPServer</h1>
     
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>const http = require('http')
+        <h2>
+        HTTPServer
+        </h2>
+        
+            <div class="class-description"><p>This class will call its <code>call.receive.mw</code> with the following values in <code>param</code>:
+ [req, resp, JSON.parse(body), this.port]</p>
+<ul>
+<li><strong>req</strong>: the request object</li>
+<li><strong>resp</strong>: the response object</li>
+<li><strong>body</strong> parsed body. also available in req object</li>
+<li><strong>port</strong>: port of this server</li>
+</ul></div>
+        
+    
+</header>
 
-/**
- * will broadcast a message regardless of the path to all nodes.
- * @method braodcastLocal
- * @param  {Array}       params [description]
- * @param  {Function}     next   used to call the next middleware
- * @param  {Function}     done   used to end the middleware stack
- * @param  {Object}       xyz    reference to the caller's xyz instance
- */
-function _broadcastGlobal (params, next, done, xyz) {
-  let servicePath = params[0].servicePath
-  let userPayload = params[0].payload
-  let responseCallback = params[1]
-  let route = params[0].route
-  let redirect = params[0].redirect
+<article>
+    <div class="container-overview">
+    
+        
 
-  let foreignNodes = xyz.serviceRepository.foreignNodes
-  let transport = xyz.serviceRepository.transport
-  let logger = xyz.logger
-  const wrapper = xyz.Util.wrapper
+    
+    <h2>Constructor</h2>
+    
 
-  let wait = 0
-  let calls = []
-  let responses = {}
+    <h4 class="name" id="HTTPServer"><span class="type-signature"></span>new HTTPServer<span class="signature">(xyz, port)</span><span class="type-signature"></span></h4>
 
-  let matches
-  const HOST = xyz.id().host
-  for (let node in foreignNodes) {
-    calls.push({ match: servicePath, node: node })
-  }
+    
 
-  logger.verbose(`${wrapper('bold', 'BROADCAST GLOBAL')} :: sending message to ${calls.map((o) => o.node + ':' + o.match)},  `)
 
-  for (let call of calls) {
-    if (responseCallback) {
-      transport.send({
-        route: route,
-        node: call.node,
-        redirect: redirect,
-        payload: {
-          userPayload: userPayload,
-          service: call.match}},
-      function (_call, err, body, response) {
-        responses[`${_call.node}:${_call.match}`] = [err, body]
-        wait += 1
-        if (wait === calls.length) {
-          responseCallback(null, responses)
-        }
-      }.bind(null, call))
-    } else {
-      transport.send({
-        route: route,
-        node: call.node,
-        redirect: redirect,
-        payload: {
-          userPayload: userPayload,
-          service: call.match}})
-    }
-  }
 
-  // if no node matched
-  if (!calls.length) {
-    logger.warn(`BROADCAST LOCAL :: Sending a message to ${servicePath} from failed (Local Response)`)
-    if (responseCallback) {
-      responseCallback(http.STATUS_CODES[404], null, null)
-    }
-  }
-}
 
-module.exports = _broadcastGlobal
-</code></pre>
-        </article>
-    </section>
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_Transport_HTTP_http.server.js.html">src/Transport/HTTP/http.server.js</a>, <a href="src_Transport_HTTP_http.server.js.html#line18">line 18</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Creates a new HTTP server</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>xyz</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>a reference to the curretn xyz object. will be filled automatically.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>port</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+|
+
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The main port of this server.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 

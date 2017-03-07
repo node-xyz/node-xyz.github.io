@@ -11,6 +11,12 @@
   <link rel="stylesheet" href="/assets/css/syntax.css">
   <!-- <link rel="stylesheet" href="/assets/css/main.css"> -->
   <link rel="stylesheet" href="/assets/css/stylish.css">
+
+  <script
+    src="https://code.jquery.com/jquery-3.1.1.min.js"
+    integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+    crossorigin="anonymous"></script>
+    
 </head>
 
 <body>
@@ -166,8 +172,13 @@ body {
 
 
     <div class="row">
-  <div class="col col-md-2">
-    Sidebar
+  <div class="col col-md-2" id="__side">
+    <div id="___side">
+      <p class="spacing"> CONTENTS </p>
+      <ol>
+      </ol>
+
+    </div>
   </div>
 
   <div class="col col-md-10">
@@ -721,12 +732,12 @@ mathMS.register('float/add', (payload, response) =&gt; {
 <p>In order to understand the place and organization of middleware in xyz, you should get a bit more familiar with it.</p>
 
 <blockquote>
-  <p>XYZ consists of 3 main layers. <code class="highlighter-rouge">xyz-core</code>, <code class="highlighter-rouge">Service-Repository</code> and <code class="highlighter-rouge">Transport</code>. The pipeline that will communicate a message from one layer to another is a <strong>middleware</strong>.</p>
+  <p>XYZ consists of 3 main layers. <code class="highlighter-rouge">xyz-core</code>, <code class="highlighter-rouge">Service-Repository</code> and <code class="highlighter-rouge">Transport</code>. The pipeline that will conevy a message from one layer to another is a <strong>middleware</strong>.</p>
 </blockquote>
 
 <h3 id="middleware-stacks">Middleware Stacks</h3>
 
-<p>Middlewares are implemented using the <a href="/apidoc/generic.middleware.handler.html">GenericMiddlewareHandler</a> Class in XYZ. this class will register an array of functions and passes an object (aka. parameters) through this array of middlewares.</p>
+<p>Middlewares are implemented using the <a href="/apidoc/GenericMiddlewareHandler.html">GenericMiddlewareHandler</a> Class in XYZ. this class will register an array of functions and passes an object (aka. parameters) through this array of middlewares.</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>MiddlewareStack : [Function, Function, Function, ... , Function]
 </code></pre>
@@ -734,7 +745,7 @@ mathMS.register('float/add', (payload, response) =&gt; {
 
 <p>As an example, Whenever a request is received and parsed in Transport Layer, a middleware function will pass it to the Service repository layer. This action will happen in the last function placed in the last index of this middleware in Transport layer.</p>
 
-<p>This enables us to prepend / append more functions to this array and perform any type of pre/post process on every request. After seeing the syntax structure of each middleware in the next section, we will actually use this to add a generic authentication middleware to our system.</p>
+<p>This enables us to <strong>prepend / append</strong> more functions to this array and <strong>perform any type of pre/post process</strong> on every request. After seeing the syntax structure of each middleware in the next section, we will actually use this to add a generic authentication middleware to our system.</p>
 
 <h3 id="middleware-stacks-in-xyz">Middleware Stacks in XYZ</h3>
 
@@ -742,218 +753,306 @@ mathMS.register('float/add', (payload, response) =&gt; {
 
 <p><img src="/assets/img/arch-c.png" alt="xyz-arch" /></p>
 
-<p>Although it is good for you to have a glimpse of some components like multiple servers and routes, this image is exhustively complicated for this tutorial. Let’s relax this into something simpler:</p>
+<p>Although it is good for you to have a glimpse of some components like <strong><em>multiple servers</em></strong> and <strong><em>routes</em></strong>, this image is too complicated for this tutorial. Let’s relax this into something simpler:</p>
 
 <p><img src="/assets/img/arch-s.png" alt="xyz-arch-simple" /></p>
+
+<p>Let’s see how these components behave when you send or receive a message:</p>
+
+<h4 id="sending-a-message">1) Sending a message</h4>
+
+<p>Whenever you send a message, the following steps will be taken:</p>
+
+<ul>
+  <li>You invoke the <code class="highlighter-rouge">.call()</code>, which lives in <code class="highlighter-rouge">xyz-core</code> layer. (Basically, all of the functions that you might need to use directly live in <code class="highlighter-rouge">xyz-core</code>)</li>
+  <li><code class="highlighter-rouge">xyz-core</code> will then pass this message to <code class="highlighter-rouge">service-repository</code> layer. service-repository will then pass the message to a send strategy function in order to resolve the destination node of this message. this <em>sendStrategy</em> function should also invoke the <code class="highlighter-rouge">Transport</code> layer.</li>
+  <li>The <code class="highlighter-rouge">Transport</code> layer itself does not do much! It’s the middlewares of Transport layer that do most of the job. Almost immediatly, the Transport layer will pass the message to an <strong>Outgoing Middleware Stack</strong>. This outgoing middleware stack will apply all kinds of processes over the message object, and finally, in the last function of this middleware stack, the actual http call will be made and the message will be exported.</li>
+</ul>
+
+<h4 id="receiving-a-message">2) Receiving a message</h4>
+
+<p>Whenever you receive a message, the following steps will be taken:</p>
+
+<ul>
+  <li>A <strong>Transport Layer Server</strong> (HTTP by default) will parse the message, including body and will convert it to a standard format.</li>
+  <li>This message will then be passed to a <strong>Server Middleware Stack</strong> for further processes.</li>
+  <li>Similar to sending a message, you can add functions to this stack for extra process, but, nonetheless, in the last function of this Middleware Stack, a function will pass the message to <code class="highlighter-rouge">Service-Repository</code> layer (using Node’s <code class="highlighter-rouge">EventEmitter</code> class).</li>
+  <li>Service-Repository will then parse the message, extract its <code class="highlighter-rouge">servicePath</code> and invoke the appropriate function, if any.</li>
+</ul>
+
+<p><code class="highlighter-rouge">xyz-core</code> overrides the <code class="highlighter-rouge">console.log</code> function and whenever you log an instance of the <code class="highlighter-rouge">xyz-core</code>, all of its components will be displayed. Now is a good time to see this and relate these printed information to what we have already learned.</p>
+
+<p>Add the following to <code class="highlighter-rouge">math.ms.js</code> in the last line:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">mathMS</span><span class="p">)</span></code></pre></figure>
+
+<p>You are expected to see the following as output:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">____________________  GLOBAL ____________________
+selfConfig:
+  <span class="o">{</span>
+  <span class="s2">"name"</span>: <span class="s2">"math.ms"</span>,
+  <span class="s2">"defaultSendStrategy"</span>: <span class="s2">"./Middleware/service.first.find"</span>,
+  <span class="s2">"logLevel"</span>: <span class="s2">"info"</span>,
+  <span class="s2">"seed"</span>: <span class="o">[]</span>,
+  <span class="s2">"transport"</span>: <span class="o">[</span>
+    <span class="o">{</span>
+      <span class="s2">"type"</span>: <span class="s2">"HTTP"</span>,
+      <span class="s2">"port"</span>: <span class="s2">"4000"</span>,
+      <span class="s2">"event"</span>: 1
+    <span class="o">}</span>
+  <span class="o">]</span>,
+  <span class="s2">"host"</span>: <span class="s2">"127.0.0.1"</span>,
+  <span class="s2">"defaultBootstrap"</span>: <span class="nb">true</span>,
+  <span class="s2">"cli"</span>: <span class="o">{</span>
+    <span class="s2">"enable"</span>: <span class="nb">false</span>,
+    <span class="s2">"stdio"</span>: <span class="s2">"console"</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+systemConf:
+  <span class="o">{</span>
+  <span class="s2">"nodes"</span>: <span class="o">[</span>
+    <span class="s2">"127.0.0.1:4000"</span>
+  <span class="o">]</span>
+<span class="o">}</span>
+Bootstrap Functions:
+  _basicPingBootstrap
+____________________  SERVICE REPOSITORY ____________________
+
+Middlewares:
+  service.discovery.mw <span class="o">||</span> firstFind[0]
+Services:
+  anonymousFN @ /decimal/mul
+  anonymousFN @ /decimal/add
+  anonymousFN @ /float/mul
+  anonymousFN @ /float/add
+
+____________________  TRANSPORT LAYER ____________________
+Transport:
+  outgoing middlewares:
+    call.dispatch.mw <span class="o">[</span>/CALL] <span class="o">||</span> _httpExport[0]
+    ping.dispatch.mw <span class="o">[</span>/PING] <span class="o">||</span> _httpExport[0]
+
+  HTTPServer @ 4000 ::
+    Middlewares:
+    call.receive.mw <span class="o">[</span>/CALL] <span class="o">||</span> _httpMessageEvent[0]
+    ping.receive.mw <span class="o">[</span>/PING] <span class="o">||</span> _pingEvent[0]</code></pre></figure>
+
+<p>Now, some of these information are new to you, and we don’t want to focus on them for now. We just want to verify what we already learned.</p>
+
+<p>In <strong>GENERAL</strong> section you can see most of the information that you pass to the <code class="highlighter-rouge">XYZ</code> constructor. Those that are new are the default values for the information that you skipped. <code class="highlighter-rouge">transport[]</code>, <code class="highlighter-rouge">host</code>, <code class="highlighter-rouge">defaultSendStrategy</code> are some of the keys that you are familiar with them.</p>
+
+<p>In <strong>TRANSPORT LAYER</strong> section you can the list of all of the function that you have exposed using <code class="highlighter-rouge">.register()</code>. Also, you see a component called <code class="highlighter-rouge">service.discovery.mw</code>. This middleware, by default has only one function, which is <code class="highlighter-rouge">firstFind</code>. Whenver you change the <code class="highlighter-rouge">sendStrategy</code>, this function will change (change the <code class="highlighter-rouge">defaultSendStrategy</code> in <code class="highlighter-rouge">selfConf</code> and see this log again!)</p>
+
+<blockquote>
+  <p>Note: at current state of xyz, the Service-Repository’s <code class="highlighter-rouge">service.discovery.mw</code> can have <strong>only one</strong> function.</p>
+</blockquote>
+
+<p>Looking further into <strong>TRANSPORT</strong> section, we can find some more relevant information. You can see that each node has a number of <strong>outgoing message middlewares</strong> and a number of servers, each of them having a number of <strong>server middlewares</strong>, each for one route. For now, you can ignore the routes mentioned in the log. xyz uses the default <code class="highlighter-rouge">/CALL</code> route for all messages sent using <code class="highlighter-rouge">.call()</code> and <code class="highlighter-rouge">/PING</code> route is used by the default ping.</p>
+
+<p>Focusing on the <code class="highlighter-rouge">/CALL</code> section, in the outgoing section you can see that <strong>outgoing middlewares</strong> currently have only one function, <strong>_httpExport</strong>. This function will immediately export a message using a HTTP message. As an example, you will learn in <a href="">Routes and Servers</a> section that you can replace this function with something like <strong>_udpExport</strong>.</p>
+
+<p>In the <strong>Server</strong> section of <strong>TRANSPORT</strong> you can see that the middleware of <code class="highlighter-rouge">/CALL</code> has only one function by default, the <code class="highlighter-rouge">_httpMessageEvent</code> which will invoke the Service-Repository layer. This means that whenever <code class="highlighter-rouge">math.ms</code> receives a message from another node, it will immediately pass it to the service layer and no extra process is done.</p>
+
+<p><em>The main power of xyz in allowing <strong>configurability</strong> is the fact that you can always manipulate all of the middleware stacks</em>.</p>
 
 <blockquote>
   <p>Due to the fact that critical actions such as passing a request object to the upper/lower layer or passing a request out to the HTTP layer happen in middleware, it is crucially important to be very careful with them. Specifically, some middlewares are placed in xyz by <strong>default</strong>. They should remain in their place, unless you have a good reason to remove them.</p>
 </blockquote>
 
+<p>Knowing these information about the architecture of xyz, we will now use our knowledge to manipulate a middleware and add custom function it.</p>
+
 <h3 id="middleware-syntax">Middleware syntax</h3>
 
-<p>As mentioned above, each middleware is nothin but a function. In order to examine the parameters of this function, let’s write a bare-bone middleware.</p>
+<p>As mentioned above, each middleware is <strong>nothin but a function</strong>. Although you are the write of middlewares in most cases, you are not the one who invokes them, <code class="highlighter-rouge">xyz-core</code> is. Hence, xyz-core will decide which paramters will be passed to each middleware.</p>
 
-<p>The key structure of a middleware is as follows:</p>
+<p><code class="highlighter-rouge">xyz-core</code> calls each Middleware function with the following parameters:</p>
 
 <ul>
-  <li>A middleware should be exported as a function</li>
-  <li>The function will take three parameters:
-    <ul>
-      <li><code class="highlighter-rouge">params</code>: an array of parameters values passed to the middleware function.</li>
-      <li><code class="highlighter-rouge">next</code>: function that will ignore the rest of the execution of this middleware and invoke the next function in the stack.</li>
-      <li><code class="highlighter-rouge">end</code>: will end of the execution of the entire stack.</li>
-      <li><code class="highlighter-rouge">xyz</code>: a reference to the current xyz object. This is useful because all of the information required, such as configurations, Service-Repository layer etc. can be accesses from this object.</li>
-    </ul>
-  </li>
+  <li><code class="highlighter-rouge">params</code>: an array of parameters values passed to the middleware function. This paramter can be variable depending on the place of the middleware. As an example, a HTTP server will invoke a Middleware function with different parameters than a UDP server.</li>
+  <li><code class="highlighter-rouge">next</code>: function that will ignore the rest of the execution of <strong>this middleware</strong> and invoke the <strong>next</strong> function in the stack.</li>
+  <li><code class="highlighter-rouge">end</code>: will end of the execution of the entire stack.</li>
+  <li><code class="highlighter-rouge">xyz</code>: a reference to the current xyz object. This is useful because all of the information required, such as configurations, Service-Repository layer etc. can be accesses from this object.</li>
+</ul>
+
+<p>In order to see the value of <code class="highlighter-rouge">params</code>, we can always see the <a href="/apidoc/src_Transport_HTTP_http.server.js.html#line57">source code</a> or <a href="/apidoc/HTTPServer.html">API DOC</a>. We can see from the API doc that the following values will be passed to a HTTP server middleware:</p>
+
+<ul>
+  <li><strong>req</strong>: the request object</li>
+  <li><strong>resp</strong>: the response object</li>
+  <li><strong>body</strong> parsed body. also available in req object</li>
+  <li><strong>port</strong>: port of this server</li>
 </ul>
 
 <p>Keeping this ideas in mind, let’s write a simple logger middleware:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>let dummyLogger = function(params, next, end) {
+<div class="highlighter-rouge"><pre class="highlight"><code>let _dummyLogger = function (params, next, end) {
   console.log('i was called! now what?')
-  console.log(params[0])
-  console.log(params[1])
+  let port = params[3]
+  let body = params[2]
+  console.log(`LOGGER :: http message received on port ${port} with body ${JSON.stringify(body)}`)
   next()
 }
-module.exports = dummyLogger;
+module.exports = _dummyLogger
 </code></pre>
 </div>
 
-<p>This is the minimum structure required for each middleware.</p>
+<p>This is the minimum structure required for each middleware. We expect this middleware to be called per <strong>each http message</strong> and it should log some information about it.</p>
 
-<p>Next important step is to know what is the content of <code class="highlighter-rouge">params</code>.</p>
+<p>Next, let us see how we can insert this dummy logger to the system. Each middleware provides a method for inserting a function to a specific index of it. The tricky part is <strong>accessing</strong> that middleware. Since middlewares can be numerous, <code class="highlighter-rouge">xyz-core</code> does not provide a generic function for inserting middlewares (something like <code class="highlighter-rouge">MathMS.insertMw(...)</code>). This is because xyz-core must first know <strong>which middleware</strong>!</p>
 
-<p>Each middleware in xyz has specific params structure. As an example, The transport layer call dispatch middleware has the following parameters according to the <a href="https://github.com/node-xyz/xyz-core/blob/master/src/Transport/HTTP/http.client.js#L35">source code</a>: <code class="highlighter-rouge">[requestConfig, callResponseCallback]</code>. That means that the first index is a variable containing request information and the second parameter is the callback function for this call.</p>
+<p>the <code class="highlighter-rouge">middlewares()</code> method in <code class="highlighter-rouge">xyz-core</code> return an object containing all middlewares in the system. Next, you should choose your target from this object. Let’s jump right into the code:</p>
 
-<blockquote>
-  <p>Remember how you call something like <code class="highlighter-rouge">someMS.call({servicePath: 'somePath'}, ()=&gt; {})</code>? The second argument to this call is the actual callback function that will be passed to the Transport layer, and you have access to it inside the middleware. This is because the last index of this middleware stack is a function <a href="">that will wrap this request in an http object and pass it to the network</a>. Therefore, it needs the callback function to invoke it when the response is back. Note that this middleware is embedded in xyz and it is not on a separate repository, unlike other middlewares.</p>
-</blockquote>
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">let</span> <span class="nx">_dummyLogger</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'./dummy.logger'</span><span class="p">)</span>
+<span class="nx">mathMS</span><span class="p">.</span><span class="nx">middlewares</span><span class="p">().</span><span class="nx">transport</span><span class="p">.</span><span class="nx">server</span><span class="p">(</span><span class="s1">'CALL'</span><span class="p">)(</span><span class="mi">4000</span><span class="p">).</span><span class="nx">register</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nx">_dummyLogger</span><span class="p">)</span></code></pre></figure>
 
-<p>Next, let us see how we can insert this dummy logger to the system. The XYZ interface provides methods for inserting a function to a specific index of a specific MiddlewareStack. As an example, we can insert this middleware in StringMS (continuing from the previous section):</p>
+<p>We first choose <code class="highlighter-rouge">.transport</code> layer, than a route named <code class="highlighter-rouge">CALL</code>, which is the default route of all messages. Next we choose a server on port 4000, which is the default port of <code class="highlighter-rouge">math.ms.js</code> and finally, we insert the function to that middleware using <code class="highlighter-rouge">.register()</code> at index <code class="highlighter-rouge">0</code>.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>// StringMS
-stringMS.middlewares().transport.callDispatch.register(0, require('./dummy.logger'))
+<p>Now that you have seen an example of this, seeing its <a href="/apidoc/xyz.js.html#line152">source code</a> can clear things up.</p>
 
-// stringMS.register() ...
+<p>If you run math.ms now and send some messages to it usign string.ms, you should se something like this:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>i was called! now what?
+LOGGER :: http message received on port 4000 with body {"userPayload":{"x":2,"y":5},"service":"/decimal/mul"}
 </code></pre>
 </div>
 
-<p>note that in this function, the first parameter is the index in middleware stack. This call will insert the new function to the first index and will push all other functions to the next index. If you want to remove a specific middleware, <a href="https://node-xyz.github.io/apidoc/GenericMiddlewareHandler.html">use</a><code class="highlighter-rouge">.remove(idx)</code>.</p>
+<p>if you put a log inside <code class="highlighter-rouge">math.ms.js</code> when registering <code class="highlighter-rouge">/decimal/mul</code>,you see that our new middleware was invoked before the response was sent.</p>
 
-<p>Check your logs after running the system in any desired configuration, one StringMS and one MathMS for sake of simplicity:</p>
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">mathMS</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="s1">'decimal/mul'</span><span class="p">,</span> <span class="p">(</span><span class="nx">payload</span><span class="p">,</span> <span class="nx">response</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'decimal/mul was called!'</span><span class="p">)</span>
+  <span class="nx">response</span><span class="p">.</span><span class="nx">jsonify</span><span class="p">(</span><span class="nx">payload</span><span class="p">.</span><span class="nx">x</span> <span class="o">*</span> <span class="nx">payload</span><span class="p">.</span><span class="nx">y</span><span class="p">)</span>
+<span class="p">})</span></code></pre></figure>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>[Function: bound ]
-i was called! now what?
-{ hostname: '127.0.0.1',
-  port: '3333',
-  path: '/call',
-  method: 'POST',
-  json: { userPayload: { x: 2, y: 5 }, service: '/float/mul' } }
-[Function: bound ]
-my fellow service responded with {"127.0.0.1:3333:/decimal/mul":[null,10],"127.0.0.1:3333:/float/mul":[null,10]}
-</code></pre>
-</div>
+<p>for more information about inserting middlewares and <code class="highlighter-rouge">.register()</code>, you can see <a href="http://localhost:2000/apidoc/GenericMiddlewareHandler.html">Generic Middlewares Handler</a> class</p>
 
-<p>As you see, our new middleware was invoked before the response was sent.</p>
-
-<p>The parameters are also now clear. Note that except the payload, all of these parameters will be used in the last middleware to create and send a HTTP request. Altering them will indeed have consequences. Albeit, not all alterations are harmful. As an example, consider the following scenarios:</p>
+<p>Note that except the payload, all of these parameters will be used in the last middleware to create and send a HTTP request. Altering them will indeed have consequences. Albeit, not all alterations are harmful. As an example, consider the following scenarios:</p>
 
 <ul>
-  <li>Applying a pre/post-processing to all request</li>
+  <li>Applying a pre/post-processing to all request, like adding fix headers, message encryption or serialization.</li>
   <li>logging systems</li>
-  <li>validation (note that by calling <code class="highlighter-rouge">end()</code>, the request will be dismissed)</li>
+  <li>validation: note that by calling <code class="highlighter-rouge">end()</code>, the request will be dismissed. Furthermore, you have the response object (<code class="highlighter-rouge">resp</code>) and you can respond to an unauthorized message in a middleware and don’t even bother sending it to Service-Repository layer!</li>
   <li>reusability of middlewares</li>
-  <li>more decoupling: means that not only that your application logic is separated from your xyz service code, your configurations, which are implemented in the middlewares are also decoupled from the xyz service code.</li>
-</ul>
-
-<p>Note that the <code class="highlighter-rouge">json</code> key is a generic place to put data in it. But, only the <code class="highlighter-rouge">userPayload</code> will be available to the receiver.</p>
-
-<ul>
   <li>last but not least! authentication. Although this is analogous to validation, we are going to mention it separately since we are going to implement one in the next section:</li>
 </ul>
 
 <h3 id="an-authentication-middleware">An authentication middleware:</h3>
 
-<p>Suppose that your system uses a very simple  authentication system, kind of a shared-secret mechanism. You want authentication to happen in Transport layer. This is generally better because the Transport layer can drop unauthorized requests immediately and the Service-Repository layer, which is more critical, won’t be bothered to check them twice.</p>
+<p>Suppose that your system uses a very simple  authentication system, a shared-secret mechanism. This is because we don’t want to complicate matters with different authentication mechanism, instead, we want to focus on how to add <strong>any</strong> authentication mechanism to xyz. You want authentication to happen in Transport layer. This is generally better because the Transport layer can drop unauthorized requests immediately and the Service-Repository layer, which is more critical, won’t be bothered to check them twice.</p>
 
-<p>We are going to place two middlewares in <strong>Transport layer</strong> for this purpose, namely in <strong>CallReceiveMiddlewareStack</strong> and <strong>CallDispatchMiddlewareStack</strong>.</p>
+<p>We are going to place two middlewares in <strong>Transport layer</strong> for this purpose, namely in <strong>HTTP Server middleware</strong>*, the default Transport server.</p>
 
-<p>The code of these middlewares should be fairly understandable to you now. The sender side is fairly (perhaps more than <em>fairly</em>) simple:</p>
+<p>One middleware is going to be placed in the <strong>outgoing</strong> route** and it should append a <em>shared secret</em> to the message’s body. Another middleware will be placed in the <strong>Server route</strong> and it should check to see if that shared secret exists or not. The receiving middleware can destroy the message if it does not have correct secret and this keeps the rest of the system safe.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>const SECRET = 'SECRET'
-
-let authSend = function (params, next, end) {
-  params[0].json.authorization = SECRET
-  next()
-}
-
-module.exports = authSend;
-</code></pre>
-</div>
-
-<p>The only point to notice in the receiving side is that the params are a bit different. This is natureal because the middleware stack that will be invoked is directly getting its values and params from <strong>Node HTTP module</strong>. Hence, the params are similar to node networking and are as follows:</p>
+<p>The last note is to get familiar with parameters of an outgoing middleware, similar to the server middleware which we have already seen. An outgoing middleware has the following parameters:</p>
 
 <ul>
-  <li><strong>params[0]</strong> the request object. Similiar to node’s <a href="">IncomingMessage</a></li>
-  <li><strong>params[1]</strong> the response object. The wrapper used to send a response to the sender.</li>
-  <li><strong>params[2]</strong> body. The payload of the request. Note that this is the entire <code class="highlighter-rouge">json</code> key which was available in the sending side. Later, another middleware will only pass the userPayload section of this object the service repository and the service repository will pass it to the user. Thus, the authorization key that we added in the last section is entirely hidden from the application code.</li>
+  <li>params:
+an object with two elements:
+    <ul>
+      <li>requestConfig. The data of the message is stored in a key in <code class="highlighter-rouge">requestConfig</code> named <code class="highlighter-rouge">json</code>. Therefore, if we are to add a data to the request, we should add keys to <code class="highlighter-rouge">requestConfig.json</code>.</li>
+      <li>responseCallback</li>
+    </ul>
+  </li>
+  <li>next()</li>
+  <li>end()</li>
+  <li>xyz</li>
 </ul>
 
-<p>Hence, the receiving side of the middleware is similar to this:</p>
+<p>The sender side is fairly (perhaps more than <em>fairly</em>) simple:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>const SECRET = 'SECRET'
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">//auth.send.js</span>
+<span class="kr">const</span> <span class="nx">SECRET</span> <span class="o">=</span> <span class="s1">'SHARED_SECRET'</span>
 
-let authReceive = function (params, next, end) {
-  let authorization = params[2].authorization
+<span class="kd">let</span> <span class="nx">_authSend</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">params</span><span class="p">,</span> <span class="nx">next</span><span class="p">,</span> <span class="nx">end</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// params[0] is the requestConfig</span>
+  <span class="nx">params</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">json</span><span class="p">.</span><span class="nx">authorization</span> <span class="o">=</span> <span class="nx">SECRET</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'auth header added'</span><span class="p">)</span>
+  <span class="nx">next</span><span class="p">()</span>
+<span class="p">}</span>
 
-  if (authorization === SECRET) {
-    console.log('auth accepted')
-    next()
-  }else {
-    console.log('auth failed')
-    // it's better to also close the request immediately
-    params[0].destroy()
-    end()
-  }
-}
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">_authSend</span></code></pre></figure>
 
-module.exports = authReceive
+<p>and in the receiving side:</p>
 
-</code></pre>
-</div>
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">//auth.receive.js</span>
+<span class="kr">const</span> <span class="nx">SECRET</span> <span class="o">=</span> <span class="s1">'SHARED_SECRET'</span>
+
+<span class="kd">let</span> <span class="nx">_authReceive</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">params</span><span class="p">,</span> <span class="nx">next</span><span class="p">,</span> <span class="nx">end</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="nx">payload</span> <span class="o">=</span> <span class="nx">params</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+  <span class="kd">let</span> <span class="nx">req</span> <span class="o">=</span> <span class="nx">params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+  <span class="kd">let</span> <span class="nx">authorization</span> <span class="o">=</span> <span class="nx">payload</span><span class="p">.</span><span class="nx">authorization</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="nx">authorization</span> <span class="o">===</span> <span class="nx">SECRET</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'auth accpeted'</span><span class="p">)</span>
+    <span class="c1">// pass the request to next middleware</span>
+    <span class="nx">next</span><span class="p">()</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'auth failed'</span><span class="p">)</span>
+    <span class="c1">// it's better to also close the request immediately</span>
+    <span class="nx">req</span><span class="p">.</span><span class="nx">destroy</span><span class="p">()</span>
+    <span class="nx">end</span><span class="p">()</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">_authReceive</span></code></pre></figure>
 
 <p>Similarly, we can insert these middlewares into the system using:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>// stringMS
-stringMS.middlewares().transport.callDispatch.register(0, require('./auth.send'))
-stringMS.middlewares().transport.callReceive.register(0, require('./auth.receive'))
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">// math.ms.js</span>
+<span class="kd">let</span> <span class="nx">_authSend</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'./auth.send'</span><span class="p">)</span>
+<span class="kd">let</span> <span class="nx">_authReceive</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'./auth.receive'</span><span class="p">)</span>
+<span class="nx">mathMS</span><span class="p">.</span><span class="nx">middlewares</span><span class="p">().</span><span class="nx">transport</span><span class="p">.</span><span class="nx">server</span><span class="p">(</span><span class="s1">'CALL'</span><span class="p">)(</span><span class="mi">4000</span><span class="p">).</span><span class="nx">register</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nx">_authReceive</span><span class="p">)</span>
+<span class="nx">mathMS</span><span class="p">.</span><span class="nx">middlewares</span><span class="p">().</span><span class="nx">transport</span><span class="p">.</span><span class="nx">client</span><span class="p">(</span><span class="s1">'CALL'</span><span class="p">).</span><span class="nx">register</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nx">_authSend</span><span class="p">)</span></code></pre></figure>
 
-// mathMS
-mathMS.middlewares().transport.callDispatch.register(0, require('./auth.send'))
-mathMS.middlewares().transport.callReceive.register(0, require('./auth.receive'))
-</code></pre>
-</div>
+<p>and</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">// string.ms.js</span>
+<span class="kd">let</span> <span class="nx">_authSend</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'./auth.send'</span><span class="p">)</span>
+<span class="kd">let</span> <span class="nx">_authReceive</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'./auth.receive'</span><span class="p">)</span>
+<span class="nx">stringMS</span><span class="p">.</span><span class="nx">middlewares</span><span class="p">().</span><span class="nx">transport</span><span class="p">.</span><span class="nx">server</span><span class="p">(</span><span class="s1">'CALL'</span><span class="p">)(</span><span class="mi">5000</span><span class="p">).</span><span class="nx">register</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nx">_authReceive</span><span class="p">)</span>
+<span class="nx">stringMS</span><span class="p">.</span><span class="nx">middlewares</span><span class="p">().</span><span class="nx">transport</span><span class="p">.</span><span class="nx">client</span><span class="p">(</span><span class="s1">'CALL'</span><span class="p">).</span><span class="nx">register</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nx">_authSend</span><span class="p">)</span></code></pre></figure>
+
+<ul>
+  <li>Note that adding a middleware to an outgoing route does not require a <code class="highlighter-rouge">port</code> to be specified. This is because outgoing message are independent of the incoming messages.</li>
+  <li>Note that the <code class="highlighter-rouge">string.ms</code> is listening on port 5000, hence we must indicate this when adding middleware</li>
+</ul>
+
+<blockquote>
+  <p>You might ask why are we indicating 4000 and 5000 as the port? doesn’t the system already know that? Yes it knows. But the point is that this tutorial is centered around HTTP transport which is the default Transport layer. You will soon learn how to add multiple servers to your node and use them. In this case, you must explicitly indicate the port to point to a specific middleware.</p>
+</blockquote>
 
 <p>Again, note that what you add to the <code class="highlighter-rouge">json</code> key is not available to the application layer. That is to say, you do not need to explicitly delete it from the object. Add a log to the receiving function and and double check this.</p>
 
-<h3 id="a-pretty-print-utility">a pretty-print utility:</h3>
+<p>If you run both systems now, you see that everything is working as expected and the two systems can still communicate. Change the <code class="highlighter-rouge">const SECRET = .. </code> value in one node and see how it causes messages to be ignored by the Receiving.</p>
 
-<p>XYZ overrides the default <code class="highlighter-rouge">console.log</code> behavior. So when you print an xyz instance, such as <code class="highlighter-rouge">stringMS</code>, you’ll get something like this:</p>
+<h1 id="where-to-next">Where to next?</h1>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>selfConfig:
-  {
-  "name": "stringMS",
-  "defaultSendStrategy": "xyz.service.send.first.find",
-  "allowJoin": false,
-  "logLevel": "info",
-  "seed": [
-    "127.0.0.1:3333"
-  ],
-  "port": 3334,
-  "host": "127.0.0.1",
-  "intervals": {
-    "reconnect": 2500
-  },
-  "defaultBootstrap": true,
-  "cli": {
-    "enable": false,
-    "stdio": "console"
-  }
-}
-systemConf:
-  {
-  "nodes": [
-    "127.0.0.1:3334"
-  ]
-}
-____________________  SERVICE REPOSITORY ____________________
+<p>Congrats! you have just learned something very awesome. This tutorial teaches you almost enough to <strong>use</strong> xyz, and some third party middleware packages. But, if you are interested in knowing more, you are encouraged to read the <a href="/documentation/advance">Advance Topics</a> and <a href="/documentation/In-depth">In-depth</a> section.</p>
 
-Middlewares:
-  callDispatchMiddlewareStack || firstFind[0]
-Services:
-  anonymousFN @ /up
-  anonymousFN @ /down
-
-____________________  TRANSPORT LAYER ____________________
-Transport Client:
-  Middlewares:
-  callDispatchMiddlewareStack || authSend[0] -&gt; callDispatchExport[1]
-  pingDispatchMiddlewareStack || pingDispatchExport[0]
-  joinDispatchMiddlewareStack || joinExport[0]
-
-Transport Server:
-  Middlewares:
-  callReceiveMiddlewareStack || authReceive[0] -&gt; passToRepo[1]
-  pingReceiveMiddlewareStack || passToRepo[0]
-  joinReceiveMiddlewareStack || joinAcceptAll[0]
-</code></pre>
-</div>
-
-<p>You can clearly see the stack of middlewares and how they are places.</p>
+<hr />
 
   </div>
 </div>
+
+<script type="text/javascript">
+var side = $("#___side")
+var $side = $('#___side > ol')
+var heads = $('h1')
+function getSideBarElem(id) {
+  return `<li>
+    <a href="#${id}">
+      ${id.replace(/-/g, ' ')}
+    </a>
+  </li>`
+}
+$.each( heads, function(idx, elem) {
+  $side.append(getSideBarElem(elem.id))
+})
+
+$("#__side").css('width', $("#__side").aprent().width() + 'px')
+
+</script>
 
 
   </section>
@@ -972,11 +1071,6 @@ Transport Server:
   <small>
     <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a></small>
 </footer>
-
-<script
-  src="https://code.jquery.com/jquery-3.1.1.min.js"
-  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
-  crossorigin="anonymous"></script>
 
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" charset="utf-8"></script>
 

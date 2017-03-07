@@ -2,11 +2,35 @@
 layout: default
 ---
 <div class="row">
-  <div class="col col-md-2">
-    Sidebar
+  <div class="col col-md-2" id="__side">
+    <div id="___side">
+      <p class="spacing"> CONTENTS </p>
+      <ol>
+      </ol>
+
+    </div>
   </div>
 
   <div class="col col-md-10">
     {{ content }}
   </div>
 </div>
+
+<script type="text/javascript">
+var side = $("#___side")
+var $side = $('#___side > ol')
+var heads = $('h1')
+function getSideBarElem(id) {
+  return `<li>
+    <a href="#${id}">
+      ${id.replace(/-/g, ' ')}
+    </a>
+  </li>`
+}
+$.each( heads, function(idx, elem) {
+  $side.append(getSideBarElem(elem.id))
+})
+
+$("#__side").css('width', $("#__side").aprent().width() + 'px')
+
+</script>
