@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>src/Service/Middleware/service.broadcast.local.js - Documentation</title>
+    <title>src/Config/Constants.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -27,7 +27,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">src/Service/Middleware/service.broadcast.local.js</h1>
+    <h1 class="page-title">src/Config/Constants.js</h1>
     
 
     
@@ -37,81 +37,68 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>const http = require('http')
-
-/**
- * will ignore the service path enitrely and will send the message to every
- * known host in localhost. Note that this module does not resolve path addresses
- * @function braodcastLocal
- * @param  {Array}       params [description]
- * @param  {Function}     next   used to call the next middleware
- * @param  {Function}     done   used to end the middleware stack
- * @param  {Object}       xyz    reference to the caller's xyz instance
+            <pre class="prettyprint source linenums"><code>/**
+ * A set of constant values stored in xyz-core
+ * @type {Object}
  */
-function _broadcastLocal (params, next, done, xyz) {
-  let servicePath = params[0].servicePath
-  let userPayload = params[0].payload
-  let responseCallback = params[1]
-  let route = params[0].route
-  let redirect = params[0].redirect
+module.exports = {
+  commandline: {
+    xyzport: 3000
+  },
 
-  let foreignNodes = xyz.serviceRepository.foreignNodes
-  let transport = xyz.serviceRepository.transport
-  let logger = xyz.logger
-  let Path = xyz.path
-  const wrapper = xyz.Util.wrapper
+  /**
+   * name of the events emiited by xyz
+   * @type {Object}
+   */
+  events: {
+    MESSAGE: 'xyz_message',
+    PING: 'xyz_ping'
+  },
+  url: {
+    CALL: 'CALL',
+    PING: 'PING',
+    JOIN: 'JOIN'
+  },
 
-  let wait = 0
-  let calls = []
-  let responses = {}
+  /**
+   *
+   * the default configuration. the will be merged recursively with
+   * the object passed by the user.
+   * @type {Object}
+   */
+  defaultConfig: {
+    selfConf: {
+      // name of the service. used in logs etc.
+      name: 'node-xyz-init',
+      // the default middleware funciton used with `.call(...)`
+      defaultSendStrategy: './Middleware/service.first.find',
+      // log level used by winston
+      logLevel: 'info',
+      // default seed nodes
+      seed: [],
+      // default transport layer service
+      transport: [
+        {type: 'HTTP', port: '4000', event: true}
+      ],
+      // ip
+      host: '127.0.0.1',
 
-  let matches
-  const HOST = xyz.id().host
-  for (let node in foreignNodes) {
-    if (node.split(':')[0] === HOST) {
-      calls.push({ match: servicePath, node: node })
-    }
-  }
-
-  logger.verbose(`${wrapper('bold', 'BROADCAST LOCAL')} :: sending message to ${calls.map((o) => o.node + ':' + o.match)},  `)
-
-  for (let call of calls) {
-    if (responseCallback) {
-      transport.send({
-        route: route,
-        redirect: redirect,
-        node: call.node,
-        payload: {
-          userPayload: userPayload,
-          service: call.match}},
-      function (_call, err, body, response) {
-        responses[`${_call.node}:${_call.match}`] = [err, body]
-        wait += 1
-        if (wait === calls.length) {
-          responseCallback(null, responses)
-        }
-      }.bind(null, call))
-    } else {
-      transport.send({
-        route: route,
-        redirect: redirect,
-        node: call.node,
-        payload: {
-          userPayload: userPayload,
-          service: call.match}})
-    }
-  }
-
-  // if no node matched
-  if (!calls.length) {
-    logger.warn(`BROADCAST LOCAL :: Sending a message to ${servicePath} from failed (Local Response)`)
-    if (responseCallback) {
-      responseCallback(http.STATUS_CODES[404], null, null)
+      // the default bootstrap function. Will lunch the default ping bootstrap for service discovery
+      defaultBootstrap: true,
+      // used only when lunching with ci
+      cli: {
+        // this will cause the current node process to send a message to its
+        // parent process, indicating that it has successfully lunched .
+        enable: false,
+        // the stdout destination with cli
+        stdio: 'console'
+      }
+    },
+    systemConf: {
+      nodes: []
     }
   }
 }
-
-module.exports = _broadcastLocal
 </code></pre>
         </article>
     </section>

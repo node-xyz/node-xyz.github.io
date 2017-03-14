@@ -22,7 +22,7 @@
 <label for="nav-trigger" class="overlay"></label>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GenericMiddlewareHandler.html">GenericMiddlewareHandler</a><ul class='methods'><li data-type='method'><a href="GenericMiddlewareHandler.html#apply">apply</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#getMiddlewares">getMiddlewares</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#inspect">inspect</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#inspectJSON">inspectJSON</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#register">register</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#remove">remove</a></li></ul></li><li><a href="HTTPServer.html">HTTPServer</a></li><li><a href="NodeXYZ.html">NodeXYZ</a><ul class='methods'><li data-type='method'><a href="NodeXYZ.html#call">call</a></li><li data-type='method'><a href="NodeXYZ.html#inspect">inspect</a></li><li data-type='method'><a href="NodeXYZ.html#inspectJSON">inspectJSON</a></li><li data-type='method'><a href="NodeXYZ.html#middlewares">middlewares</a></li><li data-type='method'><a href="NodeXYZ.html#register">register</a></li><li data-type='method'><a href="NodeXYZ.html#terminate">terminate</a></li></ul></li><li><a href="ServiceRepository.html">ServiceRepository</a><ul class='methods'><li data-type='method'><a href="ServiceRepository.html#bindTransportEvent">bindTransportEvent</a></li><li data-type='method'><a href="ServiceRepository.html#inspect">inspect</a></li><li data-type='method'><a href="ServiceRepository.html#inspectJSON">inspectJSON</a></li><li data-type='method'><a href="ServiceRepository.html#register">register</a></li></ul></li><li><a href="Transport.html">Transport</a><ul class='methods'><li data-type='method'><a href="Transport.html#send">send</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#braodcastLocal">braodcastLocal</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GenericMiddlewareHandler.html">GenericMiddlewareHandler</a><ul class='methods'><li data-type='method'><a href="GenericMiddlewareHandler.html#apply">apply</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#getMiddlewares">getMiddlewares</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#inspect">inspect</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#inspectJSON">inspectJSON</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#register">register</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#remove">remove</a></li></ul></li><li><a href="HTTPServer.html">HTTPServer</a></li><li><a href="NodeXYZ.html">NodeXYZ</a><ul class='methods'><li data-type='method'><a href="NodeXYZ.html#bootstrap">bootstrap</a></li><li data-type='method'><a href="NodeXYZ.html#call">call</a></li><li data-type='method'><a href="NodeXYZ.html#id">id</a></li><li data-type='method'><a href="NodeXYZ.html#inspect">inspect</a></li><li data-type='method'><a href="NodeXYZ.html#inspectJSON">inspectJSON</a></li><li data-type='method'><a href="NodeXYZ.html#middlewares">middlewares</a></li><li data-type='method'><a href="NodeXYZ.html#register">register</a></li><li data-type='method'><a href="NodeXYZ.html#registerClientRoute">registerClientRoute</a></li><li data-type='method'><a href="NodeXYZ.html#registerServer">registerServer</a></li><li data-type='method'><a href="NodeXYZ.html#registerServerRoute">registerServerRoute</a></li><li data-type='method'><a href="NodeXYZ.html#setSendStrategy">setSendStrategy</a></li><li data-type='method'><a href="NodeXYZ.html#terminate">terminate</a></li></ul></li><li><a href="ServiceRepository.html">ServiceRepository</a><ul class='methods'><li data-type='method'><a href="ServiceRepository.html#bindTransportEvent">bindTransportEvent</a></li><li data-type='method'><a href="ServiceRepository.html#forget">forget</a></li><li data-type='method'><a href="ServiceRepository.html#inspect">inspect</a></li><li data-type='method'><a href="ServiceRepository.html#inspectJSON">inspectJSON</a></li><li data-type='method'><a href="ServiceRepository.html#logSystemUpdates">logSystemUpdates</a></li><li data-type='method'><a href="ServiceRepository.html#register">register</a></li><li data-type='method'><a href="ServiceRepository.html#terminate">terminate</a></li></ul></li><li><a href="Transport.html">Transport</a><ul class='methods'><li data-type='method'><a href="Transport.html#send">send</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#braodcastLocal">braodcastLocal</a></li><li><a href="global.html#forget">forget</a></li></ul>
 </nav>
 
 <div id="main">
@@ -70,14 +70,24 @@ class ServiceRepository extends EventEmitter {
   constructor (xyz) {
     super()
 
-    // note that a ref. to xyz will be passed all the way down. this is to ensure that
-    // every middleware will have access to it and
-    // there will be no circular dependency
+    /**
+     * Transport layer.
+     *
+     * note that a ref. to xyz will be passed all the way down. this is to ensure that
+     * every middleware will have access to it and
+     * there will be no circular dependency
+     * @type {Transport}
+     */
     this.transport = new Transport(xyz)
+
+    /**
+     * Reference to seld conf for easier usage
+     * @type {Object}
+     */
     this.selfConf = CONFIG.getSelfConf()
 
     for (let t of this.selfConf.transport) {
-      this.registerServer(t.type, t.port, true)
+      this.registerServer(t.type, t.port, !(t.event === false))
     }
 
     this.callDispatchMiddlewareStack = new GenericMiddlewareHandler(xyz, 'service.discovery.mw')
@@ -87,23 +97,36 @@ class ServiceRepository extends EventEmitter {
     if (sendStategy) {
       this.callDispatchMiddlewareStack.register(0, sendStategy)
     } else {
-      logger.error(`defaultSendStrategy passed to config [${CONFIG.getSelfConf().defaultSendStrategy}] not found. setting the default value`)
+      logger.error(`SR :: defaultSendStrategy passed to config [${CONFIG.getSelfConf().defaultSendStrategy}] not found. setting the default value`)
       this.callDispatchMiddlewareStack.register(0, require('./Middleware/service.first.find'))
     }
-    logger.info(`default sendStategy set to ${this.callDispatchMiddlewareStack.middlewares[0].name}`)
+    logger.info(`SR :: default sendStategy set to ${this.callDispatchMiddlewareStack.middlewares[0].name}`)
 
-    // list of current services
+    /**
+     * List of my this node's  services
+     * @type {PathTree}
+     */
     this.services = new PathTree()
-    this._id = CONFIG.getSelfConf().host + ':' + CONFIG.getSelfConf().transport[0].port
 
-    // list of foreign nodes and services respectively
+    /**
+     * list of foreign nodes. should be filled by ping and should be used by
+     * send strategy
+     * @type {Object}
+     */
     this.foreignNodes = {}
     this.foreignNodes[`${xyz.id().host}:${xyz.id().port}`] = {}
-    this.outOfReachNodes = {}
+    /**
+     * list of foreign routes and servers. should be filled by ping and should be userPayload
+     * by send strategy when `redirect: true`
+     * @type {Object}
+     */
     this.foreignRoutes = {}
-    this.xyz = xyz
 
-    this.INTERVALS = CONFIG.getSelfConf().intervals
+    /**
+     * Reference to the curretn xyz object
+     * @type {XYZ}
+     */
+    this.xyz = xyz
   }
 
   /**
@@ -160,7 +183,7 @@ ${wrapper('green', wrapper('bold', 'Services'))}:\n`
       this.emit('message:receive', data)
       let fn = this.services.getPathFunction(data.service)
       if (fn) {
-        logger.verbose(`ServiceRepository received service call ${wrapper('bold', data.service)}`)
+        logger.verbose(`SR :: ServiceRepository received service call ${wrapper('bold', data.service)}`)
         fn(data.userPayload, response)
         return
       } else {
@@ -197,8 +220,9 @@ ${wrapper('green', wrapper('bold', 'Services'))}:\n`
   registerServer (type, port, e) {
     let s = this.transport.registerServer(type, port, e)
     if (s) {
-      logger.info(`new transport server [${type}] bounded on port ${port}`)
+      logger.info(`SR :: new transport server [${type}] created on port ${port}`)
       if (e) {
+        logger.info(`SR :: ServiceRepository events bounded for [${type}] server port ${port}`)
         this.bindTransportEvent(s)
       }
     }
@@ -206,7 +230,6 @@ ${wrapper('green', wrapper('bold', 'Services'))}:\n`
 
   joinNode (aNode) {
     this.foreignNodes[aNode] = {}
-    this.outOfReachNodes[aNode] = 0
     this.foreignRoutes[aNode] = {}
     CONFIG.joinNode(aNode)
     this.logSystemUpdates()
@@ -216,18 +239,41 @@ ${wrapper('green', wrapper('bold', 'Services'))}:\n`
     // we will not assume that this node has any function anymore
     delete this.foreignNodes[aNode]
     delete this.foreignRoutes[aNode]
-    delete this.outOfReachNodes[aNode]
     CONFIG.kickNode(aNode)
     this.logSystemUpdates()
   }
 
-  logSystemUpdates () {
-    logger.info(` SR :: ${wrapper('bold', 'System Configuration changed')} new values: ${JSON.stringify(CONFIG.getSystemConf())}`)
+  /**
+   * Will cause both the ServiceRepository and CONFIG to forget
+   * about all foreign info. This includes `foreignNodes`, `foreignRoutes` and
+   * `systemConf.nodes[]` to be flushed.
+   * Note that this method should be called, not the one in CONFIG
+   * @return {null}
+   */
+  forget () {
+    for (let node in this.foreignNodes) {
+      if (node !== `${this.xyz.id().netId}`) {
+        delete this.foreignNodes[node]
+      }
+    }
+    this.foreignRoutes = {}
+    CONFIG.forget()
+    logger.warn(`SR :: all foreign nodes have been removed by calling .forget()`)
   }
 
+  /**
+   * Should be called after any chnage to the configurations of the system
+   */
+  logSystemUpdates () {
+    logger.info(`SR :: ${wrapper('bold', 'System Configuration changed')} new values: ${JSON.stringify(CONFIG.getSystemConf())}`)
+  }
+
+  /**
+   * will stop all servers of the system. should be used in test only.
+   */
   terminate () {
     for (let s in this.transport.servers) {
-      logger.warn(`sutting down server ${s}`)
+      logger.warn(`SR :: sutting down server ${s}`)
       this.transport.servers[s].close()
     }
   }
@@ -246,7 +292,7 @@ module.exports = ServiceRepository
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Tue Mar 07 2017 23:55:01 GMT+0330 (IRST) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Tue Mar 14 2017 22:42:01 GMT+0330 (IRST) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

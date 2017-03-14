@@ -22,7 +22,7 @@
 <label for="nav-trigger" class="overlay"></label>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GenericMiddlewareHandler.html">GenericMiddlewareHandler</a><ul class='methods'><li data-type='method'><a href="GenericMiddlewareHandler.html#apply">apply</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#getMiddlewares">getMiddlewares</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#inspect">inspect</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#inspectJSON">inspectJSON</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#register">register</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#remove">remove</a></li></ul></li><li><a href="HTTPServer.html">HTTPServer</a></li><li><a href="NodeXYZ.html">NodeXYZ</a><ul class='methods'><li data-type='method'><a href="NodeXYZ.html#call">call</a></li><li data-type='method'><a href="NodeXYZ.html#inspect">inspect</a></li><li data-type='method'><a href="NodeXYZ.html#inspectJSON">inspectJSON</a></li><li data-type='method'><a href="NodeXYZ.html#middlewares">middlewares</a></li><li data-type='method'><a href="NodeXYZ.html#register">register</a></li><li data-type='method'><a href="NodeXYZ.html#terminate">terminate</a></li></ul></li><li><a href="ServiceRepository.html">ServiceRepository</a><ul class='methods'><li data-type='method'><a href="ServiceRepository.html#bindTransportEvent">bindTransportEvent</a></li><li data-type='method'><a href="ServiceRepository.html#inspect">inspect</a></li><li data-type='method'><a href="ServiceRepository.html#inspectJSON">inspectJSON</a></li><li data-type='method'><a href="ServiceRepository.html#register">register</a></li></ul></li><li><a href="Transport.html">Transport</a><ul class='methods'><li data-type='method'><a href="Transport.html#send">send</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#braodcastLocal">braodcastLocal</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GenericMiddlewareHandler.html">GenericMiddlewareHandler</a><ul class='methods'><li data-type='method'><a href="GenericMiddlewareHandler.html#apply">apply</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#getMiddlewares">getMiddlewares</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#inspect">inspect</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#inspectJSON">inspectJSON</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#register">register</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#remove">remove</a></li></ul></li><li><a href="HTTPServer.html">HTTPServer</a></li><li><a href="NodeXYZ.html">NodeXYZ</a><ul class='methods'><li data-type='method'><a href="NodeXYZ.html#bootstrap">bootstrap</a></li><li data-type='method'><a href="NodeXYZ.html#call">call</a></li><li data-type='method'><a href="NodeXYZ.html#id">id</a></li><li data-type='method'><a href="NodeXYZ.html#inspect">inspect</a></li><li data-type='method'><a href="NodeXYZ.html#inspectJSON">inspectJSON</a></li><li data-type='method'><a href="NodeXYZ.html#middlewares">middlewares</a></li><li data-type='method'><a href="NodeXYZ.html#register">register</a></li><li data-type='method'><a href="NodeXYZ.html#registerClientRoute">registerClientRoute</a></li><li data-type='method'><a href="NodeXYZ.html#registerServer">registerServer</a></li><li data-type='method'><a href="NodeXYZ.html#registerServerRoute">registerServerRoute</a></li><li data-type='method'><a href="NodeXYZ.html#setSendStrategy">setSendStrategy</a></li><li data-type='method'><a href="NodeXYZ.html#terminate">terminate</a></li></ul></li><li><a href="ServiceRepository.html">ServiceRepository</a><ul class='methods'><li data-type='method'><a href="ServiceRepository.html#bindTransportEvent">bindTransportEvent</a></li><li data-type='method'><a href="ServiceRepository.html#forget">forget</a></li><li data-type='method'><a href="ServiceRepository.html#inspect">inspect</a></li><li data-type='method'><a href="ServiceRepository.html#inspectJSON">inspectJSON</a></li><li data-type='method'><a href="ServiceRepository.html#logSystemUpdates">logSystemUpdates</a></li><li data-type='method'><a href="ServiceRepository.html#register">register</a></li><li data-type='method'><a href="ServiceRepository.html#terminate">terminate</a></li></ul></li><li><a href="Transport.html">Transport</a><ul class='methods'><li data-type='method'><a href="Transport.html#send">send</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#braodcastLocal">braodcastLocal</a></li><li><a href="global.html#forget">forget</a></li></ul>
 </nav>
 
 <div id="main">
@@ -204,6 +204,453 @@ Transport client and server will be composed by ServiceRepository</p>
     
 
     
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id="foreignNodes"><span class="type-signature"></span>foreignNodes<span class="type-signature"> :Object</span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_Service_service.repository.js.html">src/Service/service.repository.js</a>, <a href="src_Service_service.repository.js.html#line77">line 77</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>list of foreign nodes. should be filled by ping and should be used by
+send strategy</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="foreignRoutes"><span class="type-signature"></span>foreignRoutes<span class="type-signature"> :Object</span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_Service_service.repository.js.html">src/Service/service.repository.js</a>, <a href="src_Service_service.repository.js.html#line84">line 84</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>list of foreign routes and servers. should be filled by ping and should be userPayload
+by send strategy when <code>redirect: true</code></p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="selfConf"><span class="type-signature"></span>selfConf<span class="type-signature"> :Object</span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_Service_service.repository.js.html">src/Service/service.repository.js</a>, <a href="src_Service_service.repository.js.html#line48">line 48</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Reference to seld conf for easier usage</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="services"><span class="type-signature"></span>services<span class="type-signature"> :PathTree</span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_Service_service.repository.js.html">src/Service/service.repository.js</a>, <a href="src_Service_service.repository.js.html#line70">line 70</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>List of my this node's  services</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">PathTree</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="transport"><span class="type-signature"></span>transport<span class="type-signature"> :<a href="Transport.html">Transport</a></span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_Service_service.repository.js.html">src/Service/service.repository.js</a>, <a href="src_Service_service.repository.js.html#line42">line 42</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Transport layer.</p>
+<p>note that a ref. to xyz will be passed all the way down. this is to ensure that
+every middleware will have access to it and
+there will be no circular dependency</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type"><a href="Transport.html">Transport</a></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="xyz"><span class="type-signature"></span>xyz<span class="type-signature"> :XYZ</span></h4>
+
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_Service_service.repository.js.html">src/Service/service.repository.js</a>, <a href="src_Service_service.repository.js.html#line90">line 90</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Reference to the curretn xyz object</p>
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">XYZ</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+    
 
     
         <h3 class="subsection-title">Methods</h3>
@@ -225,7 +672,7 @@ Transport client and server will be composed by ServiceRepository</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_Service_service.repository.js.html">src/Service/service.repository.js</a>, <a href="src_Service_service.repository.js.html#line119">line 119</a>
+        <a href="src_Service_service.repository.js.html">src/Service/service.repository.js</a>, <a href="src_Service_service.repository.js.html#line142">line 142</a>
     </li></ul></dd>
     
 
@@ -302,6 +749,111 @@ to <code>true</code>. This will case this method to be called.</p>
 
     
 
+    <h4 class="name" id="forget"><span class="type-signature"></span>forget<span class="signature">()</span><span class="type-signature"> &rarr; {null}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_Service_service.repository.js.html">src/Service/service.repository.js</a>, <a href="src_Service_service.repository.js.html#line214">line 214</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Will cause both the ServiceRepository and CONFIG to forget
+about all foreign info. This includes <code>foreignNodes</code>, <code>foreignRoutes</code> and
+<code>systemConf.nodes[]</code> to be flushed.
+Note that this method should be called, not the one in CONFIG</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">null</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+        
+            
+
+    
+
     <h4 class="name" id="inspect"><span class="type-signature"></span>inspect<span class="signature">()</span><span class="type-signature"></span></h4>
 
     
@@ -314,7 +866,7 @@ to <code>true</code>. This will case this method to be called.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_Service_service.repository.js.html">src/Service/service.repository.js</a>, <a href="src_Service_service.repository.js.html#line87">line 87</a>
+        <a href="src_Service_service.repository.js.html">src/Service/service.repository.js</a>, <a href="src_Service_service.repository.js.html#line110">line 110</a>
     </li></ul></dd>
     
 
@@ -398,7 +950,7 @@ to <code>true</code>. This will case this method to be called.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_Service_service.repository.js.html">src/Service/service.repository.js</a>, <a href="src_Service_service.repository.js.html#line102">line 102</a>
+        <a href="src_Service_service.repository.js.html">src/Service/service.repository.js</a>, <a href="src_Service_service.repository.js.html#line125">line 125</a>
     </li></ul></dd>
     
 
@@ -470,6 +1022,90 @@ to <code>true</code>. This will case this method to be called.</p>
 
     
 
+    <h4 class="name" id="logSystemUpdates"><span class="type-signature"></span>logSystemUpdates<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_Service_service.repository.js.html">src/Service/service.repository.js</a>, <a href="src_Service_service.repository.js.html#line228">line 228</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>Should be called after any chnage to the configurations of the system</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
     <h4 class="name" id="register"><span class="type-signature"></span>register<span class="signature">(path, fn)</span><span class="type-signature"></span></h4>
 
     
@@ -482,7 +1118,7 @@ to <code>true</code>. This will case this method to be called.</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="src_Service_service.repository.js.html">src/Service/service.repository.js</a>, <a href="src_Service_service.repository.js.html#line80">line 80</a>
+        <a href="src_Service_service.repository.js.html">src/Service/service.repository.js</a>, <a href="src_Service_service.repository.js.html#line103">line 103</a>
     </li></ul></dd>
     
 
@@ -624,6 +1260,90 @@ to <code>true</code>. This will case this method to be called.</p>
 
 
         
+            
+
+    
+
+    <h4 class="name" id="terminate"><span class="type-signature"></span>terminate<span class="signature">()</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="src_Service_service.repository.js.html">src/Service/service.repository.js</a>, <a href="src_Service_service.repository.js.html#line235">line 235</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description">
+    <p>will stop all servers of the system. should be used in test only.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
     
 
     
@@ -641,7 +1361,7 @@ to <code>true</code>. This will case this method to be called.</p>
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Tue Mar 07 2017 23:55:01 GMT+0330 (IRST) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Tue Mar 14 2017 22:42:01 GMT+0330 (IRST) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

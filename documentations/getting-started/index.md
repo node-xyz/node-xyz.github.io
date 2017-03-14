@@ -6,7 +6,7 @@ breadcrumb: getting-started
 
 # Hello XYZ
 
-This brief tutorial will help you fathom the concepts of XYZ, and help you get started with it.
+This brief tutorial will help you get started with XYZ. Although it's a **Getting-Started** tutorial, but it also covers a great deal of fundamental information.
 
 The only dependency of this tutorial is `xyz-core`, which has only one logging dependency itself. You can install it  in your woking directory using:
 
@@ -14,7 +14,7 @@ The only dependency of this tutorial is `xyz-core`, which has only one logging d
 $ npm install xyz-core --save
 ```
 
-The code and testcases of this documentation is available [here](https://github.com/node-xyz/xyz.example.getting.started)
+The code and test cases of this documentation is available [here](https://github.com/node-xyz/xyz.example.getting.started).
 
 Let's get this tutorial started!
 

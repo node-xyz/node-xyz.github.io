@@ -22,7 +22,7 @@
 <label for="nav-trigger" class="overlay"></label>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GenericMiddlewareHandler.html">GenericMiddlewareHandler</a><ul class='methods'><li data-type='method'><a href="GenericMiddlewareHandler.html#apply">apply</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#getMiddlewares">getMiddlewares</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#inspect">inspect</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#inspectJSON">inspectJSON</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#register">register</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#remove">remove</a></li></ul></li><li><a href="HTTPServer.html">HTTPServer</a></li><li><a href="NodeXYZ.html">NodeXYZ</a><ul class='methods'><li data-type='method'><a href="NodeXYZ.html#call">call</a></li><li data-type='method'><a href="NodeXYZ.html#inspect">inspect</a></li><li data-type='method'><a href="NodeXYZ.html#inspectJSON">inspectJSON</a></li><li data-type='method'><a href="NodeXYZ.html#middlewares">middlewares</a></li><li data-type='method'><a href="NodeXYZ.html#register">register</a></li><li data-type='method'><a href="NodeXYZ.html#terminate">terminate</a></li></ul></li><li><a href="ServiceRepository.html">ServiceRepository</a><ul class='methods'><li data-type='method'><a href="ServiceRepository.html#bindTransportEvent">bindTransportEvent</a></li><li data-type='method'><a href="ServiceRepository.html#inspect">inspect</a></li><li data-type='method'><a href="ServiceRepository.html#inspectJSON">inspectJSON</a></li><li data-type='method'><a href="ServiceRepository.html#register">register</a></li></ul></li><li><a href="Transport.html">Transport</a><ul class='methods'><li data-type='method'><a href="Transport.html#send">send</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#braodcastLocal">braodcastLocal</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GenericMiddlewareHandler.html">GenericMiddlewareHandler</a><ul class='methods'><li data-type='method'><a href="GenericMiddlewareHandler.html#apply">apply</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#getMiddlewares">getMiddlewares</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#inspect">inspect</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#inspectJSON">inspectJSON</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#register">register</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#remove">remove</a></li></ul></li><li><a href="HTTPServer.html">HTTPServer</a></li><li><a href="NodeXYZ.html">NodeXYZ</a><ul class='methods'><li data-type='method'><a href="NodeXYZ.html#bootstrap">bootstrap</a></li><li data-type='method'><a href="NodeXYZ.html#call">call</a></li><li data-type='method'><a href="NodeXYZ.html#id">id</a></li><li data-type='method'><a href="NodeXYZ.html#inspect">inspect</a></li><li data-type='method'><a href="NodeXYZ.html#inspectJSON">inspectJSON</a></li><li data-type='method'><a href="NodeXYZ.html#middlewares">middlewares</a></li><li data-type='method'><a href="NodeXYZ.html#register">register</a></li><li data-type='method'><a href="NodeXYZ.html#registerClientRoute">registerClientRoute</a></li><li data-type='method'><a href="NodeXYZ.html#registerServer">registerServer</a></li><li data-type='method'><a href="NodeXYZ.html#registerServerRoute">registerServerRoute</a></li><li data-type='method'><a href="NodeXYZ.html#setSendStrategy">setSendStrategy</a></li><li data-type='method'><a href="NodeXYZ.html#terminate">terminate</a></li></ul></li><li><a href="ServiceRepository.html">ServiceRepository</a><ul class='methods'><li data-type='method'><a href="ServiceRepository.html#bindTransportEvent">bindTransportEvent</a></li><li data-type='method'><a href="ServiceRepository.html#forget">forget</a></li><li data-type='method'><a href="ServiceRepository.html#inspect">inspect</a></li><li data-type='method'><a href="ServiceRepository.html#inspectJSON">inspectJSON</a></li><li data-type='method'><a href="ServiceRepository.html#logSystemUpdates">logSystemUpdates</a></li><li data-type='method'><a href="ServiceRepository.html#register">register</a></li><li data-type='method'><a href="ServiceRepository.html#terminate">terminate</a></li></ul></li><li><a href="Transport.html">Transport</a><ul class='methods'><li data-type='method'><a href="Transport.html#send">send</a></li></ul></li></ul><h3>Global</h3><ul><li><a href="global.html#braodcastLocal">braodcastLocal</a></li><li><a href="global.html#forget">forget</a></li></ul>
 </nav>
 
 <div id="main">
@@ -60,7 +60,6 @@ const wrapper = require('./../Util/Util').wrapper
 class GenericMiddlewareHandler {
   constructor (xyz, name, route) {
     this.middlewares = []
-    this.middlewareIndex = 0
     this.xyz = xyz
     this.name = name
     this.route = route
@@ -105,7 +104,10 @@ class GenericMiddlewareHandler {
    * @param fn {Function} function to be invoked
    */
   register (index, fn) {
-    logger.debug(`Registering middleware at ${this.name}[${index}] : ${fn.name}`)
+    if (typeof (fn) !== 'function') {
+      logger.error(`GMWH :: attempting to insert ${fn} which is not a function`)
+    }
+    logger.debug(`GMWH :: Registering middleware at ${this.name}[${index}] : ${fn.name}`)
     if (index === -1) {
       this.middlewares.push(fn)
     } else if (index === 0) {
@@ -131,17 +133,20 @@ class GenericMiddlewareHandler {
    * @param {Number} index - current index inside the middleware array to be applied
    */
   apply (params, index) {
-    logger.silly(`applying middleware ${this.name}[${index}]`)
-
+    logger.silly(`GMWH :: applying middleware ${this.name}[${index}]`)
+    if (!this.middlewares[index]) {
+      logger.error(`GMWH :: attempting to call ${this.name}[${index}] which is not defined. teminating execution...`)
+      return
+    }
     this.middlewares[index](params,
       (_params) => { // next
         if ((index + 1) &lt; this.middlewares.length) {
           this.apply(params, index + 1, this.xyz)
         } else {
-          logger.silly(`middleware Stack for ${this.name} finished`)
+          logger.silly(`GMWH :: middleware Stack for ${this.name} finished`)
         }
       }, () => { // end
-        logger.silly(`middleware Stack for ${this.name} terminated by calling end()`)
+        logger.silly(`GMWH :: middleware Stack for ${this.name} terminated by calling end()`)
       }, this.xyz)
   }
 
@@ -158,14 +163,13 @@ class GenericMiddlewareHandler {
    * otherwise, the function at index `idx` will be removed
    */
   remove (idx) {
-    logger.silly(`removing middleware ${this.name}[${this.middlewareIndex}]`)
+    logger.silly(`GMWH :: removing middleware ${this.name}[${idx}]`)
     if (idx === -1) {
       this.middlewares = []
-      this.middlewareIndex = 0
     } else if (idx > -1 &amp;&amp; idx &lt; this.middlewares.length) {
       this.middlewares.splice(idx, 1)
     } else {
-      logger.error('Trying to remove a middleware that does not exists.')
+      logger.error('GMWH :: Trying to remove a middleware that does not exists.')
     }
   }
 }
@@ -183,7 +187,7 @@ module.exports = GenericMiddlewareHandler
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Tue Mar 07 2017 23:55:01 GMT+0330 (IRST) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Tue Mar 14 2017 22:42:01 GMT+0330 (IRST) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
 </footer>
 
 <script>prettyPrint();</script>

@@ -16,7 +16,7 @@
     src="https://code.jquery.com/jquery-3.1.1.min.js"
     integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
     crossorigin="anonymous"></script>
-    
+
 </head>
 
 <body>
@@ -130,14 +130,14 @@ body {
 
     
       
-      
-    
-    
-    
-    
 
     
       
+      
+    
+    
+    
+    
 
     
       
@@ -152,6 +152,12 @@ body {
         <a style="color: inherit" href="/documentations/advance/">advance</a>
       </li>
       
+      
+
+    
+      
+
+    
       
 
     
@@ -200,6 +206,9 @@ body {
 
     
       
+
+    
+      
       
     </ol>
 
@@ -221,77 +230,69 @@ aMicroServ.serviceRepository.on('event', ()=&gt;{})
 <p>The current emitted events are as follows:</p>
 
 <ul>
-  <li><code class="highlighter-rouge">'request:receive'</code>: emitted whenever a request (analogous to <code class="highlighter-rouge">.call()</code> from another service) is received. Parameters: an object with keys:
+  <li><code class="highlighter-rouge">'message:receive'</code>: emitted whenever a request (analogous to <code class="highlighter-rouge">.call()</code> from another service) is received. Parameters: an object with keys:
     <ul>
       <li>body: payload received with the request</li>
     </ul>
   </li>
-  <li><code class="highlighter-rouge">'request:send'</code>: emitted whenever a request (analogous to <code class="highlighter-rouge">.call()</code> from another service) is being sent. Parameters: an object with keys:
+  <li><code class="highlighter-rouge">'message:send'</code>: emitted whenever a request (analogous to <code class="highlighter-rouge">.call()</code>) is being sent. Parameters: an object with keys:
     <ul>
       <li>opt: options passed to the <code class="highlighter-rouge">.call()</code></li>
     </ul>
   </li>
-  <li><code class="highlighter-rouge">'cluster:join'</code>: emitted whenever a new node’s join request has been received.  Parameters: an object with keys:
-    <ul>
-      <li>body: payload received with the join request</li>
-    </ul>
-  </li>
 </ul>
 
-<p>Note that these events are received whenever <strong><em>Service Repository</em></strong> is informed of these events. This means that the Transport layer’s middlewares might drop a request/join request due to any reason and in these scenarios, the service repository will not be informed, hence these events will not be called.</p>
+<p>Note that these events are received whenever <strong><em>Service Repository</em></strong> is informed of these events. This means that the Transport layer’s middlewares might drop a request due to any reason and in these scenarios, the service repository will not be informed, hence these events will not be fired.</p>
 
-<p>A good way to use these events is through bootstrap functions. As an example, assume that your application wants a specific behavior whenever a node join the cluster and you want to implement this using events, not <a href="https://github.com/node-xyz/xyz-core/blob/master/xyz.js#L120">JoinDispatch and JoinReceive</a> middlewares.</p>
+<p>A good way to use these events is through bootstrap functions. As an example, assume that your application wants a specific logging behavior whenever a message is being received, for security reasons for example.</p>
 
 <p>You could do something like:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>function clusterListenerBootstrap (xyz) {
-  xyz.serviceRepository.on('cluster:join', (data) =&gt; {
-    console.log(`joined cluster from event listener`)
-    ...
-    ...
-  })
-}
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">_topSecretMessageLogger</span> <span class="p">(</span><span class="nx">xyz</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">xyz</span><span class="p">.</span><span class="nx">serviceRepository</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'message:receive'</span><span class="p">,</span> <span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">topSecretTunnel</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="s1">'message received!'</span><span class="p">)</span>
+    <span class="p">...</span>
+  <span class="p">})</span>
+<span class="p">}</span>
 
-module.exports = clusterListenerBootstrap
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">_topSecretMessageLogger</span></code></pre></figure>
 
+<p>And in you main app</p>
 
-// in you main app
-
-let aMicroServ = new XYZ({...})
-aMicroServ.bootstrap(clusterListenerBootstrap)
-
-</code></pre>
-</div>
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">let</span> <span class="nx">aMicroServ</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XYZ</span><span class="p">({...})</span>
+<span class="nx">aMicroServ</span><span class="p">.</span><span class="nx">bootstrap</span><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s1">'./_topSecretMessageLogger'</span><span class="p">))</span></code></pre></figure>
 
 <h2 id="some-events-under-the-hood">Some events under the hood</h2>
 
-<p>If you think that these two events are not enough, which is not hard to imagine!, you can also consider listening to xyz’s internal events.</p>
+<p>If you think that these two events are not enough, which is not hard to argue!, you can also consider listening to xyz’s internal events.</p>
 
-<p>XYZ is made up of two underlying layer, Service layer and Transport Layer. These two layers communicate with each other using events, and since you have access to them using <code class="highlighter-rouge">xyz.serviceRepository.transportClient</code> and <code class="highlighter-rouge">xyz.serviceRepository.transportServer</code>, you can also listen to these events.</p>
+<p>XYZ is made up of two underlying layer, Service layer and Transport Layer. These two layers communicate with each other using events, and since you have access to them using <code class="highlighter-rouge">xyz.serviceRepository.transport</code>, you can also listen to these events.</p>
 
-<p>As an example, you might have noticed that one of the default middlewares in transportServer’s <code class="highlighter-rouge">callReceiveMiddlewareStack</code> is something named <a href="https://github.com/node-xyz/xyz-core/blob/master/src/Transport/Middlewares/call/call.receive.event.middleware.js">call.receive.event.middleware</a>. The only thing that this middleware does is to emit an event on the transportServer so that the service Repository can listen to it and receive it.</p>
+<p>As an example, you might have noticed that one of the default middlewares in transportServer’s <code class="highlighter-rouge">call.receive.mw</code> is something named <strong><a href="https://github.com/node-xyz/xyz-core/blob/master/src/Transport/Middlewares/call/http.receive.event.js">_httpMessageEvent</a></strong>. The only thing that this middleware does is to emit an event on the transport layer so that the service Repository can listen to it and receive it.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>_transport.emit(
-    CONSTANTS.events.REQUEST, {
-      userPayload: body.userPayload,
-      serviceName: body.service
-    },
-    response)
-</code></pre>
-</div>
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">_transport</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span>
+    <span class="nx">CONSTANTS</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">MESSAGE</span><span class="p">,</span> <span class="p">{</span>
+      <span class="na">userPayload</span><span class="p">:</span> <span class="nx">body</span><span class="p">.</span><span class="nx">userPayload</span><span class="p">,</span>
+      <span class="na">serviceName</span><span class="p">:</span> <span class="nx">body</span><span class="p">.</span><span class="nx">service</span>
+    <span class="p">},</span>
+    <span class="nx">response</span><span class="p">)</span></code></pre></figure>
 
 <p>If you want to listen to it, you can do something like:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>let aMicroServ = new XYZ({...})
-let CONSTANTS  = aMicroServ.CONSTANTS
-// more info on constant names of events:
-// https://github.com/node-xyz/xyz-core/blob/master/src/Config/Constants.js
-aMicroServ.serviceRepository.transportClient.on(CONSTANTS.events.REQUEST, (data) =&gt; {
-    ...
-    ...
-  })
-</code></pre>
-</div>
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">let</span> <span class="nx">aMicroServ</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XYZ</span><span class="p">({...})</span>
+<span class="kd">let</span> <span class="nx">CONSTANTS</span>  <span class="o">=</span> <span class="nx">aMicroServ</span><span class="p">.</span><span class="nx">CONSTANTS</span>
+<span class="c1">// more info on constant names of events:</span>
+<span class="c1">// https://github.com/node-xyz/xyz-core/blob/master/src/Config/Constants.js</span>
+
+<span class="c1">// will listen to messages emitted from a server on port 4000</span>
+<span class="nx">aMicroServ</span><span class="p">.</span><span class="nx">serviceRepository</span><span class="p">.</span><span class="nx">transport</span><span class="p">.</span><span class="nx">servers</span><span class="p">[</span><span class="mi">4000</span><span class="p">].</span><span class="nx">on</span><span class="p">(</span><span class="nx">CONSTANTS</span><span class="p">.</span><span class="nx">events</span><span class="p">.</span><span class="nx">MESSAGE</span><span class="p">,</span> <span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="p">...</span>
+    <span class="p">...</span>
+  <span class="p">})</span></code></pre></figure>
+
+<h2 id="this-is-not-the-end">This is not the end!</h2>
+
+<p>We also encourage all plugins and middlewares to use this design pattern efficiently, when required. This means that one bootstrap function might actually extent the number of event that the <code class="highlighter-rouge">serviceRepository</code> can emit and add an event to it. As an example, since each bootstrap function has access to <code class="highlighter-rouge">xyz</code>, it has access to <code class="highlighter-rouge">xyz.serviceRepository</code>, hence it can <code class="highlighter-rouge">xyz.serviceRepository.emit(...)</code> and your code listen to it like any other event.</p>
 
 
 
@@ -306,9 +307,10 @@ aMicroServ.serviceRepository.transportClient.on(CONSTANTS.events.REQUEST, (data)
 </style>
 <footer class="site-footer">
   <span class="site-footer-owner">
-    <a href="http://localhost:2000">NODE XYZ</a>
+    <a href="http://localhost:1999">NODE XYZ</a>
      is maintained by <a href="">Kian Peymani & Ajand </a></span>
   <small>
+    <br>
     <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a></small>
 </footer>
 

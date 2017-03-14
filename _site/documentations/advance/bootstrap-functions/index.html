@@ -16,7 +16,7 @@
     src="https://code.jquery.com/jquery-3.1.1.min.js"
     integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
     crossorigin="anonymous"></script>
-    
+
 </head>
 
 <body>
@@ -130,14 +130,14 @@ body {
 
     
       
-      
-    
-    
-    
-    
 
     
       
+      
+    
+    
+    
+    
 
     
       
@@ -165,11 +165,20 @@ body {
 
     
       
+
+    
+      
+
+    
+      
       
     
     
     
     
+
+    
+      
 
     
       
@@ -196,7 +205,7 @@ body {
       
       
       <li class="active">
-        <a style="color: inherit" href="/documentations/advance/bootstrap-functions/">ootstrap-function</a>
+        <a style="color: inherit" href="/documentations/advance/bootstrap-functions/">bootstrap-function</a>
       </li>
       
       
@@ -208,62 +217,83 @@ body {
 
     <h1 id="bootstrap-functions">Bootstrap functions</h1>
 
-<p>Configuring an xyz instance can sometimes be annoying. Many nodes want to have the same configurations, same middlewares etc, but is is good to copy and paste a chunk of code in all of these microservices? I mean, think about it, Aside from <code class="highlighter-rouge">.register</code> which creates new endpoints for functions, there is a good chance that most of the lines of the microservices that you are writing are the same among all of the microservices in that application/project. One of the ways to encapsulate these common steps in an isolated environment so that they can be reused is <strong>Bootstrap function</strong>.</p>
+<p>Configuring an xyz instance can sometimes be annoying. Many nodes want to have the same configurations, same middlewares etc., but is it good to copy and paste a chunk of code in all of these microservices? I mean, think about it, Aside from <code class="highlighter-rouge">.register</code> which creates new endpoints for functions, and is dependent to the <strong>business logic</strong>, there is a good chance that most of the lines of the microservices that you are writing are the same among all of the microservices in that application/project. One of the ways to encapsulate these common steps in an isolated environment so that they can be reused as a <strong>Bootstrap function</strong>.</p>
 
-<p>Bootstrap functions are… nothing in fact. They’re just functions that take in the current xyz instance as argument and are free to make any modifications to it. This can include <code class="highlighter-rouge">exposing new functions</code>, listening to <code class="highlighter-rouge">events</code>, registering new <code class="highlighter-rouge">middlewares</code> etc.</p>
+<p>Bootstrap functions are… nothing in fact. They’re just <strong><em>functions that take in the current xyz instance as argument and are free to make any modifications to it</em></strong>. This can include <strong>exposing new functions</strong>, listening to <strong>events</strong>, registering new <strong>middlewares</strong> etc.</p>
 
-<p>A complete example of this is the <a href="https://github.com/node-xyz/xyz.monitor.basic.bootstrap">Monitor Bootstrap function</a>. Let’s have a closer look at this bootstrap function:</p>
+<p>A complete example of this is the <a href="https://github.com/node-xyz/xyz.monitor.basic.bootstrap">Monitor Bootstrap function</a>. What this bootstrap function basically does is that it inserts two middlewares in the transport layer, which count the number of messages sent and received. Finally it will launch an express HTTP server to serve this information, alongside some additional data about the system, to a specific end point.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>let express = require('express')
-let monitorCallReceive = require('./middleware/xyz.monitor.call.receive.middleware')
-let monitorCallSend = require('./middleware/xyz.monitor.call.send.middleware')
-let load = { snd: 0, rcv: 0}
-let logger
+<p>Let’s see the big picture before going any further!</p>
 
-function basicMonitorBootstrap (xyz, port = 5000) {
-  /*
+<p><img src="/assets/img/monitor.info.png" alt="" /></p>
+
+<p>As you see, the monitor bootstrap will automatically insert two new middlewares, indicated by green color in the image. These middlewares will measure the message rate <strong>at transport level</strong> and will report them to a new component, independent of <code class="highlighter-rouge">xyz-core</code>, an express server.</p>
+
+<p>Keeping these information in mind, now we can see the code:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">_basicMonitor</span> <span class="p">(</span><span class="nx">xyz</span><span class="p">,</span> <span class="nx">port</span> <span class="o">=</span> <span class="mi">5000</span><span class="p">)</span> <span class="p">{</span>
+  <span class="cm">/*
   Initialize a simple express server
-   */
-  logger = xyz.logger
-  var app = express()
-  app.use(express.static(__dirname + '/lib'))
+   */</span>
+  <span class="nx">logger</span> <span class="o">=</span> <span class="nx">xyz</span><span class="p">.</span><span class="nx">logger</span>
+  <span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="nx">express</span><span class="p">()</span>
+  <span class="nx">app</span><span class="p">.</span><span class="nx">use</span><span class="p">(</span><span class="nx">express</span><span class="p">.</span><span class="kr">static</span><span class="p">(</span><span class="nx">__dirname</span> <span class="o">+</span> <span class="s1">'/lib'</span><span class="p">))</span>
 
-  app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/index.html')
-  })
+  <span class="nx">app</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'/'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">sendFile</span><span class="p">(</span><span class="nx">__dirname</span> <span class="o">+</span> <span class="s1">'/index.html'</span><span class="p">)</span>
+  <span class="p">})</span>
 
-  app.get('/all', function (req, res) {
-    res.json({load: load, inspectJSON: xyz.inspectJSON(), inspect: xyz.inspect()})
-  })
-  app.listen(port, function () {
-    logger.info(`monitor server started at port ${port}`)
-  })
+  <span class="nx">app</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'/all'</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">({</span><span class="na">load</span><span class="p">:</span> <span class="nx">load</span><span class="p">,</span> <span class="na">inspectJSON</span><span class="p">:</span> <span class="nx">xyz</span><span class="p">.</span><span class="nx">inspectJSON</span><span class="p">(),</span> <span class="na">inspect</span><span class="p">:</span> <span class="nx">xyz</span><span class="p">.</span><span class="nx">inspect</span><span class="p">()})</span>
+  <span class="p">})</span>
+  <span class="kd">let</span> <span class="nx">listener</span> <span class="o">=</span> <span class="nx">app</span><span class="p">.</span><span class="nx">listen</span><span class="p">(</span><span class="nx">port</span><span class="p">,</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="nx">logger</span><span class="p">.</span><span class="nx">info</span><span class="p">(</span><span class="err">`</span><span class="nx">monitor</span> <span class="nx">server</span> <span class="nx">started</span> <span class="nx">at</span> <span class="nx">port</span> <span class="nx">$</span><span class="p">{</span><span class="nx">listener</span><span class="p">.</span><span class="nx">address</span><span class="p">().</span><span class="nx">port</span><span class="p">}</span><span class="err">`</span><span class="p">)</span>
+  <span class="p">})</span>
 
-  /*
+  <span class="cm">/*
   Register required middlewares
-   */
-  xyz.serviceRepository.transportServer.callReceiveMiddlewareStack.register(0,
-    monitorCallReceive)
-  xyz.serviceRepository.transportClient.callDispatchMiddlewareStack.register(0,
-    monitorCallSend)
-}
+   */</span>
+  <span class="nx">xyz</span><span class="p">.</span><span class="nx">middlewares</span><span class="p">().</span><span class="nx">transport</span><span class="p">.</span><span class="nx">server</span><span class="p">(</span><span class="s1">'CALL'</span><span class="p">)(</span><span class="nx">xyz</span><span class="p">.</span><span class="nx">id</span><span class="p">().</span><span class="nx">port</span><span class="p">).</span><span class="nx">register</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span>
+    <span class="nx">monitorCallReceive</span><span class="p">)</span>
+  <span class="nx">xyz</span><span class="p">.</span><span class="nx">middlewares</span><span class="p">().</span><span class="nx">transport</span><span class="p">.</span><span class="nx">client</span><span class="p">(</span><span class="s1">'CALL'</span><span class="p">).</span><span class="nx">register</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span>
+    <span class="nx">monitorCallSend</span><span class="p">)</span>
+<span class="p">}</span>
 
-module.exports = {
-  bootstrap: basicMonitorBootstrap,
-  setSendLoad: (aLoad) =&gt; {
-    load.snd = aLoad
-  },
-  setRcvLoad: (aLoad) =&gt; {
-    load.rcv = aLoad
-  }
-}
-</code></pre>
-</div>
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="c1">// will be used by the user of this bootstrap function</span>
+  <span class="na">bootstrap</span><span class="p">:</span> <span class="nx">_basicMonitor</span><span class="p">,</span>
+
+  <span class="c1">// will be used by the two middlewares inserted</span>
+  <span class="na">setSendLoad</span><span class="p">:</span> <span class="p">(</span><span class="nx">aLoad</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">load</span><span class="p">.</span><span class="nx">snd</span> <span class="o">=</span> <span class="nx">aLoad</span>
+  <span class="p">},</span>
+  <span class="na">setRcvLoad</span><span class="p">:</span> <span class="p">(</span><span class="nx">aLoad</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">load</span><span class="p">.</span><span class="nx">rcv</span> <span class="o">=</span> <span class="nx">aLoad</span>
+  <span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>As you see, inside the bootstrap function, we manipulate a <code class="highlighter-rouge">xyz</code> parameter which is supposed to be passed into this function when it is being invoked. This parameter can be treated exactly as if it were an instance of the <code class="highlighter-rouge">XYZ</code> class. To simplify this even more:</p>
+
+<p>Inside your normal code</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">let</span> <span class="nx">ms</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XYZ</span><span class="p">({...})</span>
+
+<span class="nx">ms</span><span class="p">.</span><span class="nx">middlewres</span><span class="p">().</span><span class="nx">register</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nx">_fooMw</span><span class="p">)</span></code></pre></figure>
+
+<p>inside a bootstrap function:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">bootstrapFoo</span><span class="p">(</span><span class="nx">xyz</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">xyz</span><span class="p">.</span><span class="nx">middlewares</span><span class="p">().</span><span class="nx">register</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nx">_fooMw</span><span class="p">)</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>It can also be seen that this simple monitor example will insert these middlewares to the default <code class="highlighter-rouge">CALL</code> route, located on the <strong>primary server and port</strong> of the node by default. This bootstrap function can be configured to work with multiple servers and outgoing routes, but that is not the our primary concern right now. You can see the repository of this bootstrap function for more information.</p>
+
+<h4 id="notes">Notes</h4>
 
 <ul>
-  <li>It can be seen that every bootstrap module must return a function (the actual bootstrap function) that takes the <code class="highlighter-rouge">xyz</code> object as an argument. In this case, this bootstrap function exports <code class="highlighter-rouge">bootstrap: basicMonitorBootstrap</code> which will be later used to apply this bootstrap function.</li>
+  <li>Every bootstrap module must return a function (the actual bootstrap function) that takes the <code class="highlighter-rouge">xyz</code> object as an argument. In this case, this bootstrap function exports <code class="highlighter-rouge">bootstrap: _basicMonitor</code> which will be later used to apply this bootstrap function.</li>
   <li>Inside a bootstrap function, you are allowed to do almost any thing. In this case, we are creating a very simple express server to serve a single html file and a json API and we are registering two new middlewares inside the system.</li>
-  <li>Note that theses two middlewares that we are exposing will later on used
+  <li>Theses two middlewares that we are exposing will later on use
     <div class="highlighter-rouge"><pre class="highlight"><code>setSendLoad: (aLoad) =&gt; {
   load.snd = aLoad
 },
@@ -276,27 +306,39 @@ setRcvLoad: (aLoad) =&gt; {
   </li>
 </ul>
 
+<p>Assuming that we have this bootstrap function, you could use it with:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">let</span> <span class="nx">ms</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XYZ</span><span class="p">({...})</span>
+<span class="kd">let</span> <span class="nx">_basicMonitor</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'./_basicMonitor'</span><span class="p">)</span>
+
+<span class="nx">_basicMonitor</span><span class="p">(</span><span class="nx">ms</span><span class="p">)</span></code></pre></figure>
+
+<p>This would work, but we highly recommend you to use this method:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">let</span> <span class="nx">ms</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XYZ</span><span class="p">({...})</span>
+<span class="kd">let</span> <span class="nx">_basicMonitor</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'./_basicMonitor'</span><span class="p">)</span>
+
+<span class="nx">ms</span><span class="p">.</span><span class="nx">bootstrap</span><span class="p">(</span><span class="nx">_basicMonitor</span><span class="p">)</span></code></pre></figure>
+
+<p>This allows an xyz instance to keep track of its bootstrap functions and ensure their compatibility, if required. Aside form that, it can output its list of bootstrap functions in logs. You have already this when you use <code class="highlighter-rouge">console.log</code> on an instance of xyz. Take another look if you haven’t seen the bootstrap section printed!</p>
+
 <p>So, given that this bootstrap function is written once, you can always use it inside any of your microservices with just one (or two, including the <code class="highlighter-rouge">require</code> statement) line of code:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>let xyzMonitor = require('./../xyz.monitor.basic.bootstrap').bootstrap
-let mathMs = new XYZ({
-  selfConf: {...},
-  systemConf: { nodes: []}
-})
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">let</span> <span class="nx">xyzMonitor</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'xyz.monitor.bootstrap'</span><span class="p">).</span><span class="nx">bootstrap</span>
+<span class="kd">let</span> <span class="nx">mathMs</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XYZ</span><span class="p">({</span>
+  <span class="na">selfConf</span><span class="p">:</span> <span class="p">{...},</span>
+  <span class="na">systemConf</span><span class="p">:</span> <span class="p">{</span> <span class="na">nodes</span><span class="p">:</span> <span class="p">[]}</span>
+<span class="p">})</span>
 
-mathMs.bootstrap(xyzMonitor, 7000)
+<span class="nx">mathMs</span><span class="p">.</span><span class="nx">bootstrap</span><span class="p">(</span><span class="nx">xyzMonitor</span><span class="p">,</span> <span class="mi">7000</span><span class="p">)</span></code></pre></figure>
 
-</code></pre>
-</div>
+<p>After you set up this bootstrap function, you can view a nice monitoring page at your localhost (and on port <code class="highlighter-rouge">7000</code> in this case):</p>
 
-<p>There is complete example of this <a href="https://github.com/node-xyz/xyz.monitor.basic.bootstrap/tree/master/example">here</a>. After you set up this bootstrap function, you can view a nice monitoring page at your localhost (and on port <code class="highlighter-rouge">7000</code> in this case):</p>
+<p><img src="/assets/img/monitor.example.png" alt="example monitor app" /></p>
 
-<p><img src="/assets/monitor.png" alt="example monitor app" /></p>
+<p>This bootstrap function is available on both npm and github. You can install and use it using:</p>
 
-<p>Note that <code class="highlighter-rouge">xyz.bootstrap(aFunction, ...args)</code> is completely equal to <code class="highlighter-rouge">aFunction(xyz, ...args)</code>. The inly difference is that we suggest using the first way, because in this way xyz can track and know which bootstrap functions have been applied and show them in logs. As an example, in this monitoring web page you can see that:</p>
-
-<div class="highlighter-rouge"><pre class="highlight"><code>Bootstrap Functions:
-  pingBoostraper,basicMonitorBootstrap
+<div class="highlighter-rouge"><pre class="highlight"><code>npm install xyz.monitor.basic.bootstrap
 </code></pre>
 </div>
 
@@ -313,9 +355,10 @@ mathMs.bootstrap(xyzMonitor, 7000)
 </style>
 <footer class="site-footer">
   <span class="site-footer-owner">
-    <a href="http://localhost:2000">NODE XYZ</a>
+    <a href="http://localhost:1999">NODE XYZ</a>
      is maintained by <a href="">Kian Peymani & Ajand </a></span>
   <small>
+    <br>
     <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a></small>
 </footer>
 
