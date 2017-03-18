@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta charset="UTF-8">
+  <title>Ping Mechanism - Node XYZ </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#157878">
+  <link rel="stylesheet" href="/assets/css/normalize.css">
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="/assets/css/theme.css">
+  <link rel="stylesheet" href="/assets/css/syntax.css">
+  <!-- <link rel="stylesheet" href="/assets/css/main.css"> -->
+  <link rel="stylesheet" href="/assets/css/stylish.css">
+  <link rel="stylesheet" href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+
+  <script
+    src="https://code.jquery.com/jquery-3.1.1.min.js"
+    integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+    crossorigin="anonymous"></script>
+
+</head>
+
+<body>
+
+<style media="screen">
+body {
+  background-color: var(--light-color);
+  color: var(--dark-color)
+}
+</style>
+<style media="screen">
+/* Nav */
+#mainNav {
+  color: var(--light-color) !important;
+}
+
+</style>
+
+<nav class="navbar navbar-inverse" style="margin:0" id="mainNav">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand spacing" href="/">NODE XYZ</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Repositories <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li class="padding"> CORE REPOSITORIES </li>
+            <li><a href="https://github.com/node-xyz/xyz-core" class="spacing">xyz.core</a></li>
+            <li><a href="https://github.com/node-xyz/xyz-cli" class="spacing">xyz.cli</a></li>
+            <li role="separator" class="divider"></li>
+            <li class="padding"> ADDITIONAL </li>
+            <li><a href="https://github.com/node-xyz/xyz.monitor.basic.bootstrap" class="spacing">xyz.monitor</a></li>
+            <li><a href="https://github.com/node-xyz/xyz.ping.swim.bootstrap" class="spacing">xyz.ping.swim</a></li>
+            <li><a href="https://github.com/node-xyz/xyz.ping.stochastic.bootstrap" class="spacing">xyz.ping.stochastic</a></li>
+          </ul>
+        </li>
+      </ul>
+
+      <ul class="nav navbar-nav navbar-left">
+        <!-- <li><a href="#">Link</a></li> -->
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Documentations <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li class="padding"> READING </li>
+            <li><a href="/documentations/getting-started">Getting Started</a></li>
+            <li><a href="/documentations/advance">Advance Topics</a></li>
+            <li><a href="/apidoc">API DOC</a></li>
+            <li role="separator" class="divider"></li>
+            <li class="padding"> EXAMPLES </li>
+            <li class="spacing"><a href="https://github.com/node-xyz/xyz.example.getting.started">xyz.getting.started</a></li>
+            <li class="spacing"><a href="https://github.com/node-xyz/xyz.example.logger.bootstrap">xyz.logger.bootstrap</a></li>
+            <li class="spacing"><a href="https://github.com/node-xyz/xyz.example.auth.basic.receive">xyz.auth.basic.receive</a></li>
+            <li class="spacing"><a href="https://github.com/node-xyz/xyz.example.auth.basic.send">xyz.auth.basic.send</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+<section class="container">
+
+  <ol class="breadcrumb" style="margin: 10px; color: white;">
+    <li><a class='spacing' href="/">Node XYZ </a></li>
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+      
+
+    
+      
+      
+      <li >
+        <a style="color: inherit" href="/documentations/">documentation</a>
+      </li>
+      
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+      
+    
+    
+    
+    
+
+    
+      
+
+    
+      
+
+    
+      
+      
+      <li >
+        <a style="color: inherit" href="/documentations/advance/">advance</a>
+      </li>
+      
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+      
+    
+    
+    
+    
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+      
+      <li class="active">
+        <a style="color: inherit" href="/documentations/advance/ping-mechanisms/">ping-mechanisms</a>
+      </li>
+      
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+      
+    </ol>
+
+    <hr>
+
+
+    <div class="row">
+  <div class="col col-md-2" id="__side">
+    <div id="___side">
+      <p class="spacing"> CONTENTS </p>
+      <ol style="padding-left:5px">
+      </ol>
+
+    </div>
+  </div>
+
+  <div class="col col-md-10">
+    <p>In this section we are going to discuss ping mechanism. We are going to understand what they are and what role they play in a xyz node.
+We will avoid getting too technical by avoiding most of the syntax detail, since it is not likely for most developers to write their own ping mechanism. Therefore, we will stick to high level concepts and <strong>discuss</strong> rather than implement. We will use the <a href="">default ping</a> as the simple example and sometimes we will refer to it for further clarity.</p>
+
+<h1 id="ping-the-definition">Ping: The definition</h1>
+
+<p>The process that we call <strong><em>Ping</em></strong> in xyz has actually nothing to do with the <a href="https://en.wikipedia.org/wiki/Ping_(networking_utility)">Ping network utility</a> that you probably have heard of already.</p>
+
+<blockquote>
+  <p>The process of <strong>identifying</strong>, <strong>exploring</strong> and <strong>checking the availability</strong> of nodes in xyz is called ping.</p>
+</blockquote>
+
+<p>The only common part of the two pings is that both of them are used for checking the availability. Sad fact: If I were to re-write xyz from scratch today, I wouldn’t have name it Ping. Too late for that though. Moving On.</p>
+
+<p>Ping Mechanisms should be encapsulated inside a bootstrap function. This will allow the developer to easily modify the type of the Ping to be used. Like other plugins of xyz (middlewares and bootstrap functions), xyz provides only the default ping in the simplest form built in and other, more sophisticated, pings are written as independent modules that you can import and use.</p>
+
+<p>Ping Mechanism is crucial for xyz’s <code class="highlighter-rouge">ServiceRepository</code> to function properly. In other words, It wouldn’t work without a proper ping mechanism.</p>
+
+<p>Ping Mechanisms <strong>must</strong> include the current node too. XYZ does not distinguish between foreign and local nodes and all of them are treated the same. Consequently, if you run a single node with <code class="highlighter-rouge">selfConf.logLevel: debug</code> you see track of ping messages being sent to the local node. Furthermore, a node might not be able to send a message to itself in its first seconds of exisstance, since the ping mechanism hasn’t yet explored it! This might seem a bit unusual, but it brings a valuable <em>generalization</em> and <em>uniformity</em> which can make your day much easier.</p>
+
+<p>Without further explanation, let’s jump into to duties of every ping mechanism and learn the details through it.</p>
+
+<h1 id="ping-the-duties">Ping: The duties</h1>
+
+<h3 id="identification">Identification</h3>
+
+<p>Every Ping Mechanism should identify other foreign nodes that are eligible for being part of the system. This is the most important step and the following ones (Exploring and Checking) are dependent on it. identifying nodes can usually happen through different ways. Let’s discuss some of them</p>
+
+<ul>
+  <li>
+    <p><code class="highlighter-rouge">systemConf.nodes[]</code>: This is the simplest case of identifying the system. In fact, it lifts the burden of identification from Ping’s shoulders and hands in a list of nodes that are deemed as identified so they can be carried to the next steps.</p>
+  </li>
+  <li>
+    <p>Newly added nodes: This type of identification is is very important and is what your system probably needs. Let’s face it, you can not (+ <em>should not</em>) hardcode the list of all nodes in the system inside a static list because:</p>
+    <ul>
+      <li>impossible to get it right. One of the benefits of microservice architecture is that new nodes can join and old ones can leave. So a static list is destined to fail.</li>
+      <li>its hard and we’re lazy.</li>
+    </ul>
+
+    <p>A ping mechanism <strong>must</strong> provide a way for new nodes to join the system. Furthermore, when a new node has been added, all other already existing nodes should be informed.</p>
+  </li>
+</ul>
+
+<h3 id="exploring">Exploring</h3>
+
+<p>After a node has been identified, it should be explored. This means that a node X that now is aware of the existence of another node, say Y, should get informed of the services of Y. Exploring services are the most important aspect, but it is usually not enough. As you might have read in <a href="">Servers and Routes</a> section, X should also learn about the servers that Y has and the routes of each server and its port. The results of Exploring should be stored inside a property of <code class="highlighter-rouge">ServiceRepository</code> object so that it can use it later in <code class="highlighter-rouge">sendStrategy</code> and other tasks.</p>
+
+<p>These variables are:</p>
+
+<h3 id="checking">Checking</h3>
+
+<p>Given that X knows Y completely, it should not keep trusting it forever. This means that X should iteratively probe Y and check if it is still in good shape. This is because <strong>changes in topology of services</strong> is almost inevitable in microservices. It’s actually the hole point of them, being able to add or compose services to reach new business requirements.</p>
+
+<h1 id="case-study-the-default-ping">Case study: The Default Ping</h1>
+
+<p>In order to make your knowledge of Ping more comprehensive and solid, let’s see how the default ping performs these important tasks. Please keep in mind that this particular Ping might handle some of these tasks pretty naively. This is because <em>Default Ping</em> is <strong>just a default fallback</strong> for cases where you do not provide a ping mechanism. It is also good for local development, because it handles most of the issues robustly, with a lot of overhead (like solving a problem with <strong>brute force</strong> algorithms. It will reach the optimum solution, but with some extra computation), so you don’t have to deal with service discovery issues and can focus on <strong>business logic</strong>.</p>
+
+<h3 id="required-setup">Required Setup</h3>
+
+<p>The Default ping will create one new outgoing route named <code class="highlighter-rouge">PING</code>. It also creates a server route on the <strong>default port</strong> (aka. port of the first transport of the node) of the node, again, named <code class="highlighter-rouge">PING</code>. All of the messages will be sent and received through these routes and your <code class="highlighter-rouge">CALL</code> route is safe.</p>
+
+<p>Default ping can be disabled by setting <code class="highlighter-rouge">selfConf.defaultBootstrap: false</code>. If you do so, you’ll see that these routes will not be created.</p>
+
+<h3 id="exploring-and-checking">Exploring and Checking.</h3>
+
+<p>Given that node <code class="highlighter-rouge">X</code> knows (somehow) about the existence of nodes <code class="highlighter-rouge">Y</code> and <code class="highlighter-rouge">Z</code>, it will perform the following to keep track of them.</p>
+
+<p>It will iteratively send a message through <code class="highlighter-rouge">PING</code> to each of them. Given that <code class="highlighter-rouge">X</code> has just sent a message to <code class="highlighter-rouge">Y</code>, in response it expects the following to be received:</p>
+<ul>
+  <li>The list of services that the <code class="highlighter-rouge">Y</code> is exposing via <code class="highlighter-rouge">.register()</code>.</li>
+  <li>The list of nodes that <code class="highlighter-rouge">Y</code> is aware of them, which is expected to be [<code class="highlighter-rouge">X</code>, <code class="highlighter-rouge">Y</code>, <code class="highlighter-rouge">Z</code>] in a normal day.</li>
+  <li>the list of routes and servers of <code class="highlighter-rouge">Y</code>.</li>
+</ul>
+
+<p>in the second item of the list, if an ip:port is mentioned by <code class="highlighter-rouge">Y</code> that <code class="highlighter-rouge">X</code> is not aware of, <code class="highlighter-rouge">X</code> will add it to an internal variable named <code class="highlighter-rouge">joinCandidates</code> and ping it in the iteration. If it responds successfully, it will be permanently added as a new node. Note that all join and leaves should be informed to <code class="highlighter-rouge">ServiceRepository</code> by calling <a href="/apidoc/ServiceRepository.html#joinNode"><code class="highlighter-rouge">ServiceRepository.joinNode()</code></a> and <a href="/apidoc/ServiceRepository.html#kickNode"><code class="highlighter-rouge">ServiceRepository.kickNode()</code></a>. Note that these methods will update <code class="highlighter-rouge">CONFIG.systemCong.nodes[]</code>, which should be used at the start of each iteration of Exploring and Checking to find the address of all nodes.</p>
+
+<p>The values in the first and third item of the list will be stored in <a href="/apidoc/ServiceRepository.html#foreignNodes"><code class="highlighter-rouge">ServiceRepository.foreignNodes{}</code></a> and <a href="/apidoc/ServiceRepository.html#foreignRoutes"><code class="highlighter-rouge">ServiceRepository.foreignRoutes{}</code></a> respectively. The format of <code class="highlighter-rouge">foreignRoutes</code> is pretty simple, but <code class="highlighter-rouge">foreignNodes</code> isn’t. This data structure will be discussed in <a href="/advance/send-strategies">Send Strategies</a>.</p>
+
+<p>What happens if <code class="highlighter-rouge">X</code> pings <code class="highlighter-rouge">Y</code> and the message fails? <code class="highlighter-rouge">X</code> will tolerate this up to a number of failures. The default value is 10. This means that if a node fails to respond for 10 consecutive pings, it will be kicked. Will this message be broadcasted? <strong>No</strong>. Each node will find out about this independently by doing its own ping iteration.</p>
+
+<h3 id="identification-and-join">Identification and Join</h3>
+
+<p>default ping will treat all nodes mentioned in <code class="highlighter-rouge">systemConf.nodes[]</code> as known nodes and passes them directly to the <em>Exploring and Checking</em> phase.</p>
+
+<p>Joins can happen in two forms:</p>
+
+<ul>
+  <li>A new node directly pings an internal node to join</li>
+  <li>An known node mentions a new node’s ip and port in response of a ping message, which was explained in the last section.</li>
+</ul>
+
+<p>Let’s further discuss the former one.</p>
+
+<p>Recalling from the last section, assume that <code class="highlighter-rouge">X</code>, <code class="highlighter-rouge">Y</code> and <code class="highlighter-rouge">Z</code> are three nodes that know each other. <code class="highlighter-rouge">P</code> is a new node attempting to join. First, let’s see what <code class="highlighter-rouge">P</code> would do.</p>
+
+<p>As you might have already seen, we can pass <code class="highlighter-rouge">selfConf.seed[]</code> to the constructor of xyz. In <a href="/documentations/getting-started">getting started</a> section we assumed that this key will magically be the gateway for us to join a system. Now let’s see how.</p>
+
+<p>Fun fact is that xyz-core itself does <strong>nothing</strong> with <code class="highlighter-rouge">selfConf.seed[]</code>. It is there merely for an arbitrary ping mechanism to use it. The default ping will sequencally send a <strong>normal Ping message</strong> to nodes in <code class="highlighter-rouge">selfConf.seed[]</code> until one of them responds. Since this is a normal message through <code class="highlighter-rouge">PING</code> route, recalling from the last section, the callee will respond with lots of information, including <strong>list of all nodes in the system</strong>. Hence P can ping all of them starting from the next iteration and will eventually (<em>soon</em> is also a good alternative for <em>eventually</em>) learn the entire system</p>
+
+<p>Assuming that <code class="highlighter-rouge">P</code> joins the system through Pinging <code class="highlighter-rouge">X</code>, let’s see the same story from X’s point of view.</p>
+
+<p><code class="highlighter-rouge">X</code> will receive a <strong>normal ping message</strong> from <code class="highlighter-rouge">P</code>. Things will soon become a bit <strong>far from normal</strong> since <code class="highlighter-rouge">X</code> will understand that <code class="highlighter-rouge">P</code> is not it its <code class="highlighter-rouge">systemConf.nodes[]</code> list. In other words, <strong><code class="highlighter-rouge">P</code> is a new node attempting to join</strong>. This event will always cause a <code class="highlighter-rouge">warn</code> log:</p>
+
+<p><code class="highlighter-rouge">warn :: new node is pinging me. adding to joinCandidate list. address : X.X.X.X:P </code></p>
+
+<p><code class="highlighter-rouge">X</code> will add <code class="highlighter-rouge">P</code> to the <code class="highlighter-rouge">joinCandidates</code> list and will ping <code class="highlighter-rouge">P</code> in the next iteration. If <code class="highlighter-rouge">P</code> responds successfully, it will be permanently added. Will <code class="highlighter-rouge">X</code> broadcast a message to other nodes to inform them that <code class="highlighter-rouge">P</code> has joined? <strong>No</strong>. Because Default Ping has a <strong><em>no-auth</em></strong> policy be default and when <code class="highlighter-rouge">X</code> passed a list of all nodes to <code class="highlighter-rouge">P</code>, it has actually done the same as broadcasting. Why? because <code class="highlighter-rouge">P</code> will ping <code class="highlighter-rouge">Y</code> and <code class="highlighter-rouge">Z</code> (who yet do not know <code class="highlighter-rouge">P</code> exists). <code class="highlighter-rouge">Y</code> and <code class="highlighter-rouge">Z</code> will place <code class="highlighter-rouge">P</code> in <code class="highlighter-rouge">joinCandidates</code> list for an iteration and both of them will add it permanently afterwards. Once <code class="highlighter-rouge">P</code> is added, <code class="highlighter-rouge">P</code> will be chosen for ping messages and <code class="highlighter-rouge">Y</code> and <code class="highlighter-rouge">Z</code> can explore <code class="highlighter-rouge">P</code> too.</p>
+
+  </div>
+</div>
+
+<script type="text/javascript">
+var side = $("#___side")
+var $side = $('#___side > ol')
+var heads = $('h1')
+function getSideBarElem(name, id) {
+  return `<li>
+    <a href="#${id}">
+      ${name.replace(/-/g, ' ')}
+    </a>
+  </li>`
+}
+$.each( heads, function(idx, elem) {
+  $side.append(getSideBarElem($(elem).html(), elem.id))
+})
+
+// $("#__side").css('width', $("#__side").parent().width() + 'px')
+
+</script>
+
+
+  </section>
+  
+<style media="screen">
+  .site-footer{
+    padding: 30px;
+    color: var(--light-color);
+    background-color: var(--very-dark);
+    margin-top: 40px;
+  }
+</style>
+<footer class="site-footer">
+  <span class="site-footer-owner">
+    <a href="http://localhost:1999">NODE XYZ</a>
+     is maintained by <a href="">Kian Peymani & Ajand </a></span>
+  <small>
+    <br>
+    <span class="site-footer-credits">This page was generated and hosted by <a href="https://pages.github.com">GitHub Pages</a></small>
+</footer>
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" charset="utf-8"></script>
+
+</body>
+</html>

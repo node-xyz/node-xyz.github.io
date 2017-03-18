@@ -2,7 +2,7 @@
 <html lang="en-us">
 <head>
   <meta charset="UTF-8">
-  <title>NODE XYZ</title>
+  <title>Servers and Routes - Node XYZ </title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#157878">
   <link rel="stylesheet" href="/assets/css/normalize.css">
@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="/assets/css/syntax.css">
   <!-- <link rel="stylesheet" href="/assets/css/main.css"> -->
   <link rel="stylesheet" href="/assets/css/stylish.css">
+  <link rel="stylesheet" href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
 
   <script
     src="https://code.jquery.com/jquery-3.1.1.min.js"
@@ -133,6 +134,12 @@ body {
 
     
       
+
+    
+      
+
+    
+      
       
     
     
@@ -152,6 +159,12 @@ body {
         <a style="color: inherit" href="/documentations/advance/">advance</a>
       </li>
       
+      
+
+    
+      
+
+    
       
 
     
@@ -209,6 +222,12 @@ body {
 
     
       
+
+    
+      
+
+    
+      
       
     </ol>
 
@@ -228,7 +247,15 @@ body {
   <div class="col col-md-10">
     <h1 id="servers-and-routes">Servers and Routes</h1>
 
-<p>XYZ nodes are transparent to their Transport layer mechanism. In other words, inside the business logic of your application, you need to know the minimum about the underlying Transport layer of your message. This Article can be divided into two sections:</p>
+<p>XYZ nodes are highly transparent to their Transport layer mechanism. In other words, inside the business logic of your application, you need to know <strong>the minimum about the underlying Transport layer of your message</strong>. The only information that you <strong>can</strong> provide to determine your transport type, which is optional, is defining an outgoing route/middleware for the message. We will learn about how to do this in this tutorial.</p>
+
+<blockquote>
+  <p>“Transport independence is the ability to move messages from one microservice to another without requiring microservices to know about each other”</p>
+
+  <p>– Richard Rodger. The Tao of Microservices</p>
+</blockquote>
+
+<p>This Article can be divided into two sections:</p>
 <ol>
   <li><strong>Outgoing Routes</strong>: an abstraction for different ways to send messages.</li>
   <li><strong>Server Routes</strong>: an abstraction for different ways to receive a message.</li>
@@ -561,7 +588,7 @@ UDPServer @ 6000 ::
 
 <h3 id="creating-server-at-runtime">Creating server at runtime</h3>
 
-<p>A method in xyz-core will accept the same three parameters ans has almost the same behavior. An example that justifies why a method was also needed for adding a server is the [swim ping mechanism]. This ping mechanism is isolated in a bootstrap function, although it needs a UDP server and client. Having a method to add a server allows this ping bootstrap function to create new servers and routes <strong>without needing the developer to change a single line of their business logic code or config.</strong></p>
+<p>A method in xyz-core will accept the same three parameters ans has almost the same behavior. An example that justifies why a method was also needed for adding a server is the <a href="">swim ping mechanism</a>. This ping mechanism is isolated in a bootstrap function, although it needs a UDP server and client. Having a method to add a server allows this ping bootstrap function to create new servers and routes <strong>without needing the developer to change a single line of their business logic code or config.</strong></p>
 
 <p>The method spec can be seen <a href="/apidoc/NodeXYZ.html#registerServer">here</a>. Inside your code, you can use it like:</p>
 
@@ -573,7 +600,216 @@ UDPServer @ 6000 ::
 
 <h1 id="wrapping-it-up-a-udp-tunnel">Wrapping it up: a UDP tunnel</h1>
 
-<h3 id="consciliation-redirect">Consciliation: redirect</h3>
+<p>Assume that we need to have a set of microservices which want to communicate with each other over a secure and reliable transport layer, without taking the chance of message drop etc. Meanwhile, our services also need to broadcast messages to <strong>all other nodes</strong> from time to time. Although using HTTP for broadcasting is possible, it does not feel right because it can jam your network due to its high message load and process. In such cases, it is a good Idea to use UDP as the broadcasting transport.</p>
+
+<p>Note that we are going to do everything inside a single node process to keep things simple, but the same rules apply if you want to have this mechanism over multiple nodes. Similar to the previous section, our one microservices is going to call itself, sometimes over HTTP and sometimes over UDP.</p>
+
+<p>Let’s set up the node real quick!</p>
+
+<ul>
+  <li>We will add the new UDP server in the config, not using a method:</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">let</span> <span class="nx">math</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XYZ</span><span class="p">({</span>
+  <span class="na">selfConf</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">transport</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span><span class="na">type</span><span class="p">:</span> <span class="s1">'HTTP'</span><span class="p">,</span> <span class="na">port</span><span class="p">:</span> <span class="mi">4000</span><span class="p">},</span>
+      <span class="p">{</span><span class="na">type</span><span class="p">:</span> <span class="s1">'UDP'</span><span class="p">,</span> <span class="na">port</span><span class="p">:</span> <span class="mi">6000</span><span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">})</span></code></pre></figure>
+
+<ul>
+  <li>We set up to services to be exposed. <code class="highlighter-rouge">add</code> is the important one and <code class="highlighter-rouge">notification</code> is the one that we want to send messages to using UDP</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">// a function that need to be called securely and synchronously, with a callback</span>
+<span class="nx">math</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="s1">'add'</span><span class="p">,</span> <span class="p">(</span><span class="nx">payload</span><span class="p">,</span> <span class="nx">resp</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">resp</span><span class="p">.</span><span class="nx">jsonify</span><span class="p">(</span><span class="nx">payload</span><span class="p">.</span><span class="nx">x</span> <span class="o">+</span> <span class="nx">payload</span><span class="p">.</span><span class="nx">y</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="nx">math</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="s1">'notification'</span><span class="p">,</span> <span class="p">(</span><span class="nx">payload</span><span class="p">,</span> <span class="nx">resp</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="err">`</span><span class="nx">notification</span> <span class="nx">receiver</span> <span class="nx">$</span><span class="p">{</span><span class="nx">payload</span><span class="p">}</span> <span class="p">[</span><span class="nx">resp</span> <span class="nx">$</span><span class="p">{</span><span class="nx">resp</span><span class="p">}]</span><span class="err">`</span><span class="p">)</span>
+<span class="p">})</span></code></pre></figure>
+
+<ul>
+  <li>We create an outgoing route for UDP messages</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">// sender side. we need a udp route</span>
+<span class="nx">math</span><span class="p">.</span><span class="nx">registerClientRoute</span><span class="p">(</span><span class="s1">'UDP_BCAST'</span><span class="p">)</span>
+
+<span class="kr">const</span> <span class="nx">_udpExport</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'./../../src/Transport/Middlewares/call/udp.export.middleware'</span><span class="p">)</span>
+<span class="nx">math</span><span class="p">.</span><span class="nx">middlewares</span><span class="p">().</span><span class="nx">transport</span><span class="p">.</span><span class="nx">client</span><span class="p">(</span><span class="s1">'UDP_BCAST'</span><span class="p">).</span><span class="nx">register</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nx">_udpExport</span><span class="p">)</span></code></pre></figure>
+
+<p>Note that <code class="highlighter-rouge">_udpExport</code> is a middleware function similar to <code class="highlighter-rouge">_httpExport</code>. It will send a message using UDP.</p>
+
+<ul>
+  <li>We set up the UDP server properly.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">// receiving side</span>
+<span class="c1">// need a UDP server with the same route name</span>
+<span class="nx">math</span><span class="p">.</span><span class="nx">registerServerRoute</span><span class="p">(</span><span class="mi">6000</span><span class="p">,</span> <span class="s1">'UDP_BCAST'</span><span class="p">)</span>
+
+<span class="kr">const</span> <span class="nx">_udpMessageEvent</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'./../../src/Transport/Middlewares/call/udp.receive.event'</span><span class="p">)</span>
+<span class="nx">math</span><span class="p">.</span><span class="nx">middlewares</span><span class="p">().</span><span class="nx">transport</span><span class="p">.</span><span class="nx">server</span><span class="p">(</span><span class="s1">'UDP_BCAST'</span><span class="p">)(</span><span class="mi">6000</span><span class="p">).</span><span class="nx">register</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nx">_udpMessageEvent</span><span class="p">)</span></code></pre></figure>
+
+<p>By this point, when you run the node you should see this in <code class="highlighter-rouge">console.log(math)</code></p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">____________________  TRANSPORT LAYER ____________________
+Transport:
+  outgoing middlewares:
+    call.dispatch.mw <span class="o">[</span>/CALL] <span class="o">||</span> _httpExport[0]
+    ping.dispatch.mw <span class="o">[</span>/PING] <span class="o">||</span> _httpExport[0]
+    UDP_BCAST.dispatch.mw <span class="o">[</span>/UDP_BCAST] <span class="o">||</span> _udpExport[0]
+
+  HTTPServer @ 4000 ::
+    Middlewares:
+    call.receive.mw <span class="o">[</span>/CALL] <span class="o">||</span> _httpMessageEvent[0]
+    ping.receive.mw <span class="o">[</span>/PING] <span class="o">||</span> _pingEvent[0]
+
+  UDPServer @ 6000 ::
+    Middlewares:
+    UDP_BCAST.receive.mw <span class="o">[</span>/UDP_BCAST] <span class="o">||</span> _udpEvent[0]</code></pre></figure>
+
+<p>Seems correct.</p>
+
+<ul>
+  <li>Finally, we write the code to send messages</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">// default call</span>
+<span class="nx">setTimeout</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">math</span><span class="p">.</span><span class="nx">call</span><span class="p">({</span>
+    <span class="na">servicePath</span><span class="p">:</span> <span class="s1">'add'</span><span class="p">,</span>
+    <span class="na">payload</span><span class="p">:</span> <span class="p">{</span><span class="na">x</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="na">y</span><span class="p">:</span> <span class="mi">7</span><span class="p">}</span>
+  <span class="p">},</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">body</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="err">`</span><span class="nx">add</span> <span class="o">=&gt;</span> <span class="nx">$</span><span class="p">{</span><span class="nx">err</span><span class="p">},</span> <span class="nx">$</span><span class="p">{</span><span class="nx">body</span><span class="p">}</span><span class="err">`</span><span class="p">)</span>
+  <span class="p">})</span>
+<span class="p">},</span> <span class="mi">5000</span><span class="p">)</span>
+
+<span class="c1">// broadcast call</span>
+<span class="c1">// will use a new send strategy and udp</span>
+<span class="kr">const</span> <span class="nx">_broadcastGlobal</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'./../../src/Service/Middleware/service.broadcast.global'</span><span class="p">)</span>
+<span class="nx">setInterval</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">math</span><span class="p">.</span><span class="nx">call</span><span class="p">({</span>
+    <span class="na">servicePath</span><span class="p">:</span> <span class="s1">'notification'</span><span class="p">,</span>
+    <span class="na">payload</span><span class="p">:</span> <span class="s1">'STH HAPPENED!'</span><span class="p">,</span>
+    <span class="na">sendStrategy</span><span class="p">:</span> <span class="nx">_broadcastGlobal</span><span class="p">,</span>
+    <span class="na">route</span><span class="p">:</span> <span class="s1">'UDP_BCAST'</span>
+  <span class="p">},</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">msg</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'sender'</span><span class="p">,</span> <span class="nx">err</span><span class="p">,</span> <span class="nx">msg</span><span class="p">)</span>
+  <span class="p">})</span>
+<span class="p">},</span> <span class="mi">1000</span><span class="p">)</span></code></pre></figure>
+
+<p>As you see, in the second <code class="highlighter-rouge">.call()</code> we are using <code class="highlighter-rouge">_broadcastGlobal</code> as sendStrategy. This middleware will broadcast the message to all nodes in the system, <strong><em>regardless of the path of the service</em></strong>. Also, we are using <code class="highlighter-rouge">UDP_BCAST</code> as the outgoing route, so that the message will be sent over UDP.</p>
+
+<p>We are ready to lunch! Run the node process.</p>
+
+<p>You should notice that the only log the we are seeing is</p>
+
+<ol>
+  <li><code class="highlighter-rouge">add</code> bing called, logging <code class="highlighter-rouge">add =&gt; null, 8</code> every 5 second</li>
+  <li>sender callback of <code class="highlighter-rouge">notification</code>, logging <code class="highlighter-rouge">sender null { '127.0.0.1:4000:/notification': [ null, '86 bytes sent' ] }</code></li>
+</ol>
+
+<p>The first log is as we expect. But the second one seems flawed. One thing that you should keep in mind is that UDP messages are <strong><em>Asynchronous</em></strong>, meaning that the sender will not wait for their response. In other words, the second argument of <code class="highlighter-rouge">.call()</code> when udp export is being used is not the response of the callee, its just a callback indicating that <strong>the messages has been successfully sent</strong>. We don’t whether it has been received or not, and we don’t wait for the callee to respond. This is the nature of UDP, right?</p>
+
+<p>So, apparently the second log is also rationale. The main problem now is that</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">math</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="s1">'notification'</span><span class="p">,</span> <span class="p">(</span><span class="nx">payload</span><span class="p">,</span> <span class="nx">resp</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="err">`</span><span class="nx">notification</span> <span class="nx">receiver</span> <span class="nx">$</span><span class="p">{</span><span class="nx">payload</span><span class="p">}</span> <span class="p">[</span><span class="nx">resp</span> <span class="nx">$</span><span class="p">{</span><span class="nx">resp</span><span class="p">}]</span><span class="err">`</span><span class="p">)</span>
+<span class="p">})</span></code></pre></figure>
+
+<p>is never being called.</p>
+
+<p>We can give you the answer and the missing part right away, but let’s use this problem as an excuse to debug an xyz node.</p>
+
+<p>One good way to debug xyz is to reduce the log level to basic matters (<a href="">Logging is explained with more detail in a different page</a>). xyz used <strong>info</strong> log level by default. You can verify this by seeing the <code class="highlighter-rouge">logLevel</code> field in <code class="highlighter-rouge">selfConf</code>. As a first step, let’s reduce log level to verbose. Furthermore, let’s not touch a single line of code and used command line arguments to change to log level. Run the node with <code class="highlighter-rouge">$ node math.ms.js --xyz-logLevel verbose</code></p>
+
+<p>New messages will pop out. Let’s investigate them.</p>
+
+<ul>
+  <li>
+    <p>Every 5 second, you see:</p>
+
+    <p><code class="highlighter-rouge">verbose :: FIRST FIND :: determined node for service /add by first find strategy : 127.0.0.1:4000:/add </code>. This the main HTTP message being routed to <code class="highlighter-rouge">127.0.0.1:4000</code> for service <code class="highlighter-rouge">/add</code>.</p>
+
+    <p>Immediately afterwards, you should see</p>
+
+    <p><code class="highlighter-rouge">verbose :: SR :: ServiceRepository received message for service  /add</code>.</p>
+
+    <p>This is the receiving side of the message, after the message has been sent over the local network to <code class="highlighter-rouge">127.0.0.1:4000</code> (which is ironically the sender in this  case).</p>
+
+    <p>And after that you should see</p>
+
+    <p><code class="highlighter-rouge">add =&gt; null, 8</code></p>
+  </li>
+  <li>
+    <p>Every 1 second you should see:</p>
+
+    <p><code class="highlighter-rouge">verbose :: BROADCAST GLOBAL :: sending message to 127.0.0.1:4000:/notification</code></p>
+
+    <p>which is the broadcast middleware doing what is was supposed to do.</p>
+  </li>
+</ul>
+
+<p>So where is the flaw? You should keep in mind that the <code class="highlighter-rouge">BROADCAST GLOBAL</code> is doing its job correctly. It is a <strong>Service middleware</strong> and from the service point of view <strong><em>a node with identifier 127.0.0.1:4000 is the target of /notification</em></strong>.</p>
+
+<p>Let’s reduce the logLevel to <code class="highlighter-rouge">debug</code> and see the problem. We will only focus on the logs before <code class="highlighter-rouge">sender null { '127.0.0.1:4000:/notification': [ null, '86 bytes sent' ] }</code> which are related to udp messages.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">verbose :: BROADCAST GLOBAL :: sending message to 127.0.0.1:4000:/notification,   
+debug :: Transport Client :: sending message to 127.0.0.1:4000/UDP_BCAST through UDP_BCAST.dispatch.mw middleware
+sender null <span class="o">{</span> <span class="s1">'127.0.0.1:4000:/notification'</span>: <span class="o">[</span> null, <span class="s1">'86 bytes sent'</span> <span class="o">]</span> <span class="o">}</span></code></pre></figure>
+
+<p>Although the service layer was doing its job correct, you can now see that the <strong>Transport layer is not</strong>. This is because Transport layer, unlike service layer is not independent of the Transport mechanism and should not rely on the <strong>identifier</strong>. In the debug log we are seeing that the message is being sent to port <strong>4000</strong> of the receiver (<code class="highlighter-rouge">sending message to 127.0.0.1:4000/UDP_BCAST through UDP_BCAST.dispatch.mw middleware</code>). In other words, the message is being sent to <strong>the wrong port of the correct node</strong>.</p>
+
+<p>This issue is because xyz nodes are allowed to have multiple servers, hence multiple ports, meanwhile they should have <strong>just one identifier for the service layer</strong>. Hopefully, it has been mentioned <a href="">in the spec. of ping mechanisms</a> that one of their duties is to keep track of each node’s routes and servers. This can enable Transport layer to automatically fix this issue. But, the Transport layer will do so only when you <strong>tell it to do so</strong>. How? let’s see.</p>
+
+<h3 id="message-redirect">Message redirect</h3>
+
+<p>To solve the issue we can use the <code class="highlighter-rouge">redirect</code> optional key in <code class="highlighter-rouge">.call()</code> This key, if defined <code class="highlighter-rouge">true</code> will <strong>Double check the message route with the destination port determined by the service layer</strong>. In other words, if the sendStrategy determined that <code class="highlighter-rouge">192.168.0.15:7000</code> is the target node of a message, the transport layer will not blindly send the message to <code class="highlighter-rouge">192.168.0.15:7000</code>. It will check the message’s <strong>route</strong> and see which server of <code class="highlighter-rouge">192.168.0.15</code>, on which port, has a accepting route that matches the messages route.</p>
+
+<p>If you imagine what <code class="highlighter-rouge">redirect</code> is doing, it’s not hard to infer this constrain on routes to keep <code class="highlighter-rouge">redirect</code> working:</p>
+
+<blockquote>
+  <p><strong>All routes</strong> of <strong>all servers within a node</strong> should be <strong>unique</strong>. As a counterpart, assume that a node with identifier X.Y.Z.Q:3000 has has route <code class="highlighter-rouge">FOO</code> in both X.Y.Z.Q:4000 and X.Y.Z.Q:5000. can <code class="highlighter-rouge">redirect</code> decide correctly?</p>
+</blockquote>
+
+<p>Change the sender of the message to</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">math</span><span class="p">.</span><span class="nx">call</span><span class="p">({</span>
+    <span class="na">servicePath</span><span class="p">:</span> <span class="s1">'notification'</span><span class="p">,</span>
+    <span class="na">payload</span><span class="p">:</span> <span class="s1">'STH HAPPENED!'</span><span class="p">,</span>
+    <span class="na">sendStrategy</span><span class="p">:</span> <span class="nx">_broadcastGlobal</span><span class="p">,</span>
+    <span class="na">route</span><span class="p">:</span> <span class="s1">'UDP_BCAST'</span><span class="p">,</span>
+    <span class="na">redirect</span><span class="p">:</span> <span class="kc">true</span>
+  <span class="p">},</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">msg</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'sender'</span><span class="p">,</span> <span class="nx">err</span><span class="p">,</span> <span class="nx">msg</span><span class="p">)</span>
+  <span class="p">})</span></code></pre></figure>
+
+<p>and launch again. As you see, the receiver log (<code class="highlighter-rouge">console.log('notification receiver ${payload} [resp ${resp}]')
+</code>) will be resolved to</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">receiver STH HAPPENED! <span class="o">[</span>resp undefined]</code></pre></figure>
+
+<p>The fact that <code class="highlighter-rouge">resp</code> is <code class="highlighter-rouge">undefined</code> further proves that udp messages are async. In other words, you can not respond to the directly since the sender is not waiting for any response. So, no <code class="highlighter-rouge">resp.send</code> or <code class="highlighter-rouge">resp.jsonify</code> in this case.</p>
+
+<hr />
+
+<p>We are done with this tutorial! You can find more information in API doc of classes that are relevant to this topic, such as</p>
+
+<ul>
+  <li><a href="">Transport</a></li>
+  <li><a href="">ServiceRepository</a></li>
+  <li><a href="">HTTPServer</a></li>
+  <li><a href="">UDPServer</a></li>
+  <li><a href="">_httpExport</a></li>
+  <li><a href="">_httpMessageEvent</a></li>
+</ul>
+
+<p>The code of this tutorial is tested and maintained <a href="">here</a></p>
 
   </div>
 </div>
@@ -605,6 +841,7 @@ $.each( heads, function(idx, elem) {
     padding: 30px;
     color: var(--light-color);
     background-color: var(--very-dark);
+    margin-top: 40px;
   }
 </style>
 <footer class="site-footer">
@@ -613,7 +850,7 @@ $.each( heads, function(idx, elem) {
      is maintained by <a href="">Kian Peymani & Ajand </a></span>
   <small>
     <br>
-    <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a></small>
+    <span class="site-footer-credits">This page was generated and hosted by <a href="https://pages.github.com">GitHub Pages</a></small>
 </footer>
 
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" charset="utf-8"></script>

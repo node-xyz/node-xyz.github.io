@@ -6,7 +6,13 @@ breadcrumb: servers and routes
 
 # Servers and Routes
 
-XYZ nodes are transparent to their Transport layer mechanism. In other words, inside the business logic of your application, you need to know the minimum about the underlying Transport layer of your message. This Article can be divided into two sections:
+XYZ nodes are highly transparent to their Transport layer mechanism. In other words, inside the business logic of your application, you need to know **the minimum about the underlying Transport layer of your message**. The only information that you **can** provide to determine your transport type, which is optional, is defining an outgoing route/middleware for the message. We will learn about how to do this in this tutorial.
+
+> “Transport independence is the ability to move messages from one microservice to another without requiring microservices to know about each other”
+>
+> -- Richard Rodger. The Tao of Microservices
+
+ This Article can be divided into two sections:
 1. **Outgoing Routes**: an abstraction for different ways to send messages.
 2. **Server Routes**: an abstraction for different ways to receive a message.
 
@@ -349,7 +355,7 @@ You are encouraged to start adding routes to both servers and test them, but we 
 
 ### Creating server at runtime
 
-A method in xyz-core will accept the same three parameters ans has almost the same behavior. An example that justifies why a method was also needed for adding a server is the [swim ping mechanism]. This ping mechanism is isolated in a bootstrap function, although it needs a UDP server and client. Having a method to add a server allows this ping bootstrap function to create new servers and routes **without needing the developer to change a single line of their business logic code or config.**
+A method in xyz-core will accept the same three parameters ans has almost the same behavior. An example that justifies why a method was also needed for adding a server is the [swim ping mechanism](). This ping mechanism is isolated in a bootstrap function, although it needs a UDP server and client. Having a method to add a server allows this ping bootstrap function to create new servers and routes **without needing the developer to change a single line of their business logic code or config.**
 
 The method spec can be seen [here](/apidoc/NodeXYZ.html#registerServer). Inside your code, you can use it like:
 
@@ -360,7 +366,215 @@ math.registerServer('HTTP', 8000)
 {% endhighlight %}
 
 In the next section, we use this information to demonstrate how you can use these features to enable your nodes to send UDP messages through an entirely separate middleware and route. This can be actually handy because your node might want to send some important messages over HTTP, meanwhile send some less important messages using a UDP tunnel.
- 
+
 # Wrapping it up: a UDP tunnel
 
-### Consciliation: redirect
+Assume that we need to have a set of microservices which want to communicate with each other over a secure and reliable transport layer, without taking the chance of message drop etc. Meanwhile, our services also need to broadcast messages to **all other nodes** from time to time. Although using HTTP for broadcasting is possible, it does not feel right because it can jam your network due to its high message load and process. In such cases, it is a good Idea to use UDP as the broadcasting transport.
+
+Note that we are going to do everything inside a single node process to keep things simple, but the same rules apply if you want to have this mechanism over multiple nodes. Similar to the previous section, our one microservices is going to call itself, sometimes over HTTP and sometimes over UDP.
+
+Let's set up the node real quick!
+
+- We will add the new UDP server in the config, not using a method:
+
+{% highlight javascript %}
+let math = new XYZ({
+  selfConf: {
+    transport: [
+      {type: 'HTTP', port: 4000},
+      {type: 'UDP', port: 6000}
+    ]
+  }
+})
+{% endhighlight %}
+
+- We set up to services to be exposed. `add` is the important one and `notification` is the one that we want to send messages to using UDP
+
+{% highlight javascript %}
+// a function that need to be called securely and synchronously, with a callback
+math.register('add', (payload, resp) => {
+  resp.jsonify(payload.x + payload.y)
+})
+
+math.register('notification', (payload, resp) => {
+  console.log(`notification receiver ${payload} [resp ${resp}]`)
+})
+{% endhighlight %}
+
+- We create an outgoing route for UDP messages
+{% highlight javascript %}
+// sender side. we need a udp route
+math.registerClientRoute('UDP_BCAST')
+
+const _udpExport = require('./../../src/Transport/Middlewares/call/udp.export.middleware')
+math.middlewares().transport.client('UDP_BCAST').register(0, _udpExport)
+{% endhighlight %}
+
+Note that `_udpExport` is a middleware function similar to `_httpExport`. It will send a message using UDP.
+
+- We set up the UDP server properly.
+
+{% highlight javascript %}
+// receiving side
+// need a UDP server with the same route name
+math.registerServerRoute(6000, 'UDP_BCAST')
+
+const _udpMessageEvent = require('./../../src/Transport/Middlewares/call/udp.receive.event')
+math.middlewares().transport.server('UDP_BCAST')(6000).register(0, _udpMessageEvent)
+{% endhighlight %}
+
+By this point, when you run the node you should see this in `console.log(math)`
+
+{% highlight bash %}
+____________________  TRANSPORT LAYER ____________________
+Transport:
+  outgoing middlewares:
+    call.dispatch.mw [/CALL] || _httpExport[0]
+    ping.dispatch.mw [/PING] || _httpExport[0]
+    UDP_BCAST.dispatch.mw [/UDP_BCAST] || _udpExport[0]
+
+  HTTPServer @ 4000 ::
+    Middlewares:
+    call.receive.mw [/CALL] || _httpMessageEvent[0]
+    ping.receive.mw [/PING] || _pingEvent[0]
+
+  UDPServer @ 6000 ::
+    Middlewares:
+    UDP_BCAST.receive.mw [/UDP_BCAST] || _udpEvent[0]
+{% endhighlight %}
+
+Seems correct.
+
+- Finally, we write the code to send messages
+
+{% highlight javascript %}
+// default call
+setTimeout(() => {
+  math.call({
+    servicePath: 'add',
+    payload: {x: 1, y: 7}
+  }, (err, body) => {
+    console.log(`add => ${err}, ${body}`)
+  })
+}, 5000)
+
+// broadcast call
+// will use a new send strategy and udp
+const _broadcastGlobal = require('./../../src/Service/Middleware/service.broadcast.global')
+setInterval(() => {
+  math.call({
+    servicePath: 'notification',
+    payload: 'STH HAPPENED!',
+    sendStrategy: _broadcastGlobal,
+    route: 'UDP_BCAST'
+  }, (err, msg) => {
+    console.log('sender', err, msg)
+  })
+}, 1000)
+{% endhighlight %}
+
+As you see, in the second `.call()` we are using `_broadcastGlobal` as sendStrategy. This middleware will broadcast the message to all nodes in the system, **_regardless of the path of the service_**. Also, we are using `UDP_BCAST` as the outgoing route, so that the message will be sent over UDP.
+
+We are ready to lunch! Run the node process.
+
+You should notice that the only log the we are seeing is
+
+1. `add` bing called, logging `add => null, 8` every 5 second
+2. sender callback of `notification`, logging `sender null { '127.0.0.1:4000:/notification': [ null, '86 bytes sent' ] }`
+
+The first log is as we expect. But the second one seems flawed. One thing that you should keep in mind is that UDP messages are **_Asynchronous_**, meaning that the sender will not wait for their response. In other words, the second argument of `.call()` when udp export is being used is not the response of the callee, its just a callback indicating that **the messages has been successfully sent**. We don't whether it has been received or not, and we don't wait for the callee to respond. This is the nature of UDP, right?
+
+So, apparently the second log is also rationale. The main problem now is that
+
+{% highlight javascript %}
+math.register('notification', (payload, resp) => {
+  console.log(`notification receiver ${payload} [resp ${resp}]`)
+})
+{% endhighlight %}
+
+is never being called.
+
+We can give you the answer and the missing part right away, but let's use this problem as an excuse to debug an xyz node.
+
+One good way to debug xyz is to reduce the log level to basic matters ([Logging is explained with more detail in a different page]()). xyz used **info** log level by default. You can verify this by seeing the `logLevel` field in `selfConf`. As a first step, let's reduce log level to verbose. Furthermore, let's not touch a single line of code and used command line arguments to change to log level. Run the node with `$ node math.ms.js --xyz-logLevel verbose`
+
+New messages will pop out. Let's investigate them.
+
+- Every 5 second, you see:
+
+  `verbose :: FIRST FIND :: determined node for service /add by first find strategy : 127.0.0.1:4000:/add `. This the main HTTP message being routed to `127.0.0.1:4000` for service `/add`.
+
+  Immediately afterwards, you should see
+
+  `verbose :: SR :: ServiceRepository received message for service  /add`.
+
+  This is the receiving side of the message, after the message has been sent over the local network to `127.0.0.1:4000` (which is ironically the sender in this  case).
+
+  And after that you should see
+
+  `add => null, 8`
+
+
+- Every 1 second you should see:
+
+  `verbose :: BROADCAST GLOBAL :: sending message to 127.0.0.1:4000:/notification`
+
+  which is the broadcast middleware doing what is was supposed to do.
+
+So where is the flaw? You should keep in mind that the `BROADCAST GLOBAL` is doing its job correctly. It is a **Service middleware** and from the service point of view **_a node with identifier 127.0.0.1:4000 is the target of /notification_**.
+
+Let's reduce the logLevel to `debug` and see the problem. We will only focus on the logs before `sender null { '127.0.0.1:4000:/notification': [ null, '86 bytes sent' ] }` which are related to udp messages.
+
+{% highlight bash %}
+verbose :: BROADCAST GLOBAL :: sending message to 127.0.0.1:4000:/notification,   
+debug :: Transport Client :: sending message to 127.0.0.1:4000/UDP_BCAST through UDP_BCAST.dispatch.mw middleware
+sender null { '127.0.0.1:4000:/notification': [ null, '86 bytes sent' ] }
+{% endhighlight %}
+
+Although the service layer was doing its job correct, you can now see that the **Transport layer is not**. This is because Transport layer, unlike service layer is not independent of the Transport mechanism and should not rely on the **identifier**. In the debug log we are seeing that the message is being sent to port **4000** of the receiver (`sending message to 127.0.0.1:4000/UDP_BCAST through UDP_BCAST.dispatch.mw middleware`). In other words, the message is being sent to **the wrong port of the correct node**.
+
+This issue is because xyz nodes are allowed to have multiple servers, hence multiple ports, meanwhile they should have **just one identifier for the service layer**. Hopefully, it has been mentioned [in the spec. of ping mechanisms]() that one of their duties is to keep track of each node's routes and servers. This can enable Transport layer to automatically fix this issue. But, the Transport layer will do so only when you **tell it to do so**. How? let's see.
+
+### Message redirect
+
+To solve the issue we can use the `redirect` optional key in `.call()` This key, if defined `true` will **Double check the message route with the destination port determined by the service layer**. In other words, if the sendStrategy determined that `192.168.0.15:7000` is the target node of a message, the transport layer will not blindly send the message to `192.168.0.15:7000`. It will check the message's **route** and see which server of `192.168.0.15`, on which port, has a accepting route that matches the messages route.
+
+If you imagine what `redirect` is doing, it's not hard to infer this constrain on routes to keep `redirect` working:
+
+> **All routes** of **all servers within a node** should be **unique**. As a counterpart, assume that a node with identifier X.Y.Z.Q:3000 has has route `FOO` in both X.Y.Z.Q:4000 and X.Y.Z.Q:5000. can `redirect` decide correctly?
+
+Change the sender of the message to
+
+{% highlight javascript %}
+math.call({
+    servicePath: 'notification',
+    payload: 'STH HAPPENED!',
+    sendStrategy: _broadcastGlobal,
+    route: 'UDP_BCAST',
+    redirect: true
+  }, (err, msg) => {
+    console.log('sender', err, msg)
+  })
+{% endhighlight %}
+
+and launch again. As you see, the receiver log (`console.log('notification receiver ${payload} [resp ${resp}]')
+`) will be resolved to
+
+{% highlight bash %}
+receiver STH HAPPENED! [resp undefined]
+{% endhighlight %}
+
+The fact that `resp` is `undefined` further proves that udp messages are async. In other words, you can not respond to the directly since the sender is not waiting for any response. So, no `resp.send` or `resp.jsonify` in this case.
+
+---
+
+We are done with this tutorial! You can find more information in API doc of classes that are relevant to this topic, such as
+
+- [Transport]()
+- [ServiceRepository]()
+- [HTTPServer]()
+- [UDPServer]()
+- [_httpExport]()
+- [_httpMessageEvent]()
+
+The code of this tutorial is tested and maintained [here]()

@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta charset="UTF-8">
+  <title>Send Strategies - Node XYZ </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#157878">
+  <link rel="stylesheet" href="/assets/css/normalize.css">
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="/assets/css/theme.css">
+  <link rel="stylesheet" href="/assets/css/syntax.css">
+  <!-- <link rel="stylesheet" href="/assets/css/main.css"> -->
+  <link rel="stylesheet" href="/assets/css/stylish.css">
+  <link rel="stylesheet" href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+
+  <script
+    src="https://code.jquery.com/jquery-3.1.1.min.js"
+    integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+    crossorigin="anonymous"></script>
+
+</head>
+
+<body>
+
+<style media="screen">
+body {
+  background-color: var(--light-color);
+  color: var(--dark-color)
+}
+</style>
+<style media="screen">
+/* Nav */
+#mainNav {
+  color: var(--light-color) !important;
+}
+
+</style>
+
+<nav class="navbar navbar-inverse" style="margin:0" id="mainNav">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand spacing" href="/">NODE XYZ</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Repositories <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li class="padding"> CORE REPOSITORIES </li>
+            <li><a href="https://github.com/node-xyz/xyz-core" class="spacing">xyz.core</a></li>
+            <li><a href="https://github.com/node-xyz/xyz-cli" class="spacing">xyz.cli</a></li>
+            <li role="separator" class="divider"></li>
+            <li class="padding"> ADDITIONAL </li>
+            <li><a href="https://github.com/node-xyz/xyz.monitor.basic.bootstrap" class="spacing">xyz.monitor</a></li>
+            <li><a href="https://github.com/node-xyz/xyz.ping.swim.bootstrap" class="spacing">xyz.ping.swim</a></li>
+            <li><a href="https://github.com/node-xyz/xyz.ping.stochastic.bootstrap" class="spacing">xyz.ping.stochastic</a></li>
+          </ul>
+        </li>
+      </ul>
+
+      <ul class="nav navbar-nav navbar-left">
+        <!-- <li><a href="#">Link</a></li> -->
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Documentations <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li class="padding"> READING </li>
+            <li><a href="/documentations/getting-started">Getting Started</a></li>
+            <li><a href="/documentations/advance">Advance Topics</a></li>
+            <li><a href="/apidoc">API DOC</a></li>
+            <li role="separator" class="divider"></li>
+            <li class="padding"> EXAMPLES </li>
+            <li class="spacing"><a href="https://github.com/node-xyz/xyz.example.getting.started">xyz.getting.started</a></li>
+            <li class="spacing"><a href="https://github.com/node-xyz/xyz.example.logger.bootstrap">xyz.logger.bootstrap</a></li>
+            <li class="spacing"><a href="https://github.com/node-xyz/xyz.example.auth.basic.receive">xyz.auth.basic.receive</a></li>
+            <li class="spacing"><a href="https://github.com/node-xyz/xyz.example.auth.basic.send">xyz.auth.basic.send</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+<section class="container">
+
+  <ol class="breadcrumb" style="margin: 10px; color: white;">
+    <li><a class='spacing' href="/">Node XYZ </a></li>
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+      
+
+    
+      
+      
+      <li >
+        <a style="color: inherit" href="/documentations/">documentation</a>
+      </li>
+      
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+      
+    
+    
+    
+    
+
+    
+      
+
+    
+      
+
+    
+      
+      
+      <li >
+        <a style="color: inherit" href="/documentations/advance/">advance</a>
+      </li>
+      
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+      
+    
+    
+    
+    
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+      
+      <li class="active">
+        <a style="color: inherit" href="/documentations/advance/send-strategies/">send-strategies</a>
+      </li>
+      
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+
+    
+      
+      
+    </ol>
+
+    <hr>
+
+
+    <div class="row">
+  <div class="col col-md-2" id="__side">
+    <div id="___side">
+      <p class="spacing"> CONTENTS </p>
+      <ol style="padding-left:5px">
+      </ol>
+
+    </div>
+  </div>
+
+  <div class="col col-md-10">
+    <p>In this document, we’re going to discuss <strong>Send Strategies</strong>. This particularly centers around different send Strategy middlewares. You will gain enough knowledge to be able to modify an existing middleware or even write a new one. Similar to other topics in our documentations, we will start by explaining high level concepts and then we will move into details by studying an existing send Strategy middleware.</p>
+
+<h1 id="send-strategy-the-definition">Send Strategy: The definition</h1>
+
+<blockquote>
+  <p>A middleware function takes a message as input and decides the target node or nodes of it is called a send strategy</p>
+</blockquote>
+
+<p>Let’s emphasize some points:</p>
+
+<ul>
+  <li>
+    <p>Although not said explicitly, most send Strategies <strong>should</strong> make their decision based on <strong>path of the target service</strong>. As an example, <a href=""><code class="highlighter-rouge">sendToAll()</code></a> and <a href=""><code class="highlighter-rouge">firstFind()</code></a> will consider the path, whilst <a href=""><code class="highlighter-rouge">broadcastGlobal</code></a> does not.</p>
+  </li>
+  <li>
+    <p>Since a send strategy is likely to make a decision base on path of the service, it is likely that it needs <strong>a list of nodes and their services</strong>. This concludes that the veracity of send strategies is dependent on <a href="/documentations/advance/ping-mechanisms">Ping Mechanism</a>, since Ping Mechanisms should keep track of other nodes and explore them.</p>
+  </li>
+  <li>
+    <p>Send strategies will take a message, including its payload, servicePath and other information (basically everything that you pass to <code class="highlighter-rouge">.call()</code>) and should <strong>invoke the Transport Layer</strong>. They are free to call them once or more. As an example, <a href=""><code class="highlighter-rouge">firstFind()</code></a> will invoke the Transport layer exactly once, while <a href=""><code class="highlighter-rouge">broadcastGlobal</code></a> will invoke it multiple times.</p>
+  </li>
+</ul>
+
+<blockquote>
+  <p>xyz’s send strategies are based on <strong>Service Paths</strong>. This is the only place where xyz is independently introducing a new concept which is not part of the known microservice specification. Most literature about microservices suggest <strong>pattern matching</strong>, while xyz suggests <strong>paths</strong>.</p>
+</blockquote>
+
+<p>In the next section we will see how these concepts are being applied in <a href=""><code class="highlighter-rouge">firstFind()</code></a>.</p>
+
+<h1 id="case-study-first-find">Case study: First Find</h1>
+
+<p>As you might already know, <em>First Find</em> is a send strategy that matches the path that you provide in <code class="highlighter-rouge">.call()</code> which all possibilities and send the message to exactly one of the matches, namely the first one.</p>
+
+<p>Send Strategies are <strong>middlewares</strong> in the service layer, hence they have the same parameter format as other middlewares. The definition of <code class="highlighter-rouge">firstFind</code> is:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">firstFind</span> <span class="p">(</span><span class="nx">params</span><span class="p">,</span> <span class="nx">next</span><span class="p">,</span> <span class="nx">done</span><span class="p">,</span> <span class="nx">xyz</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="nx">servicePath</span> <span class="o">=</span> <span class="nx">params</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">servicePath</span>
+  <span class="kd">let</span> <span class="nx">userPayload</span> <span class="o">=</span> <span class="nx">params</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">payload</span>
+  <span class="kd">let</span> <span class="nx">route</span> <span class="o">=</span> <span class="nx">params</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">route</span>
+  <span class="kd">let</span> <span class="nx">redirect</span> <span class="o">=</span> <span class="nx">params</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">redirect</span>
+
+  <span class="kd">let</span> <span class="nx">responseCallback</span> <span class="o">=</span> <span class="nx">params</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>where <code class="highlighter-rouge">params[]</code> is everything that you pass into <code class="highlighter-rouge">.call()</code>.</p>
+
+<p>Other important variables that almost every send strategy function should use are:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">let</span> <span class="nx">foreignNodes</span> <span class="o">=</span> <span class="nx">xyz</span><span class="p">.</span><span class="nx">serviceRepository</span><span class="p">.</span><span class="nx">foreignNodes</span>
+<span class="kd">let</span> <span class="nx">transport</span> <span class="o">=</span> <span class="nx">xyz</span><span class="p">.</span><span class="nx">serviceRepository</span><span class="p">.</span><span class="nx">transport</span>
+<span class="kd">let</span> <span class="nx">Path</span> <span class="o">=</span> <span class="nx">xyz</span><span class="p">.</span><span class="nx">path</span></code></pre></figure>
+
+<p>Where</p>
+
+<ul>
+  <li><code class="highlighter-rouge">foreignNodes</code> is the list of all nodes in the system and their service paths.</li>
+  <li><code class="highlighter-rouge">transport</code> is the Transport layer.</li>
+  <li><code class="highlighter-rouge">Path</code> is a utility object in xyz that provides some functions to match paths.</li>
+</ul>
+
+<p>if we setup a simple node that sends a message to itself using <code class="highlighter-rouge">firstFind</code>, the <code class="highlighter-rouge">math.ms.js</code> for example,</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">let</span> <span class="nx">XYZ</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'xyz-core'</span><span class="p">)</span>
+<span class="kd">let</span> <span class="nx">math</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XYZ</span><span class="p">({})</span>
+
+<span class="c1">// register a dummy service</span>
+<span class="nx">math</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="s1">'add'</span><span class="p">,</span> <span class="p">(</span><span class="nx">payload</span><span class="p">,</span> <span class="nx">resp</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">resp</span><span class="p">.</span><span class="nx">jsonify</span><span class="p">(</span><span class="nx">payload</span><span class="p">.</span><span class="nx">x</span> <span class="o">+</span> <span class="nx">payload</span><span class="p">.</span><span class="nx">y</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="nx">math</span><span class="p">.</span><span class="nx">register</span><span class="p">(</span><span class="s1">'math/mul'</span><span class="p">,</span> <span class="p">(</span><span class="nx">payload</span><span class="p">,</span> <span class="nx">resp</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">resp</span><span class="p">.</span><span class="nx">jsonify</span><span class="p">(</span><span class="nx">payload</span><span class="p">.</span><span class="nx">x</span> <span class="o">*</span> <span class="nx">payload</span><span class="p">.</span><span class="nx">y</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="nx">setTimeout</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">math</span><span class="p">.</span><span class="nx">call</span><span class="p">({</span><span class="na">servicePath</span><span class="p">:</span> <span class="s1">'add'</span><span class="p">,</span> <span class="na">payload</span><span class="p">:</span> <span class="p">{</span><span class="na">x</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="na">y</span><span class="p">:</span> <span class="mi">7</span><span class="p">}},</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">body</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">body</span><span class="p">)</span>
+  <span class="p">})</span>
+<span class="p">},</span> <span class="mi">2000</span><span class="p">)</span></code></pre></figure>
+
+<p>and log these variables (you can find this function in <code class="highlighter-rouge">xyz-core/src/Service/Middlewares/service.first.find.js</code>)</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">// first.find.js</span>
+<span class="kd">let</span> <span class="nx">foreignNodes</span> <span class="o">=</span> <span class="nx">xyz</span><span class="p">.</span><span class="nx">serviceRepository</span><span class="p">.</span><span class="nx">foreignNodes</span>
+<span class="kd">let</span> <span class="nx">transport</span> <span class="o">=</span> <span class="nx">xyz</span><span class="p">.</span><span class="nx">serviceRepository</span><span class="p">.</span><span class="nx">transport</span>
+<span class="kd">let</span> <span class="nx">Path</span> <span class="o">=</span> <span class="nx">xyz</span><span class="p">.</span><span class="nx">path</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">foreignNodes</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">Path</span><span class="p">)</span></code></pre></figure>
+
+<p>you see:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">// console.log<span class="o">(</span>foreignNodes<span class="o">)</span>
+<span class="o">{</span>
+  <span class="s2">"127.0.0.1:4000"</span>:<span class="o">{</span>
+    <span class="s2">""</span>:<span class="o">{</span>                         /
+      <span class="s2">"add"</span>:<span class="o">{}</span>,                  /add
+      <span class="s2">"math"</span>:<span class="o">{</span>                   /math
+        <span class="s2">"mul"</span>:<span class="o">{}</span>                 /math/mul
+      <span class="o">}</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>which is in the <code class="highlighter-rouge">serializedTree</code> format. This format is used by xyz’s <code class="highlighter-rouge">Path</code> object to match function paths. The <code class="highlighter-rouge">""</code> at the begining means <code class="highlighter-rouge">"/"</code> and as we go deeper, you should be able to see how this object depicts <code class="highlighter-rouge">/add</code> and <code class="highlighter-rouge">/math/mul</code>.</p>
+
+<p>In the <code class="highlighter-rouge">Path</code>, we see these functions.</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">// console.log<span class="o">(</span>Path<span class="o">)</span>
+<span class="o">{</span> validate: <span class="o">[</span>Function: validate],
+  format: <span class="o">[</span>Function: format],
+  merge: <span class="o">[</span>Function: merge],
+  match: <span class="o">[</span>Function: match],
+  getTokes: <span class="o">[</span>Function: getTokes] <span class="o">}</span></code></pre></figure>
+
+<p>The most important function in <code class="highlighter-rouge">Path</code> is <code class="highlighter-rouge">match()</code>. This function takes a <strong>Path String</strong> and one <strong>serializedTree</strong> and output all of the possible matches. Let’s add another log to the poor <code class="highlighter-rouge">firstFind</code> and see how this works.</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'foreignNodes'</span><span class="p">,</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">foreignNodes</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'servicePath'</span><span class="p">,</span> <span class="nx">servicePath</span><span class="p">)</span>
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">Path</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="nx">servicePath</span><span class="p">,</span> <span class="nx">foreignNodes</span><span class="p">[</span><span class="s1">'127.0.0.1:4000'</span><span class="p">]))</span></code></pre></figure>
+
+<p>The output is</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span> <span class="s1">'/add'</span> <span class="o">]</span></code></pre></figure>
+
+<p>Which makes sense because we sent a message to <code class="highlighter-rouge">add</code>. <code class="highlighter-rouge">Path</code> class can also handle wildcards. Since we have a function registered at <code class="highlighter-rouge">/math/mul</code>, we can send a message to <code class="highlighter-rouge">/math/*</code>.</p>
+
+<p>Change this line and test again</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">setTimeout</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">math</span><span class="p">.</span><span class="nx">call</span><span class="p">({</span><span class="na">servicePath</span><span class="p">:</span> <span class="s1">'/math/*'</span><span class="p">,</span> <span class="na">payload</span><span class="p">:</span> <span class="p">{</span><span class="na">x</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="na">y</span><span class="p">:</span> <span class="mi">7</span><span class="p">}},</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">body</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">body</span><span class="p">)</span>
+  <span class="p">})</span>
+<span class="p">},</span> <span class="mi">2000</span><span class="p">)</span></code></pre></figure>
+
+<p>and the log should be</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">foreignNodes <span class="o">{</span><span class="s2">"127.0.0.1:4000"</span>:<span class="o">{</span><span class="s2">""</span>:<span class="o">{</span><span class="s2">"add"</span>:<span class="o">{}</span>,<span class="s2">"math"</span>:<span class="o">{</span><span class="s2">"mul"</span>:<span class="o">{}}}}}</span>
+servicePath /math/<span class="k">*</span>
+<span class="o">[</span> <span class="s1">'/math/mul'</span> <span class="o">]</span></code></pre></figure>
+
+<p>Which means that <code class="highlighter-rouge">Path.match()</code> resolved <code class="highlighter-rouge">math/*</code> to <code class="highlighter-rouge">/math/mul</code>. Of course, you can use your own matching function too.</p>
+
+<p>Let’s goo back to the original <code class="highlighter-rouge">firstFind</code> and stop adding logs to it. This function will iterate over all <code class="highlighter-rouge">foreignNodes</code> and tries to match <code class="highlighter-rouge">servicePath</code> to one of them</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="k">for</span> <span class="p">(</span><span class="kd">let</span> <span class="nx">node</span> <span class="k">in</span> <span class="nx">foreignNodes</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">matches</span> <span class="o">=</span> <span class="nx">Path</span><span class="p">.</span><span class="nx">match</span><span class="p">(</span><span class="nx">servicePath</span><span class="p">,</span> <span class="nx">foreignNodes</span><span class="p">[</span><span class="nx">node</span><span class="p">])</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">matches</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+      <span class="p">...</span>
+      <span class="c1">// invoke the transport layer</span>
+      <span class="c1">// return immediately and do not continue</span>
+      <span class="nx">done</span><span class="p">()</span>
+      <span class="k">return</span>
+  <span class="p">}</span></code></pre></figure>
+
+<p>and if no match is find after checking all of the nodes in <code class="highlighter-rouge">foreignNodes</code>,</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">logger</span><span class="p">.</span><span class="nx">warn</span><span class="p">(</span><span class="err">`</span><span class="nx">Sending</span> <span class="nx">a</span> <span class="nx">message</span> <span class="nx">to</span> <span class="nx">$</span><span class="p">{</span><span class="nx">servicePath</span><span class="p">}</span> <span class="nx">from</span> <span class="nx">first</span> <span class="nx">find</span> <span class="nx">strategy</span> <span class="nx">failed</span> <span class="p">(</span><span class="nx">Local</span> <span class="nx">Response</span><span class="p">)</span><span class="err">`</span><span class="p">)</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">responseCallback</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">responseCallback</span><span class="p">(</span><span class="nx">http</span><span class="p">.</span><span class="nx">STATUS_CODES</span><span class="p">[</span><span class="mi">404</span><span class="p">],</span> <span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">)</span>
+    <span class="nx">done</span><span class="p">()</span>
+    <span class="k">return</span>
+  <span class="p">}</span></code></pre></figure>
+
+<p>which is something that you probably have seen at least once!</p>
+
+<p>In fact, you will see it if you remove the <code class="highlighter-rouge">setTimeout()</code> in <code class="highlighter-rouge">math.ms.js</code>. Since the ping Mechanism takes a few milliseconds to explore the nodes, <code class="highlighter-rouge">add</code> or <code class="highlighter-rouge">math/mul</code> are unknown at the very beginign of execution and the output will be:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="o">[</span>node-xyz-init@127.0.0.1:4000] warn :: Sending a message to /math/<span class="k">*</span> from first find strategy failed <span class="o">(</span>Local Response<span class="o">)</span>
+Not Found null</code></pre></figure>
+
+<h1 id="built-in-strategies">Built-in Strategies</h1>
+
+<p>xyz provides the following send strategies Built-in. All of them can be imported from <code class="highlighter-rouge">xyz-core/src/Service/Middleware/*</code>.</p>
+
+<ul>
+  <li><strong><em>service.broadcast.global</em></strong>: sends the message to all nodes, regardless of the path.</li>
+  <li><strong><em>service.broadcast.local</em></strong>: sends the message to all nodes with the same <code class="highlighter-rouge">selfConf.host</code>. It is useful for message queueing or local load balancing.</li>
+  <li><strong><em>service.send.to.all</em></strong>: sends the message to all nodes that have a service with a path that matches.</li>
+  <li><strong><em>service.first.find</em></strong>: sends the message the first node that have a service with a path that matches.</li>
+  <li><strong><em>service.send.to.target</em></strong>: sends the message to a given ip:port. It will ignore the path. should be used like this: <code class="highlighter-rouge">ms.call({..., sendStrategy: sendToTarget('X.Y.Z.P')})</code>. It can not be used as <code class="highlighter-rouge">selfConf.defaultSendStrategy</code>.</li>
+</ul>
+
+  </div>
+</div>
+
+<script type="text/javascript">
+var side = $("#___side")
+var $side = $('#___side > ol')
+var heads = $('h1')
+function getSideBarElem(name, id) {
+  return `<li>
+    <a href="#${id}">
+      ${name.replace(/-/g, ' ')}
+    </a>
+  </li>`
+}
+$.each( heads, function(idx, elem) {
+  $side.append(getSideBarElem($(elem).html(), elem.id))
+})
+
+// $("#__side").css('width', $("#__side").parent().width() + 'px')
+
+</script>
+
+
+  </section>
+  
+<style media="screen">
+  .site-footer{
+    padding: 30px;
+    color: var(--light-color);
+    background-color: var(--very-dark);
+    margin-top: 40px;
+  }
+</style>
+<footer class="site-footer">
+  <span class="site-footer-owner">
+    <a href="http://localhost:1999">NODE XYZ</a>
+     is maintained by <a href="">Kian Peymani & Ajand </a></span>
+  <small>
+    <br>
+    <span class="site-footer-credits">This page was generated and hosted by <a href="https://pages.github.com">GitHub Pages</a></small>
+</footer>
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" charset="utf-8"></script>
+
+</body>
+</html>

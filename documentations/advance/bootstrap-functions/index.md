@@ -1,15 +1,17 @@
 ---
-layout: page
+layout: doc-page
 title: Bootstrap functions
 breadcrumb: bootstrap-function
 ---
 
+Configuring an xyz instance can sometimes be annoying. Many nodes want to have the same configurations, same middlewares etc., but is it good to copy and paste a chunk of code in all of these microservices? I mean, think about it, Aside from `.register` which creates new endpoints for functions, and is dependent to the **business logic**, there is a good chance that most of the lines of the microservices that you are writing are the same among all of the microservices in that application/project. One of the ways to encapsulate these common steps in an isolated environment so that they can be reused as a **Bootstrap function**.
+
 # Bootstrap functions
 
-Configuring an xyz instance can sometimes be annoying. Many nodes want to have the same configurations, same middlewares etc., but is it good to copy and paste a chunk of code in all of these microservices? I mean, think about it, Aside from `.register` which creates new endpoints for functions, and is dependent to the **business logic**, there is a good chance that most of the lines of the microservices that you are writing are the same among all of the microservices in that application/project. One of the ways to encapsulate these common steps in an isolated environment so that they can be reused as a **Bootstrap function**.
 
 Bootstrap functions are... nothing in fact. They're just **_functions that take in the current xyz instance as argument and are free to make any modifications to it_**. This can include **exposing new functions**, listening to **events**, registering new **middlewares** etc.
 
+# Case Study: Node Monitor
 A complete example of this is the [Monitor Bootstrap function](https://github.com/node-xyz/xyz.monitor.basic.bootstrap). What this bootstrap function basically does is that it inserts two middlewares in the transport layer, which count the number of messages sent and received. Finally it will launch an express HTTP server to serve this information, alongside some additional data about the system, to a specific end point.
 
 Let's see the big picture before going any further!

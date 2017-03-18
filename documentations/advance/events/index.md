@@ -1,10 +1,10 @@
 ---
-layout: page
+layout: doc-page
 title: Getting Started with Node XYZ
 breadcrumb: events
 ---
 
-# Events
+# Default Events
 
 Due to the fact that xyz provides middleware handlers for most of the tasks and requests, most of the customized functionality can be implemented using them. Though, some events can also become very handy.
 
@@ -51,7 +51,7 @@ aMicroServ.bootstrap(require('./_topSecretMessageLogger'))
 
 {% endhighlight %}
 
-## Some events under the hood
+# Events under the hood
 
 If you think that these two events are not enough, which is not hard to argue!, you can also consider listening to xyz's internal events.
 

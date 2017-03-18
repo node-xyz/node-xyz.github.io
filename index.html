@@ -25,108 +25,140 @@ title: XYZ Homepage
   color: var(--dark-color);
   background-color: var(--light-color)
 }
+
+.feat-box i {
+  font-size: 102px;
+}
+
+.feat-box div.well {
+  position: relative;
+  overflow: hidden;
+  min-height: 400px;
+  transition: all .3s ease;
+}
+
+.feat-box div.well p {
+  margin-top: 10px; border-top: 1px dashed #e2e2e2;
+  padding-top: 10px;
+}
+
+div.col.intor p {
+  margin-top: 25px;
+  margin-bottom: 25px; 
+}
 </style>
 
 <div class="home-section">
   <h1 class="bb"> MICROSERVICES DONE RIGHT</h1>
-  <div class="row">
-    <div class="col col-md-4">
-      <!-- <img style='max-width:100%;' src="{{ site.baseurl }}/assets/img/logo-transp.png" alt=""> -->
+  <div class="container">
+    <div class="row">
+
+      <div class="col col-md-4">
+        <img style='max-width:100%;' src="{{ site.baseurl }}/assets/img/info.trans.png" alt="">
+      </div>
+
+      <div class="col col-md-8 intor">
+        <strong class="spacing"> A WELL DEFINED NETWORK AND SERVICE MANAGEMENT INFRASTRUCTURE </strong>
+        <p>
+          abstracted away behind a minimal API
+        </p>
+        <strong class="spacing"> GIVING YOU THE FLEXIBILITY THAT YOU NEED,</strong>
+        <p>
+          while
+        </p>
+        <strong class="spacing"> KEEPING YOUR BUSINESS LOGIC TRANSPARENT</strong>
+        <p>
+          makes a
+        </p>
+        <strong class="spacing"> MICROSERVICE MICROFRAMEWORK.</strong>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="home-section">
+  <h1 class="bb">FEATURES</h1>
+  <div class="container feat-box">
+
+    <div class="row">
+      <div class="col col-md-4 ">
+        <div class="padding well">
+          <i class="ion-ios-color-filter-outline"></i>
+          <h4 class="spacing"> OUT-OF-THE-BOX <strong>SERVICE DISCOVERY</strong></h4>
+           send messages as if all of them were <strong>local functions</strong>
+          <p>
+            xyz's different ping mechanisms will discover and monitor all foreign nodes in the system and your business logic is transparent from the location or the transport layer of other nodes when sending a message
+          </p>
+        </div>
+      </div>
+
+      <div class="col col-md-4 ">
+        <div class="padding well">
+          <i class="ion-ios-color-wand"></i>
+          <h4 class="spacing"> COMMAND LINE INTERFACE</h4>
+          <strong>EASILY DEVELOP, TEST and DEPLOY </strong>
+          <p>
+            it can be hard to lunch a dozen nodes by hand when developing. Don't worry. we have it covered.
+          </p>
+        </div>
+      </div>
+
+      <div class="col col-md-4 ">
+        <div class="padding well">
+          <i class="ion-ios-settings"></i>
+          <h4 class="spacing"> CONFIGURABLE</h4>
+          <strong>AS HELL O__O</strong>
+          <p> Almost any crucial aspect of the system is written as a plugin so that it can be <strong>modified or replaced</strong>, by YOU</p>
+        </div>
+      </div>
     </div>
 
-    <div class="col col-md-8">
-      Content
-      Content
-      Content
-      Content
-      Content
-      Content
-      Content
-      Content
+    <div class="row">
+
+      <div class="col col-md-4 ">
+        <div class="padding well">
+          <i class="ion-ios-infinite-outline"></i>
+          <h4 class="spacing"> PATH BASED  <strong>SERVICES </strong></h4>
+          <strong> no more patterns ^__^ </strong>
+          <p> route your messages based on paths and routes. send wild messages as broadcastign wildcards or send to a specific node </p>
+        </div>
+      </div>
+
+      <div class="col col-md-4 ">
+        <div class="padding well">
+          <i class="ion-ios-keypad-outline"></i>
+          <h4 class="spacing"> PLUGIN BASED ARCHITECTURE</h4>
+          middlewares for <strong> AUTHENTICATION, QUEUES and..</strong>
+          <p>
+            xyz does not enforce any application dependant matter to your project. Instead, it enforces all messages to pass through a middleware stack, one that you can modify!
+          </p>
+        </div>
+
+
+      </div>
+
+      <div class="col col-md-4 ">
+        <div class="padding well">
+          <i class="ion-ios-paperplane-outline"></i>
+          <h4 class="spacing"> TRANSPORT <strong> INDEPENDANT </strong></h4>
+          use <strong> HTTP, UDP, TCP </strong>
+          <p>
+            xyz can work with multiple transport layers, including HTTP and UDP. It can also have many of them at once! Indeed, you can also write your own transport layer moudle too.
+          </p>
+        </div>
+
+      </div>
+
 
     </div>
   </div>
 </div>
 
 <div class="home-section">
-  <h1 class="bb">FEATURES</h1>
-  <div class="container">
-
-    <div class="row">
-
-      <div class="col col-md-4 ">
-        <div class="padding well">
-          <h4 class="spacing"> OUT-OF-THE-BOX <strong>SERVICE DISCOVERY</strong></h4>
-
-        </div>
-      </div>
-
-      <div class="col col-md-4 ">
-        <div class="padding well">
-          <h4 class="spacing"> COMMAND LINE INTERFACE</h4>
-
-        </div>
-      </div>
-
-      <div class="col col-md-4 ">
-        <div class="padding well">
-          <h4 class="spacing"> CONFIGURABLE</h4>
-
-        </div>
-      </div>
-
-
-    </div>
-
-    <div class="row">
-
-      <div class="col col-md-4 ">
-        <div class="padding well">
-          <h4 class="spacing"> OUT-OF-THE-BOX <strong>SERVICE DISCOVERY</strong></h4>
-
-        </div>
-      </div>
-
-      <div class="col col-md-4 ">
-        <div class="padding well">
-          <h4 class="spacing"> COMMAND LINE INTERFACE</h4>
-
-        </div>
-      </div>
-
-      <div class="col col-md-4 ">
-        <div class="padding well">
-          <h4 class="spacing"> CONFIGURABLE</h4>
-
-        </div>
-      </div>
-    </div>
-
-    <div class="row">
-
-      <div class="col col-md-4 ">
-        <div class="padding well">
-          <h4 class="spacing"> OUT-OF-THE-BOX <strong>SERVICE DISCOVERY</strong></h4>
-
-        </div>
-      </div>
-
-      <div class="col col-md-4 ">
-        <div class="padding well">
-          <h4 class="spacing"> COMMAND LINE INTERFACE</h4>
-
-        </div>
-      </div>
-
-      <div class="col col-md-4 ">
-        <div class="padding well">
-          <h4 class="spacing"> CONFIGURABLE</h4>
-
-        </div>
-      </div>
-
-
-    </div>
+  <h1 class="bb">WANT TO KNOW MORE? </h1>
+  <div class="container padding">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/tFBvnUHnmAk?ecver=1" frameborder="0" allowfullscreen></iframe>
   </div>
 </div>
 
@@ -148,6 +180,21 @@ title: XYZ Homepage
 
 
 
+<script type="text/javascript">
+  // $(".feat-box div.well").mouseenter(function(e) {
+  //   var h = $(this).find('p').height()
+  //   console.log(h, $(this).height());
+  //   $(this).css('height', ($(this).height() + h) + 'px' )
+  // })
+  //
+  //
+  // $(".feat-box div.well").mouseleave(function(e) {
+  //   var h = $(this).find('p').height()
+  //   console.log(h, $(this).height());
+  //   $(this).css('height', ($(this).height() - h) + 'px' )
+  // })
 
+
+</script>
 
 {% include fancy-import-js.html %}
