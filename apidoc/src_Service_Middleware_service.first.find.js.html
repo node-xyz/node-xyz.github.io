@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>src/Service/Middleware/service.first.find.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="GenericMiddlewareHandler.html">GenericMiddlewareHandler</a><ul class='methods'><li data-type='method'><a href="GenericMiddlewareHandler.html#apply">apply</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#getMiddlewares">getMiddlewares</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#inspect">inspect</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#inspectJSON">inspectJSON</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#register">register</a></li><li data-type='method'><a href="GenericMiddlewareHandler.html#remove">remove</a></li></ul></li><li><a href="HTTPServer.html">HTTPServer</a></li><li><a href="NodeXYZ.html">NodeXYZ</a><ul class='methods'><li data-type='method'><a href="NodeXYZ.html#bootstrap">bootstrap</a></li><li data-type='method'><a href="NodeXYZ.html#call">call</a></li><li data-type='method'><a href="NodeXYZ.html#id">id</a></li><li data-type='method'><a href="NodeXYZ.html#inspect">inspect</a></li><li data-type='method'><a href="NodeXYZ.html#inspectJSON">inspectJSON</a></li><li data-type='method'><a href="NodeXYZ.html#middlewares">middlewares</a></li><li data-type='method'><a href="NodeXYZ.html#register">register</a></li><li data-type='method'><a href="NodeXYZ.html#registerClientRoute">registerClientRoute</a></li><li data-type='method'><a href="NodeXYZ.html#registerServer">registerServer</a></li><li data-type='method'><a href="NodeXYZ.html#registerServerRoute">registerServerRoute</a></li><li data-type='method'><a href="NodeXYZ.html#setSendStrategy">setSendStrategy</a></li><li data-type='method'><a href="NodeXYZ.html#terminate">terminate</a></li></ul></li><li><a href="ServiceRepository.html">ServiceRepository</a><ul class='methods'><li data-type='method'><a href="ServiceRepository.html#bindTransportEvent">bindTransportEvent</a></li><li data-type='method'><a href="ServiceRepository.html#call">call</a></li><li data-type='method'><a href="ServiceRepository.html#forget">forget</a></li><li data-type='method'><a href="ServiceRepository.html#inspect">inspect</a></li><li data-type='method'><a href="ServiceRepository.html#inspectJSON">inspectJSON</a></li><li data-type='method'><a href="ServiceRepository.html#joinNode">joinNode</a></li><li data-type='method'><a href="ServiceRepository.html#kickNode">kickNode</a></li><li data-type='method'><a href="ServiceRepository.html#logSystemUpdates">logSystemUpdates</a></li><li data-type='method'><a href="ServiceRepository.html#register">register</a></li><li data-type='method'><a href="ServiceRepository.html#registerServer">registerServer</a></li><li data-type='method'><a href="ServiceRepository.html#terminate">terminate</a></li></ul></li><li><a href="Transport.html">Transport</a><ul class='methods'><li data-type='method'><a href="Transport.html#send">send</a></li></ul></li></ul><h3>Modules</h3><ul><li><a href="module-bootstrapFunctions.html">bootstrapFunctions</a><ul class='methods'><li data-type='method'><a href="module-bootstrapFunctions.html#~_basicPingBootstrap">_basicPingBootstrap</a></li><li data-type='method'><a href="module-bootstrapFunctions.html#~_processInspectionEvent">_processInspectionEvent</a></li><li data-type='method'><a href="module-bootstrapFunctions.html#~_processNetworkEvent">_processNetworkEvent</a></li><li data-type='method'><a href="module-bootstrapFunctions.html#~_udpTunnel">_udpTunnel</a></li></ul></li><li><a href="module-Configuration.html">Configuration</a><ul class='methods'><li data-type='method'><a href="module-Configuration.html#~addServer">addServer</a></li><li data-type='method'><a href="module-Configuration.html#~ensureNode">ensureNode</a></li><li data-type='method'><a href="module-Configuration.html#~forget">forget</a></li><li data-type='method'><a href="module-Configuration.html#~getSelfConf">getSelfConf</a></li><li data-type='method'><a href="module-Configuration.html#~getSystemConf">getSystemConf</a></li><li data-type='method'><a href="module-Configuration.html#~joinNode">joinNode</a></li><li data-type='method'><a href="module-Configuration.html#~joinNode">joinNode</a></li><li data-type='method'><a href="module-Configuration.html#~setSelfConf">setSelfConf</a></li><li data-type='method'><a href="module-Configuration.html#~setSystemConf">setSystemConf</a></li></ul></li><li><a href="module-service-middlewares.html">service-middlewares</a><ul class='methods'><li data-type='method'><a href="module-service-middlewares.html#~_braodcastGlobal">_braodcastGlobal</a></li><li data-type='method'><a href="module-service-middlewares.html#~_braodcastLocal">_braodcastLocal</a></li><li data-type='method'><a href="module-service-middlewares.html#~_firstFind">_firstFind</a></li><li data-type='method'><a href="module-service-middlewares.html#~_sendToAll">_sendToAll</a></li><li data-type='method'><a href="module-service-middlewares.html#~_sendToTarget">_sendToTarget</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">src/Service/Middleware/service.first.find.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @module service-middlewares */
+
+let http = require('http')
+
+/**
+ * Will resolve the service path to an array of nodes that can responde to
+ * the target path given. It will then send the message to first node in the array.
+ * @method _firstFind
+ * @param  {Array}       params [description]
+ * @param  {Function}     next   used to call the next middleware
+ * @param  {Function}     done   used to end the middleware stack
+ * @param  {Object}       xyz    reference to the caller's xyz instance
+ */
+function _firstFind (params, next, done, xyz) {
+  let servicePath = params[0].servicePath
+  let userPayload = params[0].payload
+  let responseCallback = params[1]
+  let route = params[0].route
+  let redirect = params[0].redirect
+
+  let foreignNodes = xyz.serviceRepository.foreignNodes
+  let transport = xyz.serviceRepository.transport
+  let Path = xyz.path
+
+  let logger = xyz.logger
+  let wrapper = xyz.Util.wrapper
+
+  // not used, but good to know sth like this exists!
+  // let serviceTokens = servicePath.split('/')
+
+  let matches
+  for (let node in foreignNodes) {
+    matches = Path.match(servicePath, foreignNodes[node])
+    if (matches.length) {
+      logger.verbose(`${wrapper('bold', 'FIRST FIND')} :: determined node for service ${wrapper('bold', servicePath)} by first find strategy : ${wrapper('bold', node + ':' + matches[0])}`)
+      transport.send({
+        redirect: redirect,
+        node: node,
+        route: route,
+        payload: {userPayload: userPayload, service: matches[0]}}, responseCallback)
+      if (done) done()
+      return
+    }
+  }
+
+  // if no node matched
+  logger.warn(`Sending a message to ${servicePath} from first find strategy failed (Local Response)`)
+  if (responseCallback) {
+    responseCallback(http.STATUS_CODES[404], null, null)
+    if (done) done()
+    return
+  }
+}
+
+module.exports = _firstFind
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Sun Mar 26 2017 10:46:16 GMT+0430 (IRDT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
