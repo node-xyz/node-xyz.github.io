@@ -282,11 +282,11 @@ The good thing about the `sendStrategy` is that it is a **plugin** (aka. middlew
 
 Although one of the reasons for having send strategies as a plugin is to keep the main repository minimal ,`xyz-core` has a few fundamental send strategies built in:
 
-- <span class='spacing'> [xyz.first.find]() </span> . **_Note that this is the default sendStrategy_**.
-- <span class='spacing'> [xyz.send.to.all]() </span>
-- <span class='spacing'> [xyz.send.to.target]() </span>
-- <span class='spacing'> [xyz.broadcast.local]() </span>
-- <span class='spacing'> [xyz.broadcast.global]() </span>
+- <span class='spacing'> [xyz.first.find](https://github.com/node-xyz/xyz-core/tree/master/src/Service/Middleware) </span> . **_Note that this is the default sendStrategy_**.
+- <span class='spacing'> [xyz.send.to.all](https://github.com/node-xyz/xyz-core/tree/master/src/Service/Middleware) </span>
+- <span class='spacing'> [xyz.send.to.target](https://github.com/node-xyz/xyz-core/tree/master/src/Service/Middleware) </span>
+- <span class='spacing'> [xyz.broadcast.local](https://github.com/node-xyz/xyz-core/tree/master/src/Service/Middleware) </span>
+- <span class='spacing'> [xyz.broadcast.global](https://github.com/node-xyz/xyz-core/tree/master/src/Service/Middleware) </span>
 
 In this tutorial we are only interested in the first two.
 
@@ -402,7 +402,7 @@ response of mul => {
 }
 ```
 
-> Note that each xyz node will kick out-of-reach nodes after a certain threshold. You can learn more about it in the [Ping Types]().
+> Note that each xyz node will kick out-of-reach nodes after a certain threshold. You can learn more about it in the [Ping Types](/documentations/advance/ping-mechanisms/).
 
 As you see, the first parameter is the error and the second parameter is the response. This happens because each node will not immediately assume that an other node is offline after one failure, so it will keep sending the message to it. If you wait for 10 ping, you will see that all nodes will eventually update their `systemConf` and will not send any message to this node.
 
@@ -694,32 +694,32 @@ Knowing these information about the architecture of xyz, we will now use our kno
 
 As mentioned above, each middleware is **nothin but a function**. Although you are the write of middlewares in most cases, you are not the one who invokes them, `xyz-core` is. Hence, xyz-core will decide which paramters will be passed to each middleware.  
 
-`xyz-core` calls each Middleware function with the following parameters:
+`xyz-core` calls each **Middleware** function with the following parameters:
 
-  - `params`: an array of parameters values passed to the middleware function. This paramter can be variable depending on the place of the middleware. As an example, a HTTP server will invoke a Middleware function with different parameters than a UDP server.
+  - `message`: an object which contains information about the message. This paramter can be **slightly variable** depending on the place of the middleware. As an example, a HTTP server will invoke a Middleware function with different parameters than a UDP server.
   - `next`: function that will ignore the rest of the execution of **this middleware** and invoke the **next** function in the stack.
   - `end`: will end of the execution of the entire stack.
   - `xyz`: a reference to the current xyz object. This is useful because all of the information required, such as configurations, Service-Repository layer etc. can be accesses from this object.
 
-In order to see the value of `params`, we can always see the [source code](/apidoc/src_Transport_HTTP_http.server.js.html#line57) or [API DOC](/apidoc/HTTPServer.html). We can see from the API doc that the following values will be passed to a HTTP server middleware:
-
-- **req**: the request object
-- **resp**: the response object
-- **body** parsed body. also available in req object
-- **port**: port of this server
+In order to see the value of `message`, we can always see the source code or the [API DOC](/apidoc/HTTPServer.html). In this document, we will explain the details for clarification. Each server will emit its middleware stack with objects of a single type only: [xReceiveMessage](). This object will contain the following keys:
+- `.message`: the payload of the message. Most of the time, it is an object with two keys: `userPayload` and `xyzPayload`. The former is the data that the user-code passes to the message and the latter is information that xyz attaches to the message.
+- `.response`: the response object.
+- `.serverId`: identifier of the server receiving this message.
+- `.meta` other **variable** information. As an example, in http messages this `.xReceiveMessage.meta.request` is a reference to the request object, which is taken from the node's native http module.
 
 Keeping this ideas in mind, let's write a simple logger middleware:
 
 ```
-let _dummyLogger = function (params, next, end) {
+let _dummyLogger = function (xReceiveMessage, next, end) {
   console.log('i was called! now what?')
-  let port = params[3]
-  let body = params[2]
-  console.log(`LOGGER :: http message received on port ${port} with body ${JSON.stringify(body)}`)
+  console.log(`LOGGER :: http message received on port ${xReceiveMessage.serverId} with body ${JSON.stringify(xReceiveMessage.message)}`)
   next()
 }
 module.exports = _dummyLogger
+
 ```
+
+You should check the values of `xReceiveMessage.serverId` and `xReceiveMessage.message` and justify their veracity.
 
 This is the minimum structure required for each middleware. We expect this middleware to be called per **each http message** and it should log some information about it.
 
@@ -737,7 +737,7 @@ We first choose `.transport` layer, than a route named `CALL`, which is the defa
 
 Now that you have seen an example of this, seeing its [source code](/apidoc/xyz.js.html#line152) can clear things up.
 
-If you run math.ms now and send some messages to it usign string.ms, you should se something like this:
+If you run `math.ms` now and send some messages to it using `string.ms`, you should se something like this:
 
 ```
 i was called! now what?
@@ -752,7 +752,8 @@ mathMS.register('decimal/mul', (payload, response) => {
   response.jsonify(payload.x * payload.y)
 })
 {% endhighlight %}
-for more information about inserting middlewares and `.register()`, you can see [Generic Middlewares Handler](http://localhost:2000/apidoc/GenericMiddlewareHandler.html) class
+
+for more information about inserting middlewares and `.register()`, you can see [Generic Middlewares Handler](http://localhost:2000/apidoc/GenericMiddlewareHandler.html) class.
 
 Note that except the payload, all of these parameters will be used in the last middleware to create and send a HTTP request. Altering them will indeed have consequences. Albeit, not all alterations are harmful. As an example, consider the following scenarios:
 
@@ -768,14 +769,15 @@ Suppose that your system uses a very simple  authentication system, a shared-sec
 
 We are going to place two middlewares in **Transport layer** for this purpose, namely in **HTTP Server middleware***, the default Transport server.
 
-One middleware is going to be placed in the **outgoing** route** and it should append a _shared secret_ to the message's body. Another middleware will be placed in the **Server route** and it should check to see if that shared secret exists or not. The receiving middleware can destroy the message if it does not have correct secret and this keeps the rest of the system safe.
+One middleware is going to be placed in the **outgoing route** and it should append a _shared secret_ to the message's body. Another middleware will be placed in the **Server route** and it should check to see if that shared secret exists or not. The receiving middleware can destroy the message if it does not have correct secret and this keeps the rest of the system safe.
 
 The last note is to get familiar with parameters of an outgoing middleware, similar to the server middleware which we have already seen. An outgoing middleware has the following parameters:
 
-- params:
-  an object with two elements:
-  - requestConfig. The data of the message is stored in a key in `requestConfig` named `json`. Therefore, if we are to add a data to the request, we should add keys to `requestConfig.json`.
-  - responseCallback
+- [xSentMessageMwParam]():
+
+  which is an object with two keys:
+  - `.requestConfig`. The data of the message is stored in a key in `requestConfig` named `json` (since we wanted the api to be similar to node's native http). Therefore, if we are to add a data to the request, we should add keys to `requestConfig.json`.
+  - `.responseCallback`
 - next()
 - end()
 - xyz
@@ -788,9 +790,8 @@ The sender side is fairly (perhaps more than *fairly*) simple:
 //auth.send.js
 const SECRET = 'SHARED_SECRET'
 
-let _authSend = function (params, next, end) {
-  // params[0] is the requestConfig
-  params[0].json.authorization = SECRET
+let _authSend = function (xSentMessageMwParam, next, end) {
+  xSentMessageMwParam.requestConfig.json.authorization = SECRET
   console.log('auth header added')
   next()
 }
@@ -804,14 +805,12 @@ and in the receiving side:
 //auth.receive.js
 const SECRET = 'SHARED_SECRET'
 
-let _authReceive = function (params, next, end) {
-  let payload = params[2]
-  let req = params[0]
+let _authReceive = function (xReceiveMessage, next, end) {
+  let req = xReceiveMessage.meta.request
   let authorization = payload.authorization
 
-  if (authorization === SECRET) {
+  if (xReceiveMessage.message.authorization === SECRET) {
     console.log('auth accpeted')
-    // pass the request to next middleware
     next()
   } else {
     console.log('auth failed')

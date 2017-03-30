@@ -479,11 +479,11 @@ response of mul =&gt; null [err Not Found]
 <p>Although one of the reasons for having send strategies as a plugin is to keep the main repository minimal ,<code class="highlighter-rouge">xyz-core</code> has a few fundamental send strategies built in:</p>
 
 <ul>
-  <li><span class="spacing"> <a href="">xyz.first.find</a> </span> . <strong><em>Note that this is the default sendStrategy</em></strong>.</li>
-  <li><span class="spacing"> <a href="">xyz.send.to.all</a> </span></li>
-  <li><span class="spacing"> <a href="">xyz.send.to.target</a> </span></li>
-  <li><span class="spacing"> <a href="">xyz.broadcast.local</a> </span></li>
-  <li><span class="spacing"> <a href="">xyz.broadcast.global</a> </span></li>
+  <li><span class="spacing"> <a href="https://github.com/node-xyz/xyz-core/tree/master/src/Service/Middleware">xyz.first.find</a> </span> . <strong><em>Note that this is the default sendStrategy</em></strong>.</li>
+  <li><span class="spacing"> <a href="https://github.com/node-xyz/xyz-core/tree/master/src/Service/Middleware">xyz.send.to.all</a> </span></li>
+  <li><span class="spacing"> <a href="https://github.com/node-xyz/xyz-core/tree/master/src/Service/Middleware">xyz.send.to.target</a> </span></li>
+  <li><span class="spacing"> <a href="https://github.com/node-xyz/xyz-core/tree/master/src/Service/Middleware">xyz.broadcast.local</a> </span></li>
+  <li><span class="spacing"> <a href="https://github.com/node-xyz/xyz-core/tree/master/src/Service/Middleware">xyz.broadcast.global</a> </span></li>
 </ul>
 
 <p>In this tutorial we are only interested in the first two.</p>
@@ -595,7 +595,7 @@ response of mul =&gt; null [err Not Found]
 </div>
 
 <blockquote>
-  <p>Note that each xyz node will kick out-of-reach nodes after a certain threshold. You can learn more about it in the <a href="">Ping Types</a>.</p>
+  <p>Note that each xyz node will kick out-of-reach nodes after a certain threshold. You can learn more about it in the <a href="/documentations/advance/ping-mechanisms/">Ping Types</a>.</p>
 </blockquote>
 
 <p>As you see, the first parameter is the error and the second parameter is the response. This happens because each node will not immediately assume that an other node is offline after one failure, so it will keep sending the message to it. If you wait for 10 ping, you will see that all nodes will eventually update their <code class="highlighter-rouge">systemConf</code> and will not send any message to this node.</p>
@@ -889,36 +889,36 @@ Transport:
 
 <p>As mentioned above, each middleware is <strong>nothin but a function</strong>. Although you are the write of middlewares in most cases, you are not the one who invokes them, <code class="highlighter-rouge">xyz-core</code> is. Hence, xyz-core will decide which paramters will be passed to each middleware.</p>
 
-<p><code class="highlighter-rouge">xyz-core</code> calls each Middleware function with the following parameters:</p>
+<p><code class="highlighter-rouge">xyz-core</code> calls each <strong>Middleware</strong> function with the following parameters:</p>
 
 <ul>
-  <li><code class="highlighter-rouge">params</code>: an array of parameters values passed to the middleware function. This paramter can be variable depending on the place of the middleware. As an example, a HTTP server will invoke a Middleware function with different parameters than a UDP server.</li>
+  <li><code class="highlighter-rouge">message</code>: an object which contains information about the message. This paramter can be <strong>slightly variable</strong> depending on the place of the middleware. As an example, a HTTP server will invoke a Middleware function with different parameters than a UDP server.</li>
   <li><code class="highlighter-rouge">next</code>: function that will ignore the rest of the execution of <strong>this middleware</strong> and invoke the <strong>next</strong> function in the stack.</li>
   <li><code class="highlighter-rouge">end</code>: will end of the execution of the entire stack.</li>
   <li><code class="highlighter-rouge">xyz</code>: a reference to the current xyz object. This is useful because all of the information required, such as configurations, Service-Repository layer etc. can be accesses from this object.</li>
 </ul>
 
-<p>In order to see the value of <code class="highlighter-rouge">params</code>, we can always see the <a href="/apidoc/src_Transport_HTTP_http.server.js.html#line57">source code</a> or <a href="/apidoc/HTTPServer.html">API DOC</a>. We can see from the API doc that the following values will be passed to a HTTP server middleware:</p>
-
+<p>In order to see the value of <code class="highlighter-rouge">message</code>, we can always see the source code or the <a href="/apidoc/HTTPServer.html">API DOC</a>. In this document, we will explain the details for clarification. Each server will emit its middleware stack with objects of a single type only: <a href="">xReceiveMessage</a>. This object will contain the following keys:</p>
 <ul>
-  <li><strong>req</strong>: the request object</li>
-  <li><strong>resp</strong>: the response object</li>
-  <li><strong>body</strong> parsed body. also available in req object</li>
-  <li><strong>port</strong>: port of this server</li>
+  <li><code class="highlighter-rouge">.message</code>: the payload of the message. Most of the time, it is an object with two keys: <code class="highlighter-rouge">userPayload</code> and <code class="highlighter-rouge">xyzPayload</code>. The former is the data that the user-code passes to the message and the latter is information that xyz attaches to the message.</li>
+  <li><code class="highlighter-rouge">.response</code>: the response object.</li>
+  <li><code class="highlighter-rouge">.serverId</code>: identifier of the server receiving this message.</li>
+  <li><code class="highlighter-rouge">.meta</code> other <strong>variable</strong> information. As an example, in http messages this <code class="highlighter-rouge">.xReceiveMessage.meta.request</code> is a reference to the request object, which is taken from the node’s native http module.</li>
 </ul>
 
 <p>Keeping this ideas in mind, let’s write a simple logger middleware:</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>let _dummyLogger = function (params, next, end) {
+<div class="highlighter-rouge"><pre class="highlight"><code>let _dummyLogger = function (xReceiveMessage, next, end) {
   console.log('i was called! now what?')
-  let port = params[3]
-  let body = params[2]
-  console.log(`LOGGER :: http message received on port ${port} with body ${JSON.stringify(body)}`)
+  console.log(`LOGGER :: http message received on port ${xReceiveMessage.serverId} with body ${JSON.stringify(xReceiveMessage.message)}`)
   next()
 }
 module.exports = _dummyLogger
+
 </code></pre>
 </div>
+
+<p>You should check the values of <code class="highlighter-rouge">xReceiveMessage.serverId</code> and <code class="highlighter-rouge">xReceiveMessage.message</code> and justify their veracity.</p>
 
 <p>This is the minimum structure required for each middleware. We expect this middleware to be called per <strong>each http message</strong> and it should log some information about it.</p>
 
@@ -933,7 +933,7 @@ module.exports = _dummyLogger
 
 <p>Now that you have seen an example of this, seeing its <a href="/apidoc/xyz.js.html#line152">source code</a> can clear things up.</p>
 
-<p>If you run math.ms now and send some messages to it usign string.ms, you should se something like this:</p>
+<p>If you run <code class="highlighter-rouge">math.ms</code> now and send some messages to it using <code class="highlighter-rouge">string.ms</code>, you should se something like this:</p>
 
 <div class="highlighter-rouge"><pre class="highlight"><code>i was called! now what?
 LOGGER :: http message received on port 4000 with body {"userPayload":{"x":2,"y":5},"service":"/decimal/mul"}
@@ -947,7 +947,7 @@ LOGGER :: http message received on port 4000 with body {"userPayload":{"x":2,"y"
   <span class="nx">response</span><span class="p">.</span><span class="nx">jsonify</span><span class="p">(</span><span class="nx">payload</span><span class="p">.</span><span class="nx">x</span> <span class="o">*</span> <span class="nx">payload</span><span class="p">.</span><span class="nx">y</span><span class="p">)</span>
 <span class="p">})</span></code></pre></figure>
 
-<p>for more information about inserting middlewares and <code class="highlighter-rouge">.register()</code>, you can see <a href="http://localhost:2000/apidoc/GenericMiddlewareHandler.html">Generic Middlewares Handler</a> class</p>
+<p>for more information about inserting middlewares and <code class="highlighter-rouge">.register()</code>, you can see <a href="http://localhost:2000/apidoc/GenericMiddlewareHandler.html">Generic Middlewares Handler</a> class.</p>
 
 <p>Note that except the payload, all of these parameters will be used in the last middleware to create and send a HTTP request. Altering them will indeed have consequences. Albeit, not all alterations are harmful. As an example, consider the following scenarios:</p>
 
@@ -965,16 +965,18 @@ LOGGER :: http message received on port 4000 with body {"userPayload":{"x":2,"y"
 
 <p>We are going to place two middlewares in <strong>Transport layer</strong> for this purpose, namely in <strong>HTTP Server middleware</strong>*, the default Transport server.</p>
 
-<p>One middleware is going to be placed in the <strong>outgoing</strong> route** and it should append a <em>shared secret</em> to the message’s body. Another middleware will be placed in the <strong>Server route</strong> and it should check to see if that shared secret exists or not. The receiving middleware can destroy the message if it does not have correct secret and this keeps the rest of the system safe.</p>
+<p>One middleware is going to be placed in the <strong>outgoing route</strong> and it should append a <em>shared secret</em> to the message’s body. Another middleware will be placed in the <strong>Server route</strong> and it should check to see if that shared secret exists or not. The receiving middleware can destroy the message if it does not have correct secret and this keeps the rest of the system safe.</p>
 
 <p>The last note is to get familiar with parameters of an outgoing middleware, similar to the server middleware which we have already seen. An outgoing middleware has the following parameters:</p>
 
 <ul>
-  <li>params:
-an object with two elements:
+  <li>
+    <p><a href="">xSentMessageMwParam</a>:</p>
+
+    <p>which is an object with two keys:</p>
     <ul>
-      <li>requestConfig. The data of the message is stored in a key in <code class="highlighter-rouge">requestConfig</code> named <code class="highlighter-rouge">json</code>. Therefore, if we are to add a data to the request, we should add keys to <code class="highlighter-rouge">requestConfig.json</code>.</li>
-      <li>responseCallback</li>
+      <li><code class="highlighter-rouge">.requestConfig</code>. The data of the message is stored in a key in <code class="highlighter-rouge">requestConfig</code> named <code class="highlighter-rouge">json</code> (since we wanted the api to be similar to node’s native http). Therefore, if we are to add a data to the request, we should add keys to <code class="highlighter-rouge">requestConfig.json</code>.</li>
+      <li><code class="highlighter-rouge">.responseCallback</code></li>
     </ul>
   </li>
   <li>next()</li>
@@ -987,9 +989,8 @@ an object with two elements:
 <figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">//auth.send.js</span>
 <span class="kr">const</span> <span class="nx">SECRET</span> <span class="o">=</span> <span class="s1">'SHARED_SECRET'</span>
 
-<span class="kd">let</span> <span class="nx">_authSend</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">params</span><span class="p">,</span> <span class="nx">next</span><span class="p">,</span> <span class="nx">end</span><span class="p">)</span> <span class="p">{</span>
-  <span class="c1">// params[0] is the requestConfig</span>
-  <span class="nx">params</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">json</span><span class="p">.</span><span class="nx">authorization</span> <span class="o">=</span> <span class="nx">SECRET</span>
+<span class="kd">let</span> <span class="nx">_authSend</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">xSentMessageMwParam</span><span class="p">,</span> <span class="nx">next</span><span class="p">,</span> <span class="nx">end</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">xSentMessageMwParam</span><span class="p">.</span><span class="nx">requestConfig</span><span class="p">.</span><span class="nx">json</span><span class="p">.</span><span class="nx">authorization</span> <span class="o">=</span> <span class="nx">SECRET</span>
   <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'auth header added'</span><span class="p">)</span>
   <span class="nx">next</span><span class="p">()</span>
 <span class="p">}</span>
@@ -1001,14 +1002,12 @@ an object with two elements:
 <figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">//auth.receive.js</span>
 <span class="kr">const</span> <span class="nx">SECRET</span> <span class="o">=</span> <span class="s1">'SHARED_SECRET'</span>
 
-<span class="kd">let</span> <span class="nx">_authReceive</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">params</span><span class="p">,</span> <span class="nx">next</span><span class="p">,</span> <span class="nx">end</span><span class="p">)</span> <span class="p">{</span>
-  <span class="kd">let</span> <span class="nx">payload</span> <span class="o">=</span> <span class="nx">params</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
-  <span class="kd">let</span> <span class="nx">req</span> <span class="o">=</span> <span class="nx">params</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="kd">let</span> <span class="nx">_authReceive</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">xReceiveMessage</span><span class="p">,</span> <span class="nx">next</span><span class="p">,</span> <span class="nx">end</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="nx">req</span> <span class="o">=</span> <span class="nx">xReceiveMessage</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">request</span>
   <span class="kd">let</span> <span class="nx">authorization</span> <span class="o">=</span> <span class="nx">payload</span><span class="p">.</span><span class="nx">authorization</span>
 
-  <span class="k">if</span> <span class="p">(</span><span class="nx">authorization</span> <span class="o">===</span> <span class="nx">SECRET</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">xReceiveMessage</span><span class="p">.</span><span class="nx">message</span><span class="p">.</span><span class="nx">authorization</span> <span class="o">===</span> <span class="nx">SECRET</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'auth accpeted'</span><span class="p">)</span>
-    <span class="c1">// pass the request to next middleware</span>
     <span class="nx">next</span><span class="p">()</span>
   <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'auth failed'</span><span class="p">)</span>
