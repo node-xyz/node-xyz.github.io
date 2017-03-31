@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>src/Bootstrap/process.inspect.event.js - Documentation</title>
+    <title>src/Transport/xReceivedMessage.js - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -27,7 +27,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">src/Bootstrap/process.inspect.event.js</h1>
+    <h1 class="page-title">src/Transport/xReceivedMessage.js</h1>
     
 
     
@@ -37,27 +37,40 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code> /** @module bootstrapFunctions */
-
+            <pre class="prettyprint source linenums"><code>
 /**
- * will setup a message listener for the process to responde to `inspect` and `inspectJSON` events.
- * This will be used by xyz-cli. please see the source code for more information.
- * @function _processInspectionEvent
- * @param  {Object}            xyz   the automatically injected paramter referring to the current xyz instance.
+ * This class is the common class used for all middlewares
  */
+class xReceivedMessage {
+  constructor (config = {}) {
+    /**
+     * payload of the message
+     * usually contains `xyzPayload` and `userPayload` keys
+     * @type {Any}
+     */
+    this.message = config.message
 
-function _processInspectionEvent (xyz) {
-  process.on('message', (data) => {
-    // this process will responde with a json object containing basic info about the node
-    if (data.title === 'inspectJSON') {
-      process.send({title: data.title, body: xyz.inspectJSON()})
-    } else if (data.title === 'inspect') {
-      process.send({title: data.title, body: xyz.inspect()})
-    }
-  })
+    /**
+     * Port and type of the server
+     * @type {Object}
+     */
+    this.serverId = config.serverId
+
+    /**
+     * metadata. dependes on the type of the server
+     * @type {Object}
+     */
+    this.meta = config.meta
+
+    /**
+     * Function to use for responding to this message
+     * @type {Function}
+     */
+    this.response = config.response
+  }
 }
 
-module.exports = _processInspectionEvent
+module.exports = xReceivedMessage
 </code></pre>
         </article>
     </section>
