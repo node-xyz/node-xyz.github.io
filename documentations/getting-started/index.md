@@ -53,8 +53,8 @@ In order to have two xyz instances communicate with each other, they need to hav
 
 Our two services are going to be deployed with the following topology:
 
-- math.ms will be hosted on port 4000 of the local machine
-- string.ms will be hosted on port 5000 of the local machine
+- `math.ms` will be hosted on port 4000 of the local machine
+- `string.ms` will be hosted on port 5000 of the local machine
 
 Therefore, we need to pass the address of the other node to each of the nodes. This will be placed inside `systemConf.nodes`.
 
@@ -282,11 +282,11 @@ The good thing about the `sendStrategy` is that it is a **plugin** (aka. middlew
 
 Although one of the reasons for having send strategies as a plugin is to keep the main repository minimal ,`xyz-core` has a few fundamental send strategies built in:
 
-- <span class='spacing'> [xyz.first.find](https://github.com/node-xyz/xyz-core/tree/master/src/Service/Middleware) </span> . **_Note that this is the default sendStrategy_**.
-- <span class='spacing'> [xyz.send.to.all](https://github.com/node-xyz/xyz-core/tree/master/src/Service/Middleware) </span>
-- <span class='spacing'> [xyz.send.to.target](https://github.com/node-xyz/xyz-core/tree/master/src/Service/Middleware) </span>
-- <span class='spacing'> [xyz.broadcast.local](https://github.com/node-xyz/xyz-core/tree/master/src/Service/Middleware) </span>
-- <span class='spacing'> [xyz.broadcast.global](https://github.com/node-xyz/xyz-core/tree/master/src/Service/Middleware) </span>
+- <span class='spacing'> [xyz.first.find](https://github.com/node-xyz/xyz-core/blob/master/built/Service/Middleware/service.first.find.js) </span> . **_Note that this is the default sendStrategy_**.
+- <span class='spacing'> [xyz.send.to.all](https://github.com/node-xyz/xyz-core/blob/master/built/Service/Middleware/service.send.to.all.js) </span>
+- <span class='spacing'> [xyz.send.to.target](https://github.com/node-xyz/xyz-core/blob/master/built/Service/Middleware/service.sent.to.target.js) </span>
+- <span class='spacing'> [xyz.broadcast.local](https://github.com/node-xyz/xyz-core/blob/master/built/Service/Middleware/service.broadcast.local.js) </span>
+- <span class='spacing'> [xyz.broadcast.global](https://github.com/node-xyz/xyz-core/blob/master/built/Service/Middleware/service.broadcast.global.js) </span>
 
 In this tutorial we are only interested in the first two.
 
@@ -311,7 +311,7 @@ In order to investigate the last sentence better, let's verbally describe how `x
 The `send.to.all` works in similar manner, but it will send the message to **all of the nodes that have `foo` as an exposed service**.
 
 
-XYZ is configured to work with _first find_ by default. if you wish to change this, a new key named **`defaultSendStrategy`** should be added to the **selfConf** key passed to xyz constructor. Built in middlewares can be imported from `xyz-core/src/Service/Middlewares/[...]`. Let's set `send.to.all` function for `string.ms.js`:
+XYZ is configured to work with _first find_ by default. if you wish to change this, a new key named **`defaultSendStrategy`** should be added to the **selfConf** key passed to xyz constructor. Built in middlewares can be imported from `xyz-core/built/Service/Middleware/[...]`. Let's set `send.to.all` function for `string.ms.js`:
 
 {% highlight javascript %}
 let stringMS = new XYZ({
@@ -319,7 +319,7 @@ let stringMS = new XYZ({
     name: 'string.ms',
     host: '127.0.0.1',
     seed: ['127.0.0.1:4000'],
-    defaultSendStrategy: require('xyz-core/src/Service/Middleware/service.send.to.all'),
+    defaultSendStrategy: require('xyz-core/built/Service/Middleware/service.send.to.all'),
     transport: [{type: 'HTTP', port: 5000}]
   },
   systemConf: {nodes: []}
@@ -412,8 +412,8 @@ Note that you can also pass the send strategy ***per call***. This will override
 
 
 {%highlight javascript%}
-let sendToAll = require('xyz-core/src/Service/Middleware/service.send.to.all')
-let firstFind = require('xyz-core/src/Service/Middleware/service.first.find')
+let sendToAll = require('xyz-core/built/Service/Middleware/service.send.to.all')
+let firstFind = require('xyz-core/built/Service/Middleware/service.first.find')
 setInterval(() => {
   stringMS.call({servicePath: 'mul', payload: {x: 2, y: 5}, sendStrategy: sendToAll}, (err, body, res) => {
     console.log(`response of mul => ${JSON.stringify(body)} [err ${err}]`)
@@ -596,7 +596,7 @@ Whenever you send a message, the following steps will be taken:
 
 - You invoke the `.call()`, which lives in `xyz-core` layer. (Basically, all of the functions that you might need to use directly live in `xyz-core`)
 - `xyz-core` will then pass this message to `service-repository` layer. service-repository will then pass the message to a send strategy function in order to resolve the destination node of this message. this _sendStrategy_ function should also invoke the `Transport` layer.
-- The `Transport` layer itself does not do much! It's the middlewares of Transport layer that do most of the job. Almost immediatly, the Transport layer will pass the message to an **Outgoing Middleware Stack**. This outgoing middleware stack will apply all kinds of processes over the message object, and finally, in the last function of this middleware stack, the actual http call will be made and the message will be exported.
+- The `Transport` layer itself does not do much! It's the middlewares of Transport layer that do most of the job. Almost immediately, the Transport layer will pass the message to an **Outgoing Middleware Stack**. This outgoing middleware stack will apply all kinds of processes over the message object, and finally, in the last function of this middleware stack, the actual http call will be made and the message will be exported.
 
 #### 2) Receiving a message
 
@@ -676,11 +676,12 @@ In **GENERAL** section you can see most of the information that you pass to the 
 
 In **TRANSPORT LAYER** section you can the list of all of the function that you have exposed using `.register()`. Also, you see a component called `service.discovery.mw`. This middleware, by default has only one function, which is `firstFind`. Whenver you change the `sendStrategy`, this function will change (change the `defaultSendStrategy` in `selfConf` and see this log again!)
 
-> Note: at current state of xyz, the Service-Repository's `service.discovery.mw` can have **only one** function.
+> Note: at current state of xyz, the Service-Repository's `service.discovery.mw` can have **only one** function[Version 0.4.0].
+> Note: Service-Repository's 'service.discovery.mw' can now have more than one function and it acts like all other middlewares. Please see [this page](/documentations/advance/send-strategies/) for more info
 
 Looking further into **TRANSPORT** section, we can find some more relevant information. You can see that each node has a number of **outgoing message middlewares** and a number of servers, each of them having a number of **server middlewares**, each for one route. For now, you can ignore the routes mentioned in the log. xyz uses the default `/CALL` route for all messages sent using `.call()` and `/PING` route is used by the default ping.
 
-Focusing on the `/CALL` section, in the outgoing section you can see that **outgoing middlewares** currently have only one function, **_httpExport**. This function will immediately export a message using a HTTP message. As an example, you will learn in [Routes and Servers]() section that you can replace this function with something like **_udpExport**.
+Focusing on the `/CALL` section, in the outgoing section you can see that **outgoing middlewares** currently have only one function, **_httpExport**. This function will immediately export a message using a HTTP message. As an example, you will learn in [Routes and Servers]() section that you can replace this function with something like [**_udpExport**]().
 
 In the **Server** section of **TRANSPORT** you can see that the middleware of `/CALL` has only one function by default, the `_httpMessageEvent` which will invoke the Service-Repository layer. This means that whenever `math.ms` receives a message from another node, it will immediately pass it to the service layer and no extra process is done.
 
@@ -692,16 +693,30 @@ Knowing these information about the architecture of xyz, we will now use our kno
 
 ### Middleware syntax
 
-As mentioned above, each middleware is **nothin but a function**. Although you are the write of middlewares in most cases, you are not the one who invokes them, `xyz-core` is. Hence, xyz-core will decide which paramters will be passed to each middleware.  
+As mentioned above, each middleware is **nothin but a function**. Although you are the write of middlewares in most cases, you are not the one who invokes them, `xyz-core` is. Hence, xyz-core will decide which parameters will be passed to each middleware.  
 
 `xyz-core` calls each **Middleware** function with the following parameters:
 
-  - `message`: an object which contains information about the message. This paramter can be **slightly variable** depending on the place of the middleware. As an example, a HTTP server will invoke a Middleware function with different parameters than a UDP server.
+  - `params`: an object which contains information about the message. This parameter can be **slightly variable** depending on the place of the middleware. As an example, a HTTP server will invoke a Middleware function with different parameters than a UDP server.
   - `next`: function that will ignore the rest of the execution of **this middleware** and invoke the **next** function in the stack.
   - `end`: will end of the execution of the entire stack.
   - `xyz`: a reference to the current xyz object. This is useful because all of the information required, such as configurations, Service-Repository layer etc. can be accesses from this object.
 
-In order to see the value of `message`, we can always see the source code or the [API DOC](/apidoc/HTTPServer.html). In this document, we will explain the details for clarification. Each server will emit its middleware stack with objects of a single type only: [xReceiveMessage](). This object will contain the following keys:
+In the following section, we will focus on writing a dummy logger receive middleware for HTTP server.
+
+In order to see the value of `message`, we can always see the source code or the [API DOC](/apidoc/). In this document, we will explain the details for clarification. Each server will emit its middleware stack with objects of a single type only: `xReceiveMessage`, which has the [ITransportReceivedMessage](https://github.com/node-xyz/xyz-core/blob/master/src/Transport/transport.interfaces.ts) interface. This object will contain the following keys:
+
+{% highlight javascript %}
+export interface ITransportReceivedMessage {
+  message: any
+  serverId: object
+  meta: object
+  response: () => void
+}
+{% endhighlight %}
+
+where
+
 - `.message`: the payload of the message. Most of the time, it is an object with two keys: `userPayload` and `xyzPayload`. The former is the data that the user-code passes to the message and the latter is information that xyz attaches to the message.
 - `.response`: the response object.
 - `.serverId`: identifier of the server receiving this message.
@@ -725,15 +740,16 @@ This is the minimum structure required for each middleware. We expect this middl
 
 Next, let us see how we can insert this dummy logger to the system. Each middleware provides a method for inserting a function to a specific index of it. The tricky part is **accessing** that middleware. Since middlewares can be numerous, `xyz-core` does not provide a generic function for inserting middlewares (something like `MathMS.insertMw(...)`). This is because xyz-core must first know **which middleware**!
 
-the `middlewares()` method in `xyz-core` return an object containing all middlewares in the system. Next, you should choose your target from this object. Let's jump right into the code:
+the [`middlewares()`]() method in `xyz-core` returns an object containing all middlewares in the system. Next, you should choose your target from this object. Let's jump right into the code:
 
 {% highlight javascript %}
+
 let _dummyLogger = require('./dummy.logger')
 mathMS.middlewares().transport.server('CALL')(4000).register(0, _dummyLogger)
 
 {% endhighlight %}
 
-We first choose `.transport` layer, than a route named `CALL`, which is the default route of all messages. Next we choose a server on port 4000, which is the default port of `math.ms.js` and finally, we insert the function to that middleware using `.register()` at index `0`.
+We first choose `.transport` layer. Next, a route named `CALL`, which is the default route of all messages. Next we choose a server on port 4000, which is the default port of `math.ms.js` and finally, we insert the function to that middleware using `.register()` at index `0`.
 
 Now that you have seen an example of this, seeing its [source code](/apidoc/xyz.js.html#line152) can clear things up.
 
@@ -753,9 +769,9 @@ mathMS.register('decimal/mul', (payload, response) => {
 })
 {% endhighlight %}
 
-for more information about inserting middlewares and `.register()`, you can see [Generic Middlewares Handler](http://localhost:2000/apidoc/GenericMiddlewareHandler.html) class.
+for more information about inserting middlewares and `.register()`, you can see [Generic Middlewares Handler]() class.
 
-Note that except the payload, all of these parameters will be used in the last middleware to create and send a HTTP request. Altering them will indeed have consequences. Albeit, not all alterations are harmful. As an example, consider the following scenarios:
+Note that many variables in both send and receive middleware will be used to parse/export the message. Altering them will indeed have consequences. Albeit, not all alterations are harmful. As an example, consider the following scenarios:
 
   - Applying a pre/post-processing to all request, like adding fix headers, message encryption or serialization.
   - logging systems
@@ -771,20 +787,33 @@ We are going to place two middlewares in **Transport layer** for this purpose, n
 
 One middleware is going to be placed in the **outgoing route** and it should append a _shared secret_ to the message's body. Another middleware will be placed in the **Server route** and it should check to see if that shared secret exists or not. The receiving middleware can destroy the message if it does not have correct secret and this keeps the rest of the system safe.
 
-The last note is to get familiar with parameters of an outgoing middleware, similar to the server middleware which we have already seen. An outgoing middleware has the following parameters:
+The last note is to get familiar with parameters of an **outgoing middleware**, similar to the server middleware which we have already seen. An outgoing middleware has the following parameters:
 
-- [xSentMessageMwParam]():
-
-  which is an object with two keys:
-  - `.requestConfig`. The data of the message is stored in a key in `requestConfig` named `json` (since we wanted the api to be similar to node's native http). Therefore, if we are to add a data to the request, we should add keys to `requestConfig.json`.
-  - `.responseCallback`
+- [xSentMessageMwParam]() (interface: [ITransportSentMessageMwParam]())
 - next()
 - end()
 - xyz
 
+{% highlight javascript %}
+export interface ITransportSentMessageMwParam {
+  requestConfig: ITransportSentMessageConfig
+  responseCallback: (err, body, resp) => void
+}
+
+export interface ITransportSentMessageConfig {
+  hostname: string
+  port: number
+  path: string
+  method: string
+  json: ITransportSentMessageBody
+}
+{% endhighlight %}
+
+  where:
+- `.requestConfig`. The data of the message is stored in a key in `requestConfig` named `json` (since we wanted the api to be similar to node's native http). Therefore, if we are to add a data to the request, we should add keys to `requestConfig.json`.
+- `.responseCallback`
 
 The sender side is fairly (perhaps more than *fairly*) simple:
-
 
 {%highlight javascript%}
 //auth.send.js
@@ -803,13 +832,12 @@ and in the receiving side:
 
 {% highlight javascript%}
 //auth.receive.js
-const SECRET = 'SHARED_SECRET'
-
 let _authReceive = function (xReceiveMessage, next, end) {
+  let payload = xReceiveMessage.message
   let req = xReceiveMessage.meta.request
   let authorization = payload.authorization
 
-  if (xReceiveMessage.message.authorization === SECRET) {
+  if (authorization === SECRET) {
     console.log('auth accpeted')
     next()
   } else {
@@ -852,10 +880,8 @@ Again, note that what you add to the `json` key is not available to the applicat
 
 If you run both systems now, you see that everything is working as expected and the two systems can still communicate. Change the `const SECRET = .. ` value in one node and see how it causes messages to be ignored by the Receiving.
 
-# Where to next?
+# Where to go next?
 
-Congrats! you have just learned something very awesome. This tutorial teaches you almost enough to **use** xyz, and some third party middleware packages. But, if you are interested in knowing more, you are encouraged to read the [Advance Topics](/documentation/advance) and [In-depth](/documentation/In-depth) section.
-
-
+Congrats! you have just learned something very awesome. This tutorial teaches you almost enough to **use** xyz, and some third party middleware packages. But, if you are interested in knowing more, you are encouraged to read the [Advance Topics](/documentation/advance) section.
 
 ---

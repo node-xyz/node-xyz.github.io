@@ -255,8 +255,8 @@ body {
 <p>Our two services are going to be deployed with the following topology:</p>
 
 <ul>
-  <li>math.ms will be hosted on port 4000 of the local machine</li>
-  <li>string.ms will be hosted on port 5000 of the local machine</li>
+  <li><code class="highlighter-rouge">math.ms</code> will be hosted on port 4000 of the local machine</li>
+  <li><code class="highlighter-rouge">string.ms</code> will be hosted on port 5000 of the local machine</li>
 </ul>
 
 <p>Therefore, we need to pass the address of the other node to each of the nodes. This will be placed inside <code class="highlighter-rouge">systemConf.nodes</code>.</p>
@@ -479,11 +479,11 @@ response of mul =&gt; null [err Not Found]
 <p>Although one of the reasons for having send strategies as a plugin is to keep the main repository minimal ,<code class="highlighter-rouge">xyz-core</code> has a few fundamental send strategies built in:</p>
 
 <ul>
-  <li><span class="spacing"> <a href="https://github.com/node-xyz/xyz-core/tree/master/src/Service/Middleware">xyz.first.find</a> </span> . <strong><em>Note that this is the default sendStrategy</em></strong>.</li>
-  <li><span class="spacing"> <a href="https://github.com/node-xyz/xyz-core/tree/master/src/Service/Middleware">xyz.send.to.all</a> </span></li>
-  <li><span class="spacing"> <a href="https://github.com/node-xyz/xyz-core/tree/master/src/Service/Middleware">xyz.send.to.target</a> </span></li>
-  <li><span class="spacing"> <a href="https://github.com/node-xyz/xyz-core/tree/master/src/Service/Middleware">xyz.broadcast.local</a> </span></li>
-  <li><span class="spacing"> <a href="https://github.com/node-xyz/xyz-core/tree/master/src/Service/Middleware">xyz.broadcast.global</a> </span></li>
+  <li><span class="spacing"> <a href="https://github.com/node-xyz/xyz-core/blob/master/built/Service/Middleware/service.first.find.js">xyz.first.find</a> </span> . <strong><em>Note that this is the default sendStrategy</em></strong>.</li>
+  <li><span class="spacing"> <a href="https://github.com/node-xyz/xyz-core/blob/master/built/Service/Middleware/service.send.to.all.js">xyz.send.to.all</a> </span></li>
+  <li><span class="spacing"> <a href="https://github.com/node-xyz/xyz-core/blob/master/built/Service/Middleware/service.sent.to.target.js">xyz.send.to.target</a> </span></li>
+  <li><span class="spacing"> <a href="https://github.com/node-xyz/xyz-core/blob/master/built/Service/Middleware/service.broadcast.local.js">xyz.broadcast.local</a> </span></li>
+  <li><span class="spacing"> <a href="https://github.com/node-xyz/xyz-core/blob/master/built/Service/Middleware/service.broadcast.global.js">xyz.broadcast.global</a> </span></li>
 </ul>
 
 <p>In this tutorial we are only interested in the first two.</p>
@@ -511,14 +511,14 @@ response of mul =&gt; null [err Not Found]
 
 <p>The <code class="highlighter-rouge">send.to.all</code> works in similar manner, but it will send the message to <strong>all of the nodes that have <code class="highlighter-rouge">foo</code> as an exposed service</strong>.</p>
 
-<p>XYZ is configured to work with <em>first find</em> by default. if you wish to change this, a new key named <strong><code class="highlighter-rouge">defaultSendStrategy</code></strong> should be added to the <strong>selfConf</strong> key passed to xyz constructor. Built in middlewares can be imported from <code class="highlighter-rouge">xyz-core/src/Service/Middlewares/[...]</code>. Let’s set <code class="highlighter-rouge">send.to.all</code> function for <code class="highlighter-rouge">string.ms.js</code>:</p>
+<p>XYZ is configured to work with <em>first find</em> by default. if you wish to change this, a new key named <strong><code class="highlighter-rouge">defaultSendStrategy</code></strong> should be added to the <strong>selfConf</strong> key passed to xyz constructor. Built in middlewares can be imported from <code class="highlighter-rouge">xyz-core/built/Service/Middleware/[...]</code>. Let’s set <code class="highlighter-rouge">send.to.all</code> function for <code class="highlighter-rouge">string.ms.js</code>:</p>
 
 <figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">let</span> <span class="nx">stringMS</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">XYZ</span><span class="p">({</span>
   <span class="na">selfConf</span><span class="p">:</span> <span class="p">{</span>
     <span class="na">name</span><span class="p">:</span> <span class="s1">'string.ms'</span><span class="p">,</span>
     <span class="na">host</span><span class="p">:</span> <span class="s1">'127.0.0.1'</span><span class="p">,</span>
     <span class="na">seed</span><span class="p">:</span> <span class="p">[</span><span class="s1">'127.0.0.1:4000'</span><span class="p">],</span>
-    <span class="na">defaultSendStrategy</span><span class="p">:</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'xyz-core/src/Service/Middleware/service.send.to.all'</span><span class="p">),</span>
+    <span class="na">defaultSendStrategy</span><span class="p">:</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'xyz-core/built/Service/Middleware/service.send.to.all'</span><span class="p">),</span>
     <span class="na">transport</span><span class="p">:</span> <span class="p">[{</span><span class="na">type</span><span class="p">:</span> <span class="s1">'HTTP'</span><span class="p">,</span> <span class="na">port</span><span class="p">:</span> <span class="mi">5000</span><span class="p">}]</span>
   <span class="p">},</span>
   <span class="na">systemConf</span><span class="p">:</span> <span class="p">{</span><span class="na">nodes</span><span class="p">:</span> <span class="p">[]}</span>
@@ -604,8 +604,8 @@ response of mul =&gt; null [err Not Found]
 
 <p>Note that you can also pass the send strategy <strong><em>per call</em></strong>. This will override whatever send strategy you have already chosen in <code class="highlighter-rouge">selfConf</code>:</p>
 
-<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">let</span> <span class="nx">sendToAll</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'xyz-core/src/Service/Middleware/service.send.to.all'</span><span class="p">)</span>
-<span class="kd">let</span> <span class="nx">firstFind</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'xyz-core/src/Service/Middleware/service.first.find'</span><span class="p">)</span>
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">let</span> <span class="nx">sendToAll</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'xyz-core/built/Service/Middleware/service.send.to.all'</span><span class="p">)</span>
+<span class="kd">let</span> <span class="nx">firstFind</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'xyz-core/built/Service/Middleware/service.first.find'</span><span class="p">)</span>
 <span class="nx">setInterval</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
   <span class="nx">stringMS</span><span class="p">.</span><span class="nx">call</span><span class="p">({</span><span class="na">servicePath</span><span class="p">:</span> <span class="s1">'mul'</span><span class="p">,</span> <span class="na">payload</span><span class="p">:</span> <span class="p">{</span><span class="na">x</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="na">y</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span> <span class="na">sendStrategy</span><span class="p">:</span> <span class="nx">sendToAll</span><span class="p">},</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">body</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="err">`</span><span class="nx">response</span> <span class="nx">of</span> <span class="nx">mul</span> <span class="o">=&gt;</span> <span class="nx">$</span><span class="p">{</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">body</span><span class="p">)}</span> <span class="p">[</span><span class="nx">err</span> <span class="nx">$</span><span class="p">{</span><span class="nx">err</span><span class="p">}]</span><span class="err">`</span><span class="p">)</span>
@@ -789,7 +789,7 @@ mathMS.register('float/add', (payload, response) =&gt; {
 <ul>
   <li>You invoke the <code class="highlighter-rouge">.call()</code>, which lives in <code class="highlighter-rouge">xyz-core</code> layer. (Basically, all of the functions that you might need to use directly live in <code class="highlighter-rouge">xyz-core</code>)</li>
   <li><code class="highlighter-rouge">xyz-core</code> will then pass this message to <code class="highlighter-rouge">service-repository</code> layer. service-repository will then pass the message to a send strategy function in order to resolve the destination node of this message. this <em>sendStrategy</em> function should also invoke the <code class="highlighter-rouge">Transport</code> layer.</li>
-  <li>The <code class="highlighter-rouge">Transport</code> layer itself does not do much! It’s the middlewares of Transport layer that do most of the job. Almost immediatly, the Transport layer will pass the message to an <strong>Outgoing Middleware Stack</strong>. This outgoing middleware stack will apply all kinds of processes over the message object, and finally, in the last function of this middleware stack, the actual http call will be made and the message will be exported.</li>
+  <li>The <code class="highlighter-rouge">Transport</code> layer itself does not do much! It’s the middlewares of Transport layer that do most of the job. Almost immediately, the Transport layer will pass the message to an <strong>Outgoing Middleware Stack</strong>. This outgoing middleware stack will apply all kinds of processes over the message object, and finally, in the last function of this middleware stack, the actual http call will be made and the message will be exported.</li>
 </ul>
 
 <h4 id="receiving-a-message">2) Receiving a message</h4>
@@ -868,12 +868,13 @@ Transport:
 <p>In <strong>TRANSPORT LAYER</strong> section you can the list of all of the function that you have exposed using <code class="highlighter-rouge">.register()</code>. Also, you see a component called <code class="highlighter-rouge">service.discovery.mw</code>. This middleware, by default has only one function, which is <code class="highlighter-rouge">firstFind</code>. Whenver you change the <code class="highlighter-rouge">sendStrategy</code>, this function will change (change the <code class="highlighter-rouge">defaultSendStrategy</code> in <code class="highlighter-rouge">selfConf</code> and see this log again!)</p>
 
 <blockquote>
-  <p>Note: at current state of xyz, the Service-Repository’s <code class="highlighter-rouge">service.discovery.mw</code> can have <strong>only one</strong> function.</p>
+  <p>Note: at current state of xyz, the Service-Repository’s <code class="highlighter-rouge">service.discovery.mw</code> can have <strong>only one</strong> function[Version 0.4.0].
+Note: Service-Repository’s ‘service.discovery.mw’ can now have more than one function and it acts like all other middlewares. Please see <a href="/documentations/advance/send-strategies/">this page</a> for more info</p>
 </blockquote>
 
 <p>Looking further into <strong>TRANSPORT</strong> section, we can find some more relevant information. You can see that each node has a number of <strong>outgoing message middlewares</strong> and a number of servers, each of them having a number of <strong>server middlewares</strong>, each for one route. For now, you can ignore the routes mentioned in the log. xyz uses the default <code class="highlighter-rouge">/CALL</code> route for all messages sent using <code class="highlighter-rouge">.call()</code> and <code class="highlighter-rouge">/PING</code> route is used by the default ping.</p>
 
-<p>Focusing on the <code class="highlighter-rouge">/CALL</code> section, in the outgoing section you can see that <strong>outgoing middlewares</strong> currently have only one function, <strong>_httpExport</strong>. This function will immediately export a message using a HTTP message. As an example, you will learn in <a href="">Routes and Servers</a> section that you can replace this function with something like <strong>_udpExport</strong>.</p>
+<p>Focusing on the <code class="highlighter-rouge">/CALL</code> section, in the outgoing section you can see that <strong>outgoing middlewares</strong> currently have only one function, <strong>_httpExport</strong>. This function will immediately export a message using a HTTP message. As an example, you will learn in <a href="">Routes and Servers</a> section that you can replace this function with something like <a href=""><strong>_udpExport</strong></a>.</p>
 
 <p>In the <strong>Server</strong> section of <strong>TRANSPORT</strong> you can see that the middleware of <code class="highlighter-rouge">/CALL</code> has only one function by default, the <code class="highlighter-rouge">_httpMessageEvent</code> which will invoke the Service-Repository layer. This means that whenever <code class="highlighter-rouge">math.ms</code> receives a message from another node, it will immediately pass it to the service layer and no extra process is done.</p>
 
@@ -887,18 +888,30 @@ Transport:
 
 <h3 id="middleware-syntax">Middleware syntax</h3>
 
-<p>As mentioned above, each middleware is <strong>nothin but a function</strong>. Although you are the write of middlewares in most cases, you are not the one who invokes them, <code class="highlighter-rouge">xyz-core</code> is. Hence, xyz-core will decide which paramters will be passed to each middleware.</p>
+<p>As mentioned above, each middleware is <strong>nothin but a function</strong>. Although you are the write of middlewares in most cases, you are not the one who invokes them, <code class="highlighter-rouge">xyz-core</code> is. Hence, xyz-core will decide which parameters will be passed to each middleware.</p>
 
 <p><code class="highlighter-rouge">xyz-core</code> calls each <strong>Middleware</strong> function with the following parameters:</p>
 
 <ul>
-  <li><code class="highlighter-rouge">message</code>: an object which contains information about the message. This paramter can be <strong>slightly variable</strong> depending on the place of the middleware. As an example, a HTTP server will invoke a Middleware function with different parameters than a UDP server.</li>
+  <li><code class="highlighter-rouge">params</code>: an object which contains information about the message. This parameter can be <strong>slightly variable</strong> depending on the place of the middleware. As an example, a HTTP server will invoke a Middleware function with different parameters than a UDP server.</li>
   <li><code class="highlighter-rouge">next</code>: function that will ignore the rest of the execution of <strong>this middleware</strong> and invoke the <strong>next</strong> function in the stack.</li>
   <li><code class="highlighter-rouge">end</code>: will end of the execution of the entire stack.</li>
   <li><code class="highlighter-rouge">xyz</code>: a reference to the current xyz object. This is useful because all of the information required, such as configurations, Service-Repository layer etc. can be accesses from this object.</li>
 </ul>
 
-<p>In order to see the value of <code class="highlighter-rouge">message</code>, we can always see the source code or the <a href="/apidoc/HTTPServer.html">API DOC</a>. In this document, we will explain the details for clarification. Each server will emit its middleware stack with objects of a single type only: <a href="">xReceiveMessage</a>. This object will contain the following keys:</p>
+<p>In the following section, we will focus on writing a dummy logger receive middleware for HTTP server.</p>
+
+<p>In order to see the value of <code class="highlighter-rouge">message</code>, we can always see the source code or the <a href="/apidoc/">API DOC</a>. In this document, we will explain the details for clarification. Each server will emit its middleware stack with objects of a single type only: <code class="highlighter-rouge">xReceiveMessage</code>, which has the <a href="https://github.com/node-xyz/xyz-core/blob/master/src/Transport/transport.interfaces.ts">ITransportReceivedMessage</a> interface. This object will contain the following keys:</p>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kr">export</span> <span class="kr">interface</span> <span class="nx">ITransportReceivedMessage</span> <span class="p">{</span>
+  <span class="nl">message</span><span class="p">:</span> <span class="nx">any</span>
+  <span class="nl">serverId</span><span class="p">:</span> <span class="nx">object</span>
+  <span class="nl">meta</span><span class="p">:</span> <span class="nx">object</span>
+  <span class="nl">response</span><span class="p">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="k">void</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>where</p>
+
 <ul>
   <li><code class="highlighter-rouge">.message</code>: the payload of the message. Most of the time, it is an object with two keys: <code class="highlighter-rouge">userPayload</code> and <code class="highlighter-rouge">xyzPayload</code>. The former is the data that the user-code passes to the message and the latter is information that xyz attaches to the message.</li>
   <li><code class="highlighter-rouge">.response</code>: the response object.</li>
@@ -924,12 +937,12 @@ module.exports = _dummyLogger
 
 <p>Next, let us see how we can insert this dummy logger to the system. Each middleware provides a method for inserting a function to a specific index of it. The tricky part is <strong>accessing</strong> that middleware. Since middlewares can be numerous, <code class="highlighter-rouge">xyz-core</code> does not provide a generic function for inserting middlewares (something like <code class="highlighter-rouge">MathMS.insertMw(...)</code>). This is because xyz-core must first know <strong>which middleware</strong>!</p>
 
-<p>the <code class="highlighter-rouge">middlewares()</code> method in <code class="highlighter-rouge">xyz-core</code> return an object containing all middlewares in the system. Next, you should choose your target from this object. Let’s jump right into the code:</p>
+<p>the <a href=""><code class="highlighter-rouge">middlewares()</code></a> method in <code class="highlighter-rouge">xyz-core</code> returns an object containing all middlewares in the system. Next, you should choose your target from this object. Let’s jump right into the code:</p>
 
 <figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">let</span> <span class="nx">_dummyLogger</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'./dummy.logger'</span><span class="p">)</span>
 <span class="nx">mathMS</span><span class="p">.</span><span class="nx">middlewares</span><span class="p">().</span><span class="nx">transport</span><span class="p">.</span><span class="nx">server</span><span class="p">(</span><span class="s1">'CALL'</span><span class="p">)(</span><span class="mi">4000</span><span class="p">).</span><span class="nx">register</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nx">_dummyLogger</span><span class="p">)</span></code></pre></figure>
 
-<p>We first choose <code class="highlighter-rouge">.transport</code> layer, than a route named <code class="highlighter-rouge">CALL</code>, which is the default route of all messages. Next we choose a server on port 4000, which is the default port of <code class="highlighter-rouge">math.ms.js</code> and finally, we insert the function to that middleware using <code class="highlighter-rouge">.register()</code> at index <code class="highlighter-rouge">0</code>.</p>
+<p>We first choose <code class="highlighter-rouge">.transport</code> layer. Next, a route named <code class="highlighter-rouge">CALL</code>, which is the default route of all messages. Next we choose a server on port 4000, which is the default port of <code class="highlighter-rouge">math.ms.js</code> and finally, we insert the function to that middleware using <code class="highlighter-rouge">.register()</code> at index <code class="highlighter-rouge">0</code>.</p>
 
 <p>Now that you have seen an example of this, seeing its <a href="/apidoc/xyz.js.html#line152">source code</a> can clear things up.</p>
 
@@ -947,9 +960,9 @@ LOGGER :: http message received on port 4000 with body {"userPayload":{"x":2,"y"
   <span class="nx">response</span><span class="p">.</span><span class="nx">jsonify</span><span class="p">(</span><span class="nx">payload</span><span class="p">.</span><span class="nx">x</span> <span class="o">*</span> <span class="nx">payload</span><span class="p">.</span><span class="nx">y</span><span class="p">)</span>
 <span class="p">})</span></code></pre></figure>
 
-<p>for more information about inserting middlewares and <code class="highlighter-rouge">.register()</code>, you can see <a href="http://localhost:2000/apidoc/GenericMiddlewareHandler.html">Generic Middlewares Handler</a> class.</p>
+<p>for more information about inserting middlewares and <code class="highlighter-rouge">.register()</code>, you can see <a href="">Generic Middlewares Handler</a> class.</p>
 
-<p>Note that except the payload, all of these parameters will be used in the last middleware to create and send a HTTP request. Altering them will indeed have consequences. Albeit, not all alterations are harmful. As an example, consider the following scenarios:</p>
+<p>Note that many variables in both send and receive middleware will be used to parse/export the message. Altering them will indeed have consequences. Albeit, not all alterations are harmful. As an example, consider the following scenarios:</p>
 
 <ul>
   <li>Applying a pre/post-processing to all request, like adding fix headers, message encryption or serialization.</li>
@@ -967,21 +980,32 @@ LOGGER :: http message received on port 4000 with body {"userPayload":{"x":2,"y"
 
 <p>One middleware is going to be placed in the <strong>outgoing route</strong> and it should append a <em>shared secret</em> to the message’s body. Another middleware will be placed in the <strong>Server route</strong> and it should check to see if that shared secret exists or not. The receiving middleware can destroy the message if it does not have correct secret and this keeps the rest of the system safe.</p>
 
-<p>The last note is to get familiar with parameters of an outgoing middleware, similar to the server middleware which we have already seen. An outgoing middleware has the following parameters:</p>
+<p>The last note is to get familiar with parameters of an <strong>outgoing middleware</strong>, similar to the server middleware which we have already seen. An outgoing middleware has the following parameters:</p>
 
 <ul>
-  <li>
-    <p><a href="">xSentMessageMwParam</a>:</p>
-
-    <p>which is an object with two keys:</p>
-    <ul>
-      <li><code class="highlighter-rouge">.requestConfig</code>. The data of the message is stored in a key in <code class="highlighter-rouge">requestConfig</code> named <code class="highlighter-rouge">json</code> (since we wanted the api to be similar to node’s native http). Therefore, if we are to add a data to the request, we should add keys to <code class="highlighter-rouge">requestConfig.json</code>.</li>
-      <li><code class="highlighter-rouge">.responseCallback</code></li>
-    </ul>
-  </li>
+  <li><a href="">xSentMessageMwParam</a> (interface: <a href="">ITransportSentMessageMwParam</a>)</li>
   <li>next()</li>
   <li>end()</li>
   <li>xyz</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kr">export</span> <span class="kr">interface</span> <span class="nx">ITransportSentMessageMwParam</span> <span class="p">{</span>
+  <span class="nl">requestConfig</span><span class="p">:</span> <span class="nx">ITransportSentMessageConfig</span>
+  <span class="nl">responseCallback</span><span class="p">:</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">body</span><span class="p">,</span> <span class="nx">resp</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="k">void</span>
+<span class="p">}</span>
+
+<span class="kr">export</span> <span class="kr">interface</span> <span class="nx">ITransportSentMessageConfig</span> <span class="p">{</span>
+  <span class="nl">hostname</span><span class="p">:</span> <span class="nx">string</span>
+  <span class="nl">port</span><span class="p">:</span> <span class="nx">number</span>
+  <span class="nl">path</span><span class="p">:</span> <span class="nx">string</span>
+  <span class="nl">method</span><span class="p">:</span> <span class="nx">string</span>
+  <span class="nl">json</span><span class="p">:</span> <span class="nx">ITransportSentMessageBody</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>where:</p>
+<ul>
+  <li><code class="highlighter-rouge">.requestConfig</code>. The data of the message is stored in a key in <code class="highlighter-rouge">requestConfig</code> named <code class="highlighter-rouge">json</code> (since we wanted the api to be similar to node’s native http). Therefore, if we are to add a data to the request, we should add keys to <code class="highlighter-rouge">requestConfig.json</code>.</li>
+  <li><code class="highlighter-rouge">.responseCallback</code></li>
 </ul>
 
 <p>The sender side is fairly (perhaps more than <em>fairly</em>) simple:</p>
@@ -1000,13 +1024,12 @@ LOGGER :: http message received on port 4000 with body {"userPayload":{"x":2,"y"
 <p>and in the receiving side:</p>
 
 <figure class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">//auth.receive.js</span>
-<span class="kr">const</span> <span class="nx">SECRET</span> <span class="o">=</span> <span class="s1">'SHARED_SECRET'</span>
-
 <span class="kd">let</span> <span class="nx">_authReceive</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">xReceiveMessage</span><span class="p">,</span> <span class="nx">next</span><span class="p">,</span> <span class="nx">end</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="nx">payload</span> <span class="o">=</span> <span class="nx">xReceiveMessage</span><span class="p">.</span><span class="nx">message</span>
   <span class="kd">let</span> <span class="nx">req</span> <span class="o">=</span> <span class="nx">xReceiveMessage</span><span class="p">.</span><span class="nx">meta</span><span class="p">.</span><span class="nx">request</span>
   <span class="kd">let</span> <span class="nx">authorization</span> <span class="o">=</span> <span class="nx">payload</span><span class="p">.</span><span class="nx">authorization</span>
 
-  <span class="k">if</span> <span class="p">(</span><span class="nx">xReceiveMessage</span><span class="p">.</span><span class="nx">message</span><span class="p">.</span><span class="nx">authorization</span> <span class="o">===</span> <span class="nx">SECRET</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">authorization</span> <span class="o">===</span> <span class="nx">SECRET</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'auth accpeted'</span><span class="p">)</span>
     <span class="nx">next</span><span class="p">()</span>
   <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
@@ -1048,9 +1071,9 @@ LOGGER :: http message received on port 4000 with body {"userPayload":{"x":2,"y"
 
 <p>If you run both systems now, you see that everything is working as expected and the two systems can still communicate. Change the <code class="highlighter-rouge">const SECRET = .. </code> value in one node and see how it causes messages to be ignored by the Receiving.</p>
 
-<h1 id="where-to-next">Where to next?</h1>
+<h1 id="where-to-go-next">Where to go next?</h1>
 
-<p>Congrats! you have just learned something very awesome. This tutorial teaches you almost enough to <strong>use</strong> xyz, and some third party middleware packages. But, if you are interested in knowing more, you are encouraged to read the <a href="/documentation/advance">Advance Topics</a> and <a href="/documentation/In-depth">In-depth</a> section.</p>
+<p>Congrats! you have just learned something very awesome. This tutorial teaches you almost enough to <strong>use</strong> xyz, and some third party middleware packages. But, if you are interested in knowing more, you are encouraged to read the <a href="/documentation/advance">Advance Topics</a> section.</p>
 
 <hr />
 
