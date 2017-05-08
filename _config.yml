@@ -14,8 +14,9 @@ author:
 gems:
   - jekyll-paginate
 
-include: ['_pages']
+include: ['_pages', 'apidoc', 'apidoc/modules', 'apidoc/interfaces', 'apidoc/classes']
 exclude: ['example/*']
+keep_files: ['./../apidoc/*', './../apidoc/modules', 'apidoc/interfaces', 'apidoc/classes']
 #Others
 markdown: kramdown
 

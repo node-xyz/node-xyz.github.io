@@ -8,7 +8,7 @@ In this document, we're going to discuss **Send Strategies**. This particularly 
 
 # Send Strategy: The definition
 
-> A middleware function takes a message as input and decides the target node or nodes of it is called a send strategy
+> A middleware function that takes a message as input and decides the target node or nodes of it is called a send strategy
 
 Let's emphasize some points:
 
