@@ -16,7 +16,7 @@ gems:
 
 include: ['_pages', 'apidoc', 'apidoc/modules', 'apidoc/interfaces', 'apidoc/classes']
 exclude: ['example/*']
-keep_files: ['./../apidoc/*', './../apidoc/modules', 'apidoc/interfaces', 'apidoc/classes']
+keep_files: ['./apidoc/*', './apidoc/modules', './apidoc/interfaces', './apidoc/classes']
 #Others
 markdown: kramdown
 
